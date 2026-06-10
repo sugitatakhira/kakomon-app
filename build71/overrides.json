@@ -1,0 +1,43 @@
+{
+"AM": {
+"1":  {"choices":["PSA","血小板凝集能","EGFR変異解析","75g経口グルコース負荷試験","T細胞サブセット〈CD4/CD8〉"]},
+"2":  {"choices":["加温 — 細菌","3％酢酸 — リン酸塩","10％塩酸 — 尿酸塩","10％水酸化カリウム — 脂肪","アルコール・エーテル混合液（2：1）— シュウ酸塩"]},
+"8":  {"choices":["ALP 300 U/L","カルシウム 10.8 mg/dL","グルコース 200 mg/dL","ナトリウム 175 mmol/L","総コレステロール 300 mg/dL"]},
+"19": {"text":"肺拡散能〈DLco〉が低下しないのはどれか。"},
+"20": {"choices":["pH 7.00","PaO2 70 mmHg","PaCO2 40 mmHg","HCO3⁻ 30 mmol/L","BE ＋5 mmol/L"]},
+"41": {"choices":["ビタミンA — 新生児メレナ","ビタミンC — 夜盲症","ビタミンD — 巨赤芽球性貧血","ビタミンE — 新生児溶血性貧血","ビタミンK — 脚気"]},
+"51": {"text":"FISH法による乳癌HER2検査の模式図を別に示す。HER2とCEP17のシグナル比（HER2/CEP17）で最も近いのはどれか。"},
+"60": {"choices":["鉄染色 — 環状鉄芽球","PAS染色 — 正常赤芽球","ペルオキシダーゼ染色 — 好酸球","特異的エステラーゼ染色 — 好中球","非特異的エステラーゼ染色 — 巨核球"]},
+"68": {"choices":["Aspergillus fumigatus","Cryptococcus neoformans","Microsporum canis","Mycoplasma pneumoniae","Pneumocystis jirovecii"]},
+"69": {"choices":["Acinetobacter baumannii","Bordetella pertussis","Burkholderia cepacia","Pseudomonas aeruginosa","Stenotrophomonas maltophilia"]},
+"71": {"choices":["Bacillus anthracis","Bordetella pertussis","Cutibacterium acnes","Klebsiella pneumoniae","Moraxella catarrhalis"]},
+"72": {"choices":["Aeromonas hydrophila — TCBS寒天培地","Bacteroides fragilis — BBE寒天培地","Campylobacter jejuni — NAC寒天培地","Clostridioides difficile — CCFA培地","Neisseria meningitidis — PPLO寒天培地"]},
+"74": {"choices":["Bacillus cereus","Clostridium perfringens","Enterococcus faecalis","Listeria monocytogenes","Streptococcus agalactiae"]},
+"75": {"text":"感染症と原因微生物の組合せで正しいのはどれか。","choices":["類鼻疽 — Burkholderia pseudomallei","オウム病 — Bacillus anthracis","放線菌症 — Bartonella henselae","ライム病 — Chlamydia psittaci","ネコひっかき病 — Rickettsia japonica"]},
+"78": {"choices":["Bacteroides fragilis","Cryptococcus neoformans","Mycobacterium tuberculosis","Mycoplasma pneumoniae","Orientia tsutsugamushi"]},
+"86": {"choices":["A型の患者 — B型","B型の患者 — A型","O型の患者 — AB型","AB型の患者 — B型","血液型不明の患者 — O型"]},
+"95": {"text":"図の回路で12Ωの抵抗に流れる電流I［A］はどれか。","figure":"am95"}
+},
+"PM": {
+"1":  {"text":"尿沈渣無染色標本とSternheimer染色標本を別に示す。この構造物はどれか。","choices":["硝子円柱","脂肪円柱","赤血球円柱","ろう様円柱","フィブリン円柱"]},
+"5":  {"choices":["ノミ — ペスト","ブユ — 疥癬","キチマダニ — 野兎病","コロモジラミ — 回帰熱","コナヒョウダニ — アトピー性皮膚炎"]},
+"7":  {"choices":["生化学的検査 — 細胞性免疫検査","尿・糞便等一般検査 — 寄生虫検査","微生物学的検査 — 病原体核酸検査","病理学的検査 — 体細胞遺伝子検査","免疫学的検査 — 免疫組織化学検査"]},
+"8":  {"choices":["疥癬 — 患者の陰圧個室隔離","水痘 — 医療従事者のN95マスク着用","梅毒 — 医療従事者のフェイスシールド着用","肺結核 — 患者のカーテン隔離","マイコプラズマ肺炎 — 医療従事者のワクチン接種"]},
+"9":  {"choices":["C分染法 — ユークロマチン","G分染法 — GC塩基","NOR分染法 — テロメア","Q分染法 — AT塩基","姉妹染色体分染法 — ヘテロクロマチン"]},
+"15": {"choices":["APC","BRCA1","MEN1","MLH1","VHL"]},
+"25": {"choices":["肝血管腫 — コメット様エコー","肝硬変 — 肝深部エコーの減衰","肝細胞癌 — モザイクパターン","脂肪肝 — 肝静脈の拡張","転移性肝癌 — カメレオンサイン"]},
+"33": {"choices":["キナーゼ — 異性化酵素","アルドラーゼ — 転移酵素","エステラーゼ — 脱離酵素","デヒドロゲナーゼ — 酸化還元酵素","トランスフェラーゼ — 加水分解酵素"]},
+"42": {"choices":["尿崩症 — オキシトシン","橋本病 — サイロキシン","褐色細胞腫 — ノルアドレナリン","慢性腎不全 — PTH","腎血管性高血圧症 — レニン"]},
+"61": {"text":"APTT延長を認めたため、APTTにてクロスミキシング試験を実施した。結果を表に示す。混合比（患者血漿対正常血漿）／混和直後［秒］／37℃・2時間後［秒］は、10対0：88／92、8対2：84／90、5対5：72／74、2対8：48／50、0対10：26／27であった。考えられるのはどれか。"},
+"66": {"choices":["血清LD — 低値","赤血球数 — 低値","NAPスコア — 高値","血清ビタミンB12 — 低値","血清エリスロポエチン — 高値"]},
+"68": {"choices":["フタラール — 中水準","ポビドンヨード — 低水準","クロルヘキシジン — 高水準","消毒用エタノール — 中水準","次亜塩素酸ナトリウム — 低水準"]},
+"69": {"choices":["Acinetobacter baumannii","Haemophilus influenzae","Klebsiella pneumoniae","Moraxella catarrhalis","Pseudomonas aeruginosa"]},
+"72": {"choices":["Clostridioides difficile — トキシンB","Clostridium botulinum — 神経毒素","Enterohemorrhagic Escherichia coli — ベロ毒素","Staphylococcus aureus — 表皮剝脱毒素","Streptococcus pyogenes — toxic shock syndrome toxin-1〈TSST-1〉"]},
+"74": {"choices":["BLNAR — アンピシリン耐性","ESBL産生菌 — メロペネム耐性","MDRP — アミカシン耐性","MRSA — セファゾリン耐性","VRE — バンコマイシン耐性"]},
+"76": {"choices":["Bacillus anthracis","Cutibacterium acnes","Enterococcus faecalis","Pseudomonas aeruginosa","Staphylococcus aureus"]},
+"77": {"choices":["鼻腔からMRSAが検出された。","糞便から腸管出血性大腸菌が検出された。","尿からNeisseria gonorrhoeaeが検出された。","喀痰からMycobacterium aviumが検出された。","血液からStreptococcus pyogenesが検出された。"]},
+"78": {"choices":["墨汁法 — Candida albicans","KOH法 — Trichophyton rubrum","Grocott染色 — Pneumocystis jirovecii","Giménez染色 — Mycoplasma pneumoniae","Ziehl-Neelsen染色 — Legionella pneumophila"]},
+"82": {"text":"試験管内補体寒冷活性化現象〈コールドアクチベーション〉でみられる検査結果の組合せで正しいのはどれか。各選択肢〔血清補体価／血漿補体価／C3蛋白量〕は、①基準範囲内／基準範囲内／低値、②基準範囲内／低値／基準範囲内、③低値／基準範囲内／基準範囲内、④低値／基準範囲内／低値、⑤低値／低値／低値である。","choices":["①","②","③","④","⑤"]},
+"98": {"text":"AとBの論理演算を模式化した図を示す。斜線部分を示すのはどれか。","choices":["OR","AND","NOR","NOT","NAND"],"figure":"pm98"}
+}
+}
