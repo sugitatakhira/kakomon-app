@@ -24,6 +24,7 @@
 - `kakomon-webapp-all.html` … **全年度（第72〜63回＝2000問。10回分すべて収録）を収録した統合版**。配布用の本命。
   初回起動で全問を自動投入し、空のときは年度ごとの「第◯回を読み込む」ボタンを表示。年度フィルタで回ごとに絞れる。
   データは `KOKUSHI_SETS`（年度セットの配列）で**データ駆動**。年度追加は `build71/gen_all.py` にセットを足して再生成するだけ。
+- `docs/` … **スマホアプリ版(PWA)** のデプロイ一式。下記「スマホアプリ化（PWA）」参照。
 - `kakomon-webapp-72.html` / `kakomon-webapp-71.html` / `kakomon-webapp-70.html` … 各回単体版（参考用。配布は統合版を使う）。
 - `臨床検査技師_第72回.csv` / `臨床検査技師_第71回.csv` / `臨床検査技師_第70回.csv` … 各回200問のデータ（空アプリに「CSVを取り込む」で読める形式）。
 - `images72.json` / `images71.json` / `images70.json` … 各回の埋め込み画像（キー=問題ID、値=JPEGのdata URL）。
@@ -73,6 +74,15 @@ CSVの「正解番号」は**1始まり**、アプリ内部の answers は**0始
 5. **保存先**: 単体版(各回200問)と空アプリ `kakomon-webapp.html` は **localStorage**(STORAGE_KEY=`kakomon-app-data`)。
    **統合版 `kakomon-webapp-all.html`(10回2000問・約15MB)は IndexedDB**(DB=`kakomon-db`、ストア `questions`(keyPath:id)/`meta`)。localStorageは数MB上限で2000問が入らないため。下記「統合版のストレージ(IndexedDB)」参照。
 6. CSV取り込みは PapaParse をCDNから読み込む（ここだけ要ネット）。完全オフライン化するならライブラリも埋め込む。
+
+## スマホアプリ化（PWA）（2026-06 実装）
+統合版を **PWA**(ホーム画面に追加できるアプリ)化した。デプロイ一式は **`docs/`**。
+- 生成: `python3 build71/gen_all.py`(統合版HTML) → `python3 build71/gen_pwa.py`(docs/へ展開)。アイコンは `build71/gen_icons.py`。
+- `docs/`: `index.html`(統合版に manifest/SW/apple系meta を注入), `manifest.webmanifest`, `sw.js`(アプリシェルをcache-firstでキャッシュ→オフライン動作), `icon-*.png`(ティール地に白「過去問」), `README.md`(デプロイ手順)。
+- **公開はHTTPS必須**(file://ではSW不可)。手順は `docs/README.md`(Netlify Drop / GitHub Pages /docs / Cloudflare Pages)。GitHub Pagesを使うなら docs/ を main に置く必要あり(privateリポは有料)。
+- スマホで公開URLを開き「ホーム画面に追加」→ 全画面・オフライン。初回のみ約15MB DL。
+- **更新時は `sw.js` の `CACHE="kakomon-v1"` の番号を上げる**(古いキャッシュを破棄して新版に差し替え)。
+- アプリ本体のロジックは無改造(IndexedDB版をそのまま使用)。PWA化はガワ(manifest+SW+icon)を足しただけ。
 
 ## 統合版のストレージ（IndexedDB）（2026-06 実装）
 統合版 `kakomon-webapp-all.html` だけ保存先を **localStorage → IndexedDB** に変更した（10回2000問＋画像で約15MB、localStorageの数MB上限を超えるため）。**実装は `build71/gen_all.py` 内**で、空アプリ `kakomon-webapp.html` の保存層(`loadData`/`saveData`)を文字列置換で差し替えている（空アプリ本体・各回単体版は localStorage のまま）。
