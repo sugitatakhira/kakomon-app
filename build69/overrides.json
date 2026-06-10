@@ -1,0 +1,239 @@
+{
+ "AM": {
+  "3": {
+   "figure": "am3"
+  },
+  "23": {
+   "choices": [
+    "時定数は0.1秒が標準である。",
+    "T6は右側頭葉の後方に相当する。",
+    "脳死判定では測定感度は20 μV/mmで記録する。",
+    "てんかん発作が起きたときは直ちに記録を中止する。",
+    "サンプリング周波数200 Hzで高域は120 Hzまで正しく記録できる。"
+   ]
+  },
+  "24": {
+   "text": "心不全患者の左室流入血流速波形と計測値（別冊No.5）を別に示す。この波形の記録に用いたのはどれか。"
+  },
+  "25": {
+   "text": "心不全患者の左室流入血流速波形と計測値（別冊No.5）を別に示す。この波形はどれか。"
+  },
+  "31": {
+   "choices": [
+    "A-Ⅰ — LCATの活性化",
+    "B-100 — VLDLの分泌",
+    "B-48 — カイロミクロンの分泌",
+    "C-Ⅲ — LPLの活性化",
+    "E — LDL受容体との結合"
+   ]
+  },
+  "62": {
+   "choices": [
+    "寒冷凝集素 — 赤血球数偽低値",
+    "巨大血小板 — 血小板数偽高値",
+    "破砕赤血球 — 血小板数偽低値",
+    "有核赤血球 — 白血球数偽低値",
+    "クリオグロブリン — 白血球数偽高値"
+   ]
+  },
+  "68": {
+   "choices": [
+    "Bacillus cereus",
+    "Escherichia coli",
+    "Mycobacterium tuberculosis",
+    "Staphylococcus aureus",
+    "Vibrio parahaemolyticus"
+   ]
+  },
+  "72": {
+   "choices": [
+    "Chlamydia trachomatis",
+    "Cryptococcus neoformans",
+    "Nocardia asteroides",
+    "Pneumocystis jirovecii",
+    "Treponema pallidum"
+   ]
+  },
+  "73": {
+   "choices": [
+    "Bordet-Gengou培地 — 選択分離",
+    "Cary-Blair培地 — 性状確認",
+    "King A培地 — 検体輸送",
+    "LIM培地 — 選択増菌",
+    "Mueller-Hinton寒天培地 — 薬剤感受性検査"
+   ]
+  },
+  "75": {
+   "choices": [
+    "Clostridium tetani — 神経毒素",
+    "Enterohemorrhagic Escherichia coli〈EHEC〉 — ベロ毒素",
+    "Staphylococcus aureus — エンテロトキシン",
+    "Streptococcus pyogenes — 毒素性ショック症候群毒素",
+    "Vibrio parahaemolyticus — 耐熱性溶血毒"
+   ]
+  },
+  "78": {
+   "choices": [
+    "コクサッキーウイルス — 尿道炎",
+    "サイトメガロウイルス — 手足口病",
+    "デングウイルス — 肺炎",
+    "ヒトパルボウイルス — 伝染性紅斑",
+    "ヒトRSウイルス — 脳炎"
+   ]
+  },
+  "85": {
+   "text": "受血者と供血者の血液型を以下に示す。〔受血者：ABO=A型、Rh=DccEE、Kidd=Jk（a＋b−）、Duffy=Fy（a＋b−）、Diego=Di（a−b＋）／供血者：ABO=A型、Rh=DCCEE、Kidd=Jk（a−b＋）、Duffy=Fy（a＋b＋）、Diego=Di（a＋b＋）〕輸血を行った場合、受血者が産生する可能性のある不規則抗体はどれか。"
+  },
+  "86": {
+   "choices": [
+    "赤血球製剤 — A型RhD陽性",
+    "赤血球製剤 — O型RhD陽性",
+    "赤血球製剤 — AB型RhD陽性",
+    "血漿製剤 — B型RhD陰性",
+    "血漿製剤 — O型RhD陰性"
+   ]
+  }
+ },
+ "PM": {
+  "10": {
+   "choices": [
+    "APC",
+    "BRCA1",
+    "MYC",
+    "RB1",
+    "TP53"
+   ]
+  },
+  "21": {
+   "choices": [
+    "運動 — 中心後回",
+    "記憶 — 海馬",
+    "言語 — Broca野",
+    "視覚 — 鳥距溝",
+    "聴覚 — 横側頭回"
+   ]
+  },
+  "58": {
+   "choices": [
+    "肺癌 — エストロゲン受容体〈ER〉",
+    "乳癌 — CD117（c-kit）",
+    "消化管間質腫瘍 — PSA",
+    "大腸癌 — CEA",
+    "B細胞リンパ腫 — AFP"
+   ]
+  },
+  "63": {
+   "choices": [
+    "t（8；21）（q22；q22） — CBFB-MYH11",
+    "t（9；11）（p21.3；q23.3） — PML-RARA",
+    "t（9；22）（q34；q11.2） — BCR-ABL1",
+    "t（15；17）（q22；q12） — KMT2A-MLLT3〈MLL-AF9〉",
+    "inv（16）（p13.1q22） — RUNX1-RUNX1T1"
+   ]
+  },
+  "69": {
+   "choices": [
+    "Candida albicans",
+    "Escherichia coli",
+    "Neisseria gonorrhoeae",
+    "Pseudomonas aeruginosa",
+    "Streptococcus agalactiae"
+   ]
+  },
+  "70": {
+   "choices": [
+    "Aeromonas hydrophila",
+    "Burkholderia cepacia",
+    "Pseudomonas aeruginosa",
+    "Stenotrophomonas maltophilia",
+    "Yersinia pestis"
+   ]
+  },
+  "72": {
+   "choices": [
+    "Acinetobacter baumannii",
+    "Klebsiella pneumoniae",
+    "Mycoplasma pneumoniae",
+    "Pseudomonas aeruginosa",
+    "Streptococcus pneumoniae"
+   ]
+  },
+  "73": {
+   "choices": [
+    "Aspergillus fumigatus は大分生子を形成する。",
+    "Candida glabrata は仮性菌糸を形成する。",
+    "Cryptococcus neoformans は厚膜胞子を形成する。",
+    "Exophiala dermatitidis は黒色コロニーを形成する。",
+    "Mucor 属は菌糸に隔壁を形成する。"
+   ]
+  },
+  "74": {
+   "choices": [
+    "結核を疑う患者の喀痰抗酸菌培養検査",
+    "感染性心内膜炎を疑う患者の血液培養検査",
+    "尿路感染症を疑う患者の尿中レジオネラ抗原検査",
+    "クリプトコックス髄膜炎を疑う患者の髄液中グルクロノキシロマンナン抗原検査",
+    "抗菌薬関連下痢症を疑う患者の糞便中Clostridioides difficileトキシン抗原検査"
+   ]
+  },
+  "76": {
+   "text": "Mycobacterium属について正しいのはどれか。",
+   "choices": [
+    "M. leprae は小川培地で発育する。",
+    "M. avium は硝酸塩還元試験陽性である。",
+    "M. marinum の至適発育温度は37℃である。",
+    "M. fortuitum は培養7日目には肉眼的に観察できる。",
+    "M. tuberculosis と M. bovis は市販の結核菌検出用PCR試薬で鑑別できる。"
+   ]
+  },
+  "77": {
+   "choices": [
+    "BBE寒天培地 — Neisseria meningitidis",
+    "CCFA寒天培地 — Bacteroides fragilis",
+    "CIN寒天培地 — Yersinia enterocolitica",
+    "NAC寒天培地 — Pseudomonas aeruginosa",
+    "Thayer-Martin寒天培地 — Clostridioides difficile"
+   ]
+  },
+  "85": {
+   "text": "不規則抗体同定検査の結果を以下に示す（＋＝陽性、0＝陰性、Sal＝生理食塩液法、IAT＝間接抗グロブリン試験）。〔細胞1：D＋C＋c＋E＋e＋／Jka＋Jkb0 Fya＋Fyb0 M0 N＋／Sal0 IAT＋｜細胞2：D＋C0c＋E＋e0／Jka0 Jkb＋Fya＋Fyb＋M＋N＋／Sal＋IAT＋｜細胞3：D＋C0c＋E0e＋／Jka0 Jkb＋Fya0 Fyb＋M＋N0／Sal＋IAT0｜細胞4：D0C＋c0E0e＋／Jka＋Jkb＋Fya0 Fyb＋M0 N＋／Sal0 IAT0｜細胞5：D0C0c＋E0e＋／Jka＋Jkb0 Fya＋Fyb0 M0 N＋／Sal0 IAT0｜細胞6：D0C0c＋E＋e＋／Jka0 Jkb＋Fya＋Fyb＋M0 N＋／Sal0 IAT＋｜自己：Sal0 IAT0〕可能性の高い抗体はどれか。2つ選べ。"
+  },
+  "90": {
+   "choices": [
+    "児童福祉法 — 母子健康手帳",
+    "老人福祉法 — ケアハウス",
+    "精神保健福祉法 — 療育手帳",
+    "身体障害者福祉法 — 福祉事務所",
+    "知的障害者福祉法 — 地域包括支援センター"
+   ]
+  },
+  "93": {
+   "choices": [
+    "特定健康診査 — 労働安全衛生法",
+    "特殊健康診断 — 高齢者医療確保法",
+    "乳幼児健康診査 — 母子保健法",
+    "妊産婦健康診査 — 母体保護法",
+    "給食従業員の検便 — 学校保健安全法"
+   ]
+  },
+  "98": {
+   "figure": "pm98",
+   "choices": [
+    "角丸四角（端子）",
+    "長方形（処理）",
+    "五角形",
+    "ひし形",
+    "円柱"
+   ]
+  },
+  "64": {
+   "choices": [
+    "癌の骨髄転移",
+    "多発性骨髄腫",
+    "巨赤芽球性貧血",
+    "再生不良性貧血",
+    "骨髄異形成症候群"
+   ]
+  }
+ }
+}
