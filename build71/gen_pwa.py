@@ -9,16 +9,16 @@ os.makedirs(DOCS, exist_ok=True)
 html=open(os.path.join(ROOT,'kakomon-webapp-all.html'),encoding='utf-8').read()
 
 # 1) <head> に PWA メタ/manifest/アイコン を差し込む
-head_add='''<title>過去問活用ノート</title>
+head_add='''<title>ケンゼミ過去問データベース</title>
 <meta name="theme-color" content="#0e7490">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-180.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="過去問ノート">'''
-assert html.count('<title>過去問活用ノート</title>')==1
-html=html.replace('<title>過去問活用ノート</title>', head_add)
+<meta name="apple-mobile-web-app-title" content="ケンゼミ過去問">'''
+assert html.count('<title>ケンゼミ過去問データベース</title>')==1
+html=html.replace('<title>ケンゼミ過去問データベース</title>', head_add)
 
 # 2) Service Worker 登録を </body> 直前に差し込む
 sw_reg='''<script>
@@ -35,8 +35,8 @@ open(os.path.join(DOCS,'index.html'),'w',encoding='utf-8').write(html)
 
 # 3) manifest
 manifest={
- "name":"臨床検査技師 過去問ノート","short_name":"過去問ノート",
- "description":"臨床検査技師国家試験 第63〜72回の過去問2000問(別冊画像つき)。検索・テスト編成・印刷ができる。",
+ "name":"ケンゼミ過去問データベース","short_name":"ケンゼミ過去問",
+ "description":"検査技術ゼミナール｜臨床検査技師国家試験 第63〜72回の過去問2000問(別冊画像つき)。検索・テスト編成・印刷ができる。",
  "start_url":"./index.html","scope":"./","display":"standalone","orientation":"portrait",
  "background_color":"#f5f5f4","theme_color":"#0e7490","lang":"ja",
  "icons":[
