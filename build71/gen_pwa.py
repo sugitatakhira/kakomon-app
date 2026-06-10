@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 """PWA(ホーム画面アプリ)化: 統合版 kakomon-webapp-all.html に manifest/Service Worker を組み込み
 docs/ 配下にデプロイ一式を出力する。docs/ をHTTPSで公開(GitHub Pages/Netlify等)すれば
-スマホで「ホーム画面に追加」してアプリのように使える(オフライン可)。"""
-import os, shutil, json
+スマホで「ホーム画面に追加」してアプリのように使える(オフライン可)。
+SWのキャッシュ名は index.html の内容ハッシュに連動 → 変更があれば自動で新版に差し替わる(手動の番号上げ不要)。"""
+import os, shutil, json, hashlib
 HERE=os.path.dirname(__file__); ROOT=os.path.join(HERE,'..'); DOCS=os.path.join(ROOT,'docs')
 os.makedirs(DOCS, exist_ok=True)
 html=open(os.path.join(ROOT,'kakomon-webapp-all.html'),encoding='utf-8').read()
@@ -46,8 +47,10 @@ manifest={
 }
 open(os.path.join(DOCS,'manifest.webmanifest'),'w',encoding='utf-8').write(json.dumps(manifest,ensure_ascii=False,indent=2))
 
-# 4) Service Worker(アプリシェルをキャッシュ→オフライン動作)。アプリ更新時は CACHE 名を上げる。
-sw='''const CACHE = "kakomon-v1";
+# 4) Service Worker(アプリシェルをキャッシュ→オフライン動作)。
+#    CACHE 名は index.html の内容ハッシュに連動 → 内容/コードが変わると自動で新版に入れ替わる。
+CACHE_NAME="kakomon-"+hashlib.md5(html.encode('utf-8')).hexdigest()[:12]
+sw='''const CACHE = "__CACHE_NAME__";
 const ASSETS = ["./", "./index.html", "./manifest.webmanifest",
   "./icon-192.png", "./icon-512.png", "./icon-512-maskable.png", "./icon-180.png"];
 self.addEventListener("install", function (e) {
@@ -72,7 +75,7 @@ self.addEventListener("fetch", function (e) {
   }));
 });
 '''
-open(os.path.join(DOCS,'sw.js'),'w',encoding='utf-8').write(sw)
+open(os.path.join(DOCS,'sw.js'),'w',encoding='utf-8').write(sw.replace("__CACHE_NAME__", CACHE_NAME))
 
 # 5) アイコンは docs/ に生成済み(gen_icons相当)。無ければ警告。
 for ic in ["icon-192.png","icon-512.png","icon-512-maskable.png","icon-180.png"]:

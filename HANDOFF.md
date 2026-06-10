@@ -81,14 +81,15 @@ CSVの「正解番号」は**1始まり**、アプリ内部の answers は**0始
 - `docs/`: `index.html`(統合版に manifest/SW/apple系meta を注入), `manifest.webmanifest`, `sw.js`(アプリシェルをcache-firstでキャッシュ→オフライン動作), `icon-*.png`(ティール地に白「過去問」), `README.md`(デプロイ手順)。
 - **公開はHTTPS必須**(file://ではSW不可)。手順は `docs/README.md`(Netlify Drop / GitHub Pages /docs / Cloudflare Pages)。GitHub Pagesを使うなら docs/ を main に置く必要あり(privateリポは有料)。
 - スマホで公開URLを開き「ホーム画面に追加」→ 全画面・オフライン。初回のみ約15MB DL。
-- **更新時は `sw.js` の `CACHE="kakomon-v1"` の番号を上げる**(古いキャッシュを破棄して新版に差し替え)。
+- **SWキャッシュ名は index.html の md5 に自動連動**(`gen_pwa.py`)。内容/コードが変われば名前が変わり、利用者端末で旧キャッシュ破棄→新版に自動入替(手動の番号上げ不要)。')
+- **配布後の更新フロー**: `gen_all.py`→`gen_pwa.py`で `docs/` 再生成 → `main` へ反映(GitHub Pages公開元)。これだけで(1)アプリ本体(SWキャッシュ名が変わる)と(2)公式問題の中身(contentVersionが変わる)の両方が、講師の端末で次回起動時に自動更新される。
 - アプリ本体のロジックは無改造(IndexedDB版をそのまま使用)。PWA化はガワ(manifest+SW+icon)を足しただけ。
 
 ## 統合版のストレージ（IndexedDB）（2026-06 実装）
 統合版 `kakomon-webapp-all.html` だけ保存先を **localStorage → IndexedDB** に変更した（10回2000問＋画像で約15MB、localStorageの数MB上限を超えるため）。**実装は `build71/gen_all.py` 内**で、空アプリ `kakomon-webapp.html` の保存層(`loadData`/`saveData`)を文字列置換で差し替えている（空アプリ本体・各回単体版は localStorage のまま）。
 - **DB**: `kakomon-db` v1。ストア `questions`(keyPath=`id`、問題オブジェクトを画像込みで丸ごと格納) と `meta`(keyPath=`k`、`test`/各フラグ)。
 - **`loadData()` は async**。起動は `(async()=>{ await loadData(); render(); })()`。
-- **初回シード**: DBが空かつ `seededAll` 未設定なら `KOKUSHI_SETS` 全問を投入。
+- **公式内容の自動更新（contentVersion）**: `KOKUSHI_VERSION`(全問データのmd5。`gen_all.py`が自動採番)が端末保存値と違えば、**公式問題だけ最新版に差し替え**(`q.id`が`KOKUSHI_SETS`に在るもの)。**講師が自作した問題(=公式idに無いもの)とテスト編成は保持**。初回も同経路でシードされる。→ 講師に配布後も、再デプロイで内容修正が自動反映。ただし講師が公式問題を書き換えていた場合は上書きされる。
 - **旧localStorageからの移行**: 初回に `kakomon-app-data` を読み IndexedDB へ移し、`migrated` フラグを立てて旧キーを削除（既存ユーザーの自作問題・テストを保持）。
 - **保存の最適化**: `saveData()` は `test`(小)を毎回書き、`questions`(大)は**配列参照か長さが変わった時だけ**全置換（テスト編成など問題が変わらない操作では2000問を書き直さない）。問題の追加/編集/削除/取込は配列を作り直す or 長さが変わるので確実に検知される。
 - **フォールバック**: IndexedDB が使えない環境（古いSafariの`file://`等）では `canStore=false` にして、そのセッションのみメモリ上に全問展開（閲覧は可能、保存は不可）。

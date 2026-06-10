@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import json, os, re
+import json, os, re, hashlib
 HERE=os.path.dirname(__file__); ROOT=os.path.join(HERE,'..')
 src=open(os.path.join(ROOT,'kakomon-webapp.html'),encoding='utf-8').read()
 
@@ -19,9 +19,14 @@ k65=extract('kakomon-webapp-65.html','KOKUSHI_65')
 k64=extract('kakomon-webapp-64.html','KOKUSHI_64')
 k63=extract('kakomon-webapp-63.html','KOKUSHI_63')
 
+# 内容バージョン: 全問データのハッシュ。内容が変わった時だけ値が変わる
+#   → 利用者端末では「公式問題だけ最新化(自作分は保持)」が走る(loadData内)。
+KOKUSHI_VERSION=hashlib.md5((k72+k71+k70+k69+k68+k67+k66+k65+k64+k63).encode('utf-8')).hexdigest()[:12]
+
 # A) inject data + sets (newest first)
 old_a='"use strict";\n\n// ===== 定数 ====='
 inject=('"use strict";\n\n'
+ 'const KOKUSHI_VERSION = "'+KOKUSHI_VERSION+'";\n'
  'const KOKUSHI_72 = '+k72+';\n'
  'const KOKUSHI_71 = '+k71+';\n'
  'const KOKUSHI_70 = '+k70+';\n'
@@ -127,10 +132,15 @@ async function loadData() {
     if (qs && qs.length) questions = qs;
     const t = await metaGet("test");
     if (t && Array.isArray(t.items)) test = t;
-    // 初回シード（全年度データがあり、未シードかつ空のとき）
-    if (questions.length === 0 && !(await metaGet("seededAll")) && typeof KOKUSHI_SETS !== "undefined") {
-      questions = KOKUSHI_SETS.flatMap(s => s.data).map(q => ({ ...q }));
+    // 公式内容のバージョン同期：KOKUSHI_VERSION が変わっていれば公式問題を最新化（ユーザー自作分・テストは保持）
+    if (typeof KOKUSHI_SETS !== "undefined" && typeof KOKUSHI_VERSION !== "undefined"
+        && (await metaGet("contentVersion")) !== KOKUSHI_VERSION) {
+      const official = KOKUSHI_SETS.flatMap(s => s.data);
+      const officialIds = new Set(official.map(q => q.id));
+      const userAdded = questions.filter(q => !officialIds.has(q.id));   // 講師が自分で足した分だけ残す
+      questions = [...userAdded, ...official.map(q => ({ ...q }))];
       await questionsPutAll(questions);
+      await metaPut("contentVersion", KOKUSHI_VERSION);
       await metaPut("seededAll", 1);
     }
     _qSavedRef = questions; _qSavedLen = questions.length;
