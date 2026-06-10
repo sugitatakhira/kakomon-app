@@ -81,7 +81,7 @@ CSVの「正解番号」は**1始まり**、アプリ内部の answers は**0始
 - `docs/`: `index.html`(統合版に manifest/SW/apple系meta を注入), `manifest.webmanifest`, `sw.js`(アプリシェルをcache-firstでキャッシュ→オフライン動作), `icon-*.png`(ティール地に白「過去問」), `README.md`(デプロイ手順)。
 - **公開はHTTPS必須**(file://ではSW不可)。手順は `docs/README.md`(Netlify Drop / GitHub Pages /docs / Cloudflare Pages)。GitHub Pagesを使うなら docs/ を main に置く必要あり(privateリポは有料)。
 - スマホで公開URLを開き「ホーム画面に追加」→ 全画面・オフライン。初回のみ約15MB DL。
-- **SWキャッシュ名は index.html の md5 に自動連動**(`gen_pwa.py`)。内容/コードが変われば名前が変わり、利用者端末で旧キャッシュ破棄→新版に自動入替(手動の番号上げ不要)。')
+- **SWキャッシュ名は index.html の md5 に自動連動**(`gen_pwa.py`)。内容/コードが変われば名前が変わり、利用者端末で旧キャッシュ破棄→新版に自動入替(手動の番号上げ不要)。
 - **配布後の更新フロー**: `gen_all.py`→`gen_pwa.py`で `docs/` 再生成 → `main` へ反映(GitHub Pages公開元)。これだけで(1)アプリ本体(SWキャッシュ名が変わる)と(2)公式問題の中身(contentVersionが変わる)の両方が、講師の端末で次回起動時に自動更新される。
 - アプリ本体のロジックは無改造(IndexedDB版をそのまま使用)。PWA化はガワ(manifest+SW+icon)を足しただけ。
 
