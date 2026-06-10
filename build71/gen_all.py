@@ -16,6 +16,7 @@ k68=extract('kakomon-webapp-68.html','KOKUSHI_68')
 k67=extract('kakomon-webapp-67.html','KOKUSHI_67')
 k66=extract('kakomon-webapp-66.html','KOKUSHI_66')
 k65=extract('kakomon-webapp-65.html','KOKUSHI_65')
+k64=extract('kakomon-webapp-64.html','KOKUSHI_64')
 
 # A) inject data + sets (newest first)
 old_a='"use strict";\n\n// ===== 定数 ====='
@@ -28,6 +29,7 @@ inject=('"use strict";\n\n'
  'const KOKUSHI_67 = '+k67+';\n'
  'const KOKUSHI_66 = '+k66+';\n'
  'const KOKUSHI_65 = '+k65+';\n'
+ 'const KOKUSHI_64 = '+k64+';\n'
  'const KOKUSHI_SETS = [\n'
  '  { key: "72", label: "第72回", data: KOKUSHI_72 },\n'
  '  { key: "71", label: "第71回", data: KOKUSHI_71 },\n'
@@ -37,6 +39,7 @@ inject=('"use strict";\n\n'
  '  { key: "67", label: "第67回", data: KOKUSHI_67 },\n'
  '  { key: "66", label: "第66回", data: KOKUSHI_66 },\n'
  '  { key: "65", label: "第65回", data: KOKUSHI_65 },\n'
+ '  { key: "64", label: "第64回", data: KOKUSHI_64 },\n'
  '];\n\n// ===== 定数 =====')
 assert src.count(old_a)==1
 src=src.replace(old_a,inject)
