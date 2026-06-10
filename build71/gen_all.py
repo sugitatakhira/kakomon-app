@@ -47,36 +47,121 @@ inject=('"use strict";\n\n'
 assert src.count(old_a)==1
 src=src.replace(old_a,inject)
 
-# B) seed all (robust: flag only set if persist succeeds) + generic loader
-old_b='''      if (d.test && Array.isArray(d.test.items)) test = d.test;
+# B) 保存・読み込みを IndexedDB に置き換え（10回=2000問・画像込みで localStorage 上限を超えるため）。
+#    旧 localStorage データは初回に一度だけ IndexedDB へ移行する。保存は test を常に書き、
+#    questions は配列参照/長さが変わったとき（＝問題が増減・編集されたとき）だけ全置換する。
+old_storage='''// ===== 保存・読み込み =====
+function loadData() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const d = JSON.parse(raw);
+      if (Array.isArray(d.questions)) questions = d.questions;
+      if (d.test && Array.isArray(d.test.items)) test = d.test;
     }
   } catch (e) {
     canStore = false;
     document.getElementById("storage-notice").style.display = "block";
   }
+}
+let saveTimer = null;
+function saveData() {
+  const el = document.getElementById("save-state");
+  if (!canStore) return;
+  el.textContent = "保存中…";
+  el.classList.remove("error");
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ questions, test }));
+      el.textContent = "✓ 保存しました";
+      setTimeout(() => { if (el.textContent === "✓ 保存しました") el.textContent = ""; }, 1500);
+    } catch (e) {
+      el.textContent = "保存に失敗しました（容量超過の可能性）";
+      el.classList.add("error");
+    }
+  }, 400);
 }'''
-new_b='''      if (d.test && Array.isArray(d.test.items)) test = d.test;
-    }
-    const seeded = localStorage.getItem(STORAGE_KEY + "-seededAll");
-    if (!raw && !seeded && typeof KOKUSHI_SETS !== "undefined") {
-      questions = KOKUSHI_SETS.flatMap(s => s.data).map(q => ({ ...q }));
+new_storage='''// ===== 保存・読み込み（IndexedDB） =====
+const DB_NAME = "kakomon-db", DB_VER = 1;
+let _db = null, _qSavedRef = null, _qSavedLen = -1;
+function idbOpen() {
+  return new Promise((res, rej) => {
+    const r = indexedDB.open(DB_NAME, DB_VER);
+    r.onupgradeneeded = () => {
+      const db = r.result;
+      if (!db.objectStoreNames.contains("questions")) db.createObjectStore("questions", { keyPath: "id" });
+      if (!db.objectStoreNames.contains("meta")) db.createObjectStore("meta", { keyPath: "k" });
+    };
+    r.onsuccess = () => res(r.result);
+    r.onerror = () => rej(r.error);
+  });
+}
+function idbReq(req) { return new Promise((res, rej) => { req.onsuccess = () => res(req.result); req.onerror = () => rej(req.error); }); }
+function idbDone(tx) { return new Promise((res, rej) => { tx.oncomplete = () => res(); tx.onerror = () => rej(tx.error); tx.onabort = () => rej(tx.error); }); }
+function metaGet(k) { return idbReq(_db.transaction("meta", "readonly").objectStore("meta").get(k)).then(r => r ? r.v : undefined); }
+function metaPut(k, v) { const tx = _db.transaction("meta", "readwrite"); tx.objectStore("meta").put({ k, v }); return idbDone(tx); }
+function questionsGetAll() { return idbReq(_db.transaction("questions", "readonly").objectStore("questions").getAll()); }
+function questionsPutAll(arr) {
+  const tx = _db.transaction("questions", "readwrite"); const st = tx.objectStore("questions");
+  st.clear(); for (const q of arr) st.put(q);
+  return idbDone(tx);
+}
+async function loadData() {
+  try {
+    _db = await idbOpen();
+    // 旧 localStorage データを一度だけ IndexedDB へ移行
+    if (!(await metaGet("migrated"))) {
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({ questions, test }));
-        localStorage.setItem(STORAGE_KEY + "-seededAll", "1");
-      } catch (e2) {
-        // 画像込みで容量超過の可能性。今セッションはメモリ上で全問表示する。
-        document.getElementById("storage-notice").style.display = "block";
-      }
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const d = JSON.parse(raw);
+          if (Array.isArray(d.questions) && d.questions.length) await questionsPutAll(d.questions);
+          if (d.test && Array.isArray(d.test.items)) await metaPut("test", d.test);
+        }
+      } catch (e) {}
+      await metaPut("migrated", 1);
+      try { localStorage.removeItem(STORAGE_KEY); localStorage.removeItem(STORAGE_KEY + "-seededAll"); } catch (e) {}
     }
+    const qs = await questionsGetAll();
+    if (qs && qs.length) questions = qs;
+    const t = await metaGet("test");
+    if (t && Array.isArray(t.items)) test = t;
+    // 初回シード（全年度データがあり、未シードかつ空のとき）
+    if (questions.length === 0 && !(await metaGet("seededAll")) && typeof KOKUSHI_SETS !== "undefined") {
+      questions = KOKUSHI_SETS.flatMap(s => s.data).map(q => ({ ...q }));
+      await questionsPutAll(questions);
+      await metaPut("seededAll", 1);
+    }
+    _qSavedRef = questions; _qSavedLen = questions.length;
   } catch (e) {
+    // IndexedDB が使えない環境では、今セッションのみメモリ上に全問展開して閲覧可能にする
     canStore = false;
     if (typeof KOKUSHI_SETS !== "undefined" && questions.length === 0) {
       questions = KOKUSHI_SETS.flatMap(s => s.data).map(q => ({ ...q }));
     }
-    document.getElementById("storage-notice").style.display = "block";
+    const sn = document.getElementById("storage-notice"); if (sn) sn.style.display = "block";
   }
 }
-
+let saveTimer = null;
+function saveData() {
+  const el = document.getElementById("save-state");
+  if (!canStore || !_db) return;
+  if (el) { el.textContent = "保存中…"; el.classList.remove("error"); }
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(async () => {
+    try {
+      await metaPut("test", test);
+      if (questions !== _qSavedRef || questions.length !== _qSavedLen) {
+        await questionsPutAll(questions);
+        _qSavedRef = questions; _qSavedLen = questions.length;
+      }
+      if (el) { el.textContent = "✓ 保存しました"; setTimeout(() => { if (el.textContent === "✓ 保存しました") el.textContent = ""; }, 1500); }
+    } catch (e) {
+      if (el) { el.textContent = "保存に失敗しました"; el.classList.add("error"); }
+    }
+  }, 400);
+}
 function loadKokushi(key) {
   const set = KOKUSHI_SETS.find(s => s.key === key);
   if (!set) return;
@@ -88,8 +173,8 @@ function loadKokushi(key) {
     toast(add.length + "問を読み込みました");
   });
 }'''
-assert src.count(old_b)==1
-src=src.replace(old_b,new_b)
+assert src.count(old_storage)==1
+src=src.replace(old_storage,new_storage)
 
 # C) buttons per set: まだ未取込（一部でも欠けている）年度のボタンを常に表示する
 old_c='''  if (questions.length > 0) h += '<button class="btn btn-danger" onclick="clearAll()">全件削除</button>';'''
@@ -101,6 +186,12 @@ new_c=old_c+'''
   }'''
 assert src.count(old_c)==1
 src=src.replace(old_c,new_c)
+
+# D) 起動を非同期化（loadData が IndexedDB なので await してから描画）
+old_init='// ===== 起動 =====\nloadData();\nrender();'
+new_init='// ===== 起動 =====\n(async () => { await loadData(); render(); })();'
+assert src.count(old_init)==1
+src=src.replace(old_init,new_init)
 
 open(os.path.join(ROOT,'kakomon-webapp-all.html'),'w',encoding='utf-8').write(src)
 print('wrote kakomon-webapp-all.html', len(src), 'bytes')

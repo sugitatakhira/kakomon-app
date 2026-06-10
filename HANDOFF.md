@@ -70,8 +70,20 @@ CSVの「正解番号」は**1始まり**、アプリ内部の answers は**0始
 3. **別冊画像の抽出方法**: 厚労省PDFの別冊（`_02`ファイル）は本文が画像。`pdftoppm -png -r 150` で各ページをラスタ化 → 上下左右マージン(トリムマーク/フッター)をcrop → 長辺900pxに縮小 → JPEG quality≈0.68 → base64でdata URL化。
    別冊は **1ページ＝1つのNo.** で、**ページ番号 = 別冊No. + 4**（先頭4ページが表紙等）。各ページ上部に「No.◯（問題◯）」と書かれている。
 4. **ダイアログ注意**: `confirm()`/`alert()` はプレビュー/サンドボックスでブロックされ削除等が止まる。**自前の確認モーダル＋トースト**に置き換え済み。新機能でもこれらは使わないこと。
-5. **localStorage制約**: 画像を base64 で大量に持つと容量上限(数MB)に当たり得る。第72回で約2.2MB。年度を増やすなら IndexedDB への移行を検討。
+5. **保存先**: 単体版(各回200問)と空アプリ `kakomon-webapp.html` は **localStorage**(STORAGE_KEY=`kakomon-app-data`)。
+   **統合版 `kakomon-webapp-all.html`(10回2000問・約15MB)は IndexedDB**(DB=`kakomon-db`、ストア `questions`(keyPath:id)/`meta`)。localStorageは数MB上限で2000問が入らないため。下記「統合版のストレージ(IndexedDB)」参照。
 6. CSV取り込みは PapaParse をCDNから読み込む（ここだけ要ネット）。完全オフライン化するならライブラリも埋め込む。
+
+## 統合版のストレージ（IndexedDB）（2026-06 実装）
+統合版 `kakomon-webapp-all.html` だけ保存先を **localStorage → IndexedDB** に変更した（10回2000問＋画像で約15MB、localStorageの数MB上限を超えるため）。**実装は `build71/gen_all.py` 内**で、空アプリ `kakomon-webapp.html` の保存層(`loadData`/`saveData`)を文字列置換で差し替えている（空アプリ本体・各回単体版は localStorage のまま）。
+- **DB**: `kakomon-db` v1。ストア `questions`(keyPath=`id`、問題オブジェクトを画像込みで丸ごと格納) と `meta`(keyPath=`k`、`test`/各フラグ)。
+- **`loadData()` は async**。起動は `(async()=>{ await loadData(); render(); })()`。
+- **初回シード**: DBが空かつ `seededAll` 未設定なら `KOKUSHI_SETS` 全問を投入。
+- **旧localStorageからの移行**: 初回に `kakomon-app-data` を読み IndexedDB へ移し、`migrated` フラグを立てて旧キーを削除（既存ユーザーの自作問題・テストを保持）。
+- **保存の最適化**: `saveData()` は `test`(小)を毎回書き、`questions`(大)は**配列参照か長さが変わった時だけ**全置換（テスト編成など問題が変わらない操作では2000問を書き直さない）。問題の追加/編集/削除/取込は配列を作り直す or 長さが変わるので確実に検知される。
+- **フォールバック**: IndexedDB が使えない環境（古いSafariの`file://`等）では `canStore=false` にして、そのセッションのみメモリ上に全問展開（閲覧は可能、保存は不可）。
+- **テスト済み**: `fake-indexeddb` で シード/再読込永続/テストのみ保存/問題追加/画像保持/旧localStorage移行 を確認。
+- **注意（次に触る人へ）**: 空アプリの保存層コードを変えると `gen_all.py` の置換アンカー(`old_storage`/`old_init`)が合わなくなる。その時は `gen_all.py` 側の文字列も追従させること。
 
 ## 第71回のビルド（PDFからの自動化手順・重要）
 72回は手入力だったが、71回は厚労省PDFから半自動で構築した。`build71/` に素材を置いた。
@@ -214,7 +226,7 @@ CSVの「正解番号」は**1始まり**、アプリ内部の answers は**0始
 ## 次にやりたいこと（未完）
 - **第65〜72回の8回分は完成**（各 `build65/`〜`build72/`・`source/`）。さらに過去へ遡る場合（第64回 tp180416-07 等）も同手順だが、年ごとに cmap 破損コードが違うので `cmapfix.py` は毎回再導出が必要。古い回ほどスキャン主体で別冊抽出・回転確認の比重が増える。
 - 年度フィルタ（複数年度が入ったら年度別に絞り込み）はアプリにある（year列）。
-- **localStorage 容量**: 8回分=約12MBで上限超過の可能性大。統合版は超過時メモリ上表示にフォールバック済みだが、本格運用なら IndexedDB 移行を推奨。
+- **統合版は IndexedDB に移行済み**(2026-06)。下記「統合版のストレージ(IndexedDB)」参照。さらに年度や画像を増やしても容量は問題ない。
 - 将来的に「演習モード（解答→採点→成績記録）」を付けると学習アプリとして使える。
 
 ## ビルド手順（第72回を再生成する例）
