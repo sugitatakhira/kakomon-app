@@ -82,6 +82,28 @@
   .q-choices .correct-mark { color: var(--ok); font-weight: 700; margin-left: 4px; }
   .q-expl { font-size: 12px; color: var(--muted); border-top: 1px solid #e7e5e4; padding-top: 8px; margin-bottom: 8px; }
   .q-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  /* 絞り込みパネル & タップ追加 */
+  .search-row { margin-bottom: 10px; }
+  .filter-toggle { display:flex; align-items:center; justify-content:space-between; gap:8px; width:100%;
+    padding:10px 14px; border:1px solid var(--line); border-radius:8px; background:#fff; cursor:pointer; font:inherit; }
+  .filter-toggle .badge { background:#0e7490; color:#fff; border-radius:99px; font-size:11px; padding:1px 8px; margin-left:6px; }
+  .filter-toggle .caret { color:var(--muted); font-size:11px; }
+  .filter-panel { border:1px solid var(--line); border-top:none; border-radius:0 0 8px 8px; padding:12px 14px; background:#fafaf9; margin-bottom:8px; }
+  .fp-group { margin-bottom:12px; }
+  .fp-group:last-of-type { margin-bottom:6px; }
+  .fp-label { font-size:12px; font-weight:700; color:var(--muted); margin-bottom:6px; }
+  .chips { display:flex; flex-wrap:wrap; gap:6px; }
+  .chip { padding:6px 12px; border:1px solid var(--line); border-radius:99px; background:#fff; font-size:13px; cursor:pointer; user-select:none; }
+  .chip.on { background:#0e7490; border-color:#0e7490; color:#fff; font-weight:700; }
+  .fp-clear { background:none; border:none; color:#0e7490; font-size:12px; cursor:pointer; text-decoration:underline; padding:0; }
+  .result-count { font-size:12px; color:var(--muted); margin:10px 2px 2px; }
+  .bank-hint { font-size:12px; color:var(--muted); margin:0 2px 10px; }
+  .q-card { cursor:pointer; position:relative; padding-right:44px; transition:border-color .12s, background .12s; }
+  .q-card:hover { border-color:#a8a29e; }
+  .q-card.in-test { border-color:var(--ok); background:#f0fdf4; }
+  .q-card-check { position:absolute; top:10px; right:10px; width:28px; height:28px; border-radius:50%;
+    border:1.5px solid var(--line); display:flex; align-items:center; justify-content:center; font-size:15px; color:#a8a29e; background:#fff; }
+  .q-card.in-test .q-card-check { background:var(--ok); border-color:var(--ok); color:#fff; }
 
   /* テスト編成 */
   .t-item { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 8px; }
@@ -209,6 +231,7 @@
 
 // ===== 定数 =====
 const DIFFS = ["易", "普通", "難"];
+const FIELDS_ORDER = ["臨床検査総論","臨床検査医学総論","臨床生理学","臨床化学","病理組織細胞学","臨床血液学","臨床微生物学","臨床免疫学","公衆衛生学","医用工学概論"];
 const STORAGE_KEY = "kakomon-app-data";
 const SAMPLE_QUESTIONS = [
   { id:"s1", text:"体温調節中枢が存在する部位はどれか。", choices:["延髄","視床下部","小脳","大脳皮質"], answers:[1], explanation:"体温調節中枢は間脳の視床下部に存在する。", field:"人体の構造と機能", year:"2024", difficulty:"易" },
@@ -222,7 +245,8 @@ const SAMPLE_QUESTIONS = [
 let questions = [];
 let test = { title: "国家試験対策テスト", items: [] };
 let tab = "bank";
-let filters = { kw: "", field: "", year: "", diff: "" };
+let filters = { kw: "", fields: [], years: [] };
+let filterOpen = false;
 let form = null; // {text, choices[], answer, explanation, field, year, difficulty, editId?}
 let canStore = true;
 
@@ -387,9 +411,8 @@ function clearAll() {
 
 // ===== テスト操作 =====
 function toggleTest(id) {
-  if (inTest(id)) test.items = test.items.filter(i => i.qid !== id);
-  else test.items.push({ qid: id, points: 1 });
-  saveData(); render();
+  if (inTest(id)) { test.items = test.items.filter(i => i.qid !== id); saveData(); render(); toast("テストから外しました"); }
+  else { test.items.push({ qid: id, points: 1 }); saveData(); render(); toast("テストに追加しました"); }
 }
 function moveItem(idx, dir) {
   const j = idx + dir;
@@ -404,14 +427,25 @@ function setPoints(idx, v) {
 function setTitle(v) { test.title = v; saveData(); }
 
 // ===== 検索 =====
-function setFilter(key, v) { filters[key] = v; renderBankList(); }
+function setKeyword(v) { filters.kw = v; renderBankList(); }
+function toggleFilterPanel() { filterOpen = !filterOpen; renderBank(); }
+function toggleFilterVal(key, val) {
+  const arr = filters[key]; const i = arr.indexOf(val);
+  if (i >= 0) arr.splice(i, 1); else arr.push(val);
+  renderBank();
+}
+function clearFilters() { filters.fields = []; filters.years = []; renderBank(); }
+function hasActiveFilter() { return !!(filters.kw.trim() || filters.fields.length || filters.years.length); }
+function fieldsInOrder() {
+  const present = new Set(fieldsList());
+  return FIELDS_ORDER.filter(f => present.has(f)).concat(fieldsList().filter(f => !FIELDS_ORDER.includes(f)));
+}
 function filteredQuestions() {
   return questions.filter(q => {
     const kw = filters.kw.trim();
     if (kw && !(q.text.includes(kw) || q.choices.some(c => c.includes(kw)) || (q.explanation||"").includes(kw))) return false;
-    if (filters.field && q.field !== filters.field) return false;
-    if (filters.year && q.year !== filters.year) return false;
-    if (filters.diff && q.difficulty !== filters.diff) return false;
+    if (filters.fields.length && !filters.fields.includes(q.field)) return false;
+    if (filters.years.length && !filters.years.includes(q.year)) return false;
     return true;
   });
 }
@@ -488,24 +522,45 @@ function tagHtml(q) {
 }
 
 function renderBank() {
-  const list = filteredQuestions();
   let h = '<div class="toolbar">';
   h += '<button class="btn btn-primary" onclick="openForm()">＋ 問題を登録</button>';
   h += '<button class="btn" onclick="document.getElementById(\'csv-file\').click()">CSVを取り込む</button>';
   if (questions.length > 0) h += '<button class="btn" onclick="exportCSV()">CSVに書き出す</button>';
   if (questions.length > 0) h += '<button class="btn btn-danger" onclick="clearAll()">全件削除</button>';
-  if (questions.length === 0) h += '<button class="btn btn-dashed" onclick="loadSamples()">サンプル問題を読み込む</button>';
+  if (questions.length === 0) {
+    h += '<button class="btn btn-dashed" onclick="loadSamples()">サンプル問題を読み込む</button>';
+    if (typeof KOKUSHI_SETS !== "undefined") {
+      const total = KOKUSHI_SETS.reduce((n, st) => n + st.data.length, 0);
+      h += '<button class="btn btn-primary" onclick="seedAll()">全' + total + '問を読み込む</button>';
+    }
+  }
   h += '</div>';
 
-  h += '<div class="card filters">';
-  h += '<input placeholder="キーワード検索" value="' + esc(filters.kw) + '" oninput="setFilter(\'kw\', this.value)">';
-  h += '<select onchange="setFilter(\'field\', this.value)"><option value="">分野：すべて</option>'
-    + fieldsList().map(f => '<option value="' + esc(f) + '"' + (filters.field===f?" selected":"") + '>' + esc(f) + '</option>').join("") + '</select>';
-  h += '<select onchange="setFilter(\'year\', this.value)"><option value="">年度：すべて</option>'
-    + yearsList().map(y => '<option value="' + esc(y) + '"' + (filters.year===y?" selected":"") + '>' + esc(y) + '</option>').join("") + '</select>';
-  h += '<select onchange="setFilter(\'diff\', this.value)"><option value="">難易度：すべて</option>'
-    + DIFFS.map(d => '<option value="' + d + '"' + (filters.diff===d?" selected":"") + '>' + d + '</option>').join("") + '</select>';
-  h += '</div>';
+  // キーワード検索
+  h += '<div class="search-row"><input placeholder="キーワード検索" value="' + esc(filters.kw) + '" oninput="setKeyword(this.value)"></div>';
+  // 絞り込みトグル
+  const nActive = filters.fields.length + filters.years.length;
+  h += '<button class="filter-toggle" onclick="toggleFilterPanel()">';
+  h += '<span>絞り込み（年度・科目）' + (nActive ? '<span class="badge">' + nActive + '</span>' : '') + '</span>';
+  h += '<span class="caret">' + (filterOpen ? '▲ 閉じる' : '▼ 開く') + '</span></button>';
+  if (filterOpen) {
+    h += '<div class="filter-panel">';
+    h += '<div class="fp-group"><div class="fp-label">年度</div><div class="chips">';
+    yearsList().forEach(y => {
+      const on = filters.years.includes(y);
+      const label = (String(y).match(/第\d+回/) || [y])[0];
+      h += '<span class="chip' + (on ? ' on' : '') + '" onclick="toggleFilterVal(\'years\', \'' + esc(y) + '\')">' + esc(label) + '</span>';
+    });
+    h += '</div></div>';
+    h += '<div class="fp-group"><div class="fp-label">科目</div><div class="chips">';
+    fieldsInOrder().forEach(f => {
+      const on = filters.fields.includes(f);
+      h += '<span class="chip' + (on ? ' on' : '') + '" onclick="toggleFilterVal(\'fields\', \'' + esc(f) + '\')">' + esc(f) + '</span>';
+    });
+    h += '</div></div>';
+    if (nActive) h += '<button class="fp-clear" onclick="clearFilters()">すべて解除</button>';
+    h += '</div>';
+  }
 
   h += '<div id="bank-list"></div>';
   document.getElementById("view-bank").innerHTML = h;
@@ -513,31 +568,39 @@ function renderBank() {
 }
 
 function renderBankList() {
-  const list = filteredQuestions();
-  let h = "";
-  if (list.length === 0) {
-    h += '<div class="empty">' + (questions.length === 0
-      ? "まだ問題がありません。「＋ 問題を登録」か「サンプル問題を読み込む」から始めてください。"
-      : "条件に一致する問題がありません。") + '</div>';
-  } else {
-    list.forEach(q => {
-      h += '<div class="card q-card">';
-      h += '<div>' + tagHtml(q) + '</div>';
-      h += '<p class="q-text">' + esc(q.text) + '</p>';
-      if (q.image) h += '<img src="' + q.image + '" alt="別冊図" class="q-img">';
-      h += '<ol class="q-choices">' + q.choices.map((c, i) =>
-        '<li>' + (i+1) + '. ' + esc(c) + ((q.answers||[]).includes(i) ? '<span class="correct-mark">◎</span>' : '') + '</li>').join("") + '</ol>';
-      if (q.explanation) h += '<p class="q-expl">解説：' + esc(q.explanation) + '</p>';
-      h += '<div class="q-actions">';
-      h += inTest(q.id)
-        ? '<button class="btn btn-sm btn-ok" onclick="toggleTest(\'' + q.id + '\')">✓ テストに追加済み</button>'
-        : '<button class="btn btn-sm btn-primary" onclick="toggleTest(\'' + q.id + '\')">テストに追加</button>';
-      h += '<button class="btn btn-sm" onclick="openForm(\'' + q.id + '\')">編集</button>';
-      h += '<button class="btn btn-sm btn-danger" onclick="deleteQuestion(\'' + q.id + '\')">削除</button>';
-      h += '</div></div>';
-    });
+  const el = document.getElementById("bank-list");
+  if (!el) return;
+  if (questions.length === 0) {
+    el.innerHTML = '<div class="empty">まだ問題がありません。上の「全○問を読み込む」または「＋ 問題を登録」から始めてください。</div>';
+    return;
   }
-  document.getElementById("bank-list").innerHTML = h;
+  if (!hasActiveFilter()) {
+    el.innerHTML = '<div class="empty">「絞り込み（年度・科目）」を開いて選ぶか、キーワード検索すると問題が表示されます。<br>表示された問題をタップするとテストに追加できます。</div>';
+    return;
+  }
+  const list = filteredQuestions();
+  if (list.length === 0) {
+    el.innerHTML = '<div class="empty">条件に一致する問題がありません。</div>';
+    return;
+  }
+  let h = '<div class="result-count">' + list.length + '問</div>';
+  h += '<div class="bank-hint">問題をタップするとテストに追加／解除できます（編集・削除のボタンは反応しません）。</div>';
+  list.forEach(q => {
+    const on = inTest(q.id);
+    h += '<div class="card q-card' + (on ? ' in-test' : '') + '" onclick="toggleTest(\'' + q.id + '\')">';
+    h += '<div class="q-card-check">' + (on ? '✓' : '＋') + '</div>';
+    h += '<div>' + tagHtml(q) + '</div>';
+    h += '<p class="q-text">' + esc(q.text) + '</p>';
+    if (q.image) h += '<img src="' + q.image + '" alt="別冊図" class="q-img" loading="lazy">';
+    h += '<ol class="q-choices">' + q.choices.map((c, i) =>
+      '<li>' + (i+1) + '. ' + esc(c) + ((q.answers||[]).includes(i) ? '<span class="correct-mark">◎</span>' : '') + '</li>').join("") + '</ol>';
+    if (q.explanation) h += '<p class="q-expl">解説：' + esc(q.explanation) + '</p>';
+    h += '<div class="q-actions" onclick="event.stopPropagation()">';
+    h += '<button class="btn btn-sm" onclick="openForm(\'' + q.id + '\')">編集</button>';
+    h += '<button class="btn btn-sm btn-danger" onclick="deleteQuestion(\'' + q.id + '\')">削除</button>';
+    h += '</div></div>';
+  });
+  el.innerHTML = h;
 }
 
 function renderBuildMeta() {

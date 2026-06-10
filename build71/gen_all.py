@@ -107,10 +107,13 @@ function idbDone(tx) { return new Promise((res, rej) => { tx.oncomplete = () => 
 function metaGet(k) { return idbReq(_db.transaction("meta", "readonly").objectStore("meta").get(k)).then(r => r ? r.v : undefined); }
 function metaPut(k, v) { const tx = _db.transaction("meta", "readwrite"); tx.objectStore("meta").put({ k, v }); return idbDone(tx); }
 function questionsGetAll() { return idbReq(_db.transaction("questions", "readonly").objectStore("questions").getAll()); }
-function questionsPutAll(arr) {
-  const tx = _db.transaction("questions", "readwrite"); const st = tx.objectStore("questions");
-  st.clear(); for (const q of arr) st.put(q);
-  return idbDone(tx);
+async function questionsPutAll(arr) {
+  await idbDone((function () { const tx = _db.transaction("questions", "readwrite"); tx.objectStore("questions").clear(); return tx; })());
+  for (let i = 0; i < arr.length; i += 200) {
+    const tx = _db.transaction("questions", "readwrite"); const st = tx.objectStore("questions");
+    for (let j = i; j < Math.min(i + 200, arr.length); j++) st.put(arr[j]);
+    await idbDone(tx);
+  }
 }
 async function loadData() {
   try {
@@ -182,20 +185,18 @@ function loadKokushi(key) {
     saveData(); render();
     toast(add.length + "問を読み込みました");
   });
+}
+function seedAll() {
+  if (typeof KOKUSHI_SETS === "undefined") return;
+  const have = new Set(questions.map(q => q.id));
+  const add = KOKUSHI_SETS.flatMap(s => s.data).filter(q => !have.has(q.id)).map(q => ({ ...q }));
+  questions = [...questions, ...add];
+  saveData(); render();
+  toast(add.length + "問を読み込みました");
 }'''
 assert src.count(old_storage)==1
 src=src.replace(old_storage,new_storage)
 
-# C) buttons per set: まだ未取込（一部でも欠けている）年度のボタンを常に表示する
-old_c='''  if (questions.length > 0) h += '<button class="btn btn-danger" onclick="clearAll()">全件削除</button>';'''
-new_c=old_c+'''
-  if (typeof KOKUSHI_SETS !== "undefined") {
-    const have = new Set(questions.map(q => q.id));
-    h += KOKUSHI_SETS.filter(s => s.data.some(q => !have.has(q.id)))
-      .map(s => '<button class="btn btn-primary" onclick="loadKokushi(\\'' + s.key + '\\')">' + s.label + 'を読み込む</button>').join('');
-  }'''
-assert src.count(old_c)==1
-src=src.replace(old_c,new_c)
 
 # D) 起動を非同期化（loadData が IndexedDB なので await してから描画）
 old_init='// ===== 起動 =====\nloadData();\nrender();'
