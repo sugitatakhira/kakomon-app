@@ -1,0 +1,241 @@
+{
+ "AM": {
+  "2": {
+   "choices": [
+    "PT — EDTA-2Na",
+    "ALP — EDTA-2K",
+    "血糖 — フッ化ナトリウム",
+    "赤沈 — クエン酸溶液",
+    "血小板数 — ヘパリンリチウム"
+   ]
+  },
+  "7": {
+   "choices": [
+    "肝吸虫 — イカ",
+    "単包条虫 — イヌ",
+    "宮崎肺吸虫 — サワガニ",
+    "日本住血吸虫 — サケ",
+    "日本海裂頭条虫 — ブタ"
+   ]
+  },
+  "9": {
+   "choices": [
+    "緑色便 — 総胆管結石",
+    "灰白色便 — MRSA腸炎",
+    "タール便 — コレラ",
+    "米の研ぎ汁様便 — カンピロバクター腸炎",
+    "いちごゼリー状便 — アメーバ赤痢"
+   ]
+  },
+  "61": {
+   "choices": [
+    "トロンビン",
+    "プラスミン",
+    "活性化第Ⅹ因子",
+    "活性化第ⅩⅢ因子",
+    "活性化プロテインC"
+   ]
+  },
+  "67": {
+   "choices": [
+    "BCR-ABL1",
+    "CBFB-MYH11",
+    "ETV6-RUNX1",
+    "PML-RARA",
+    "RUNX1-RUNX1T1"
+   ]
+  },
+  "68": {
+   "choices": [
+    "Chlamydia trachomatis",
+    "Klebsiella pneumoniae",
+    "Mycoplasma pneumoniae",
+    "Orientia tsutsugamushi",
+    "Staphylococcus aureus"
+   ]
+  },
+  "71": {
+   "choices": [
+    "Citrobacter freundii",
+    "Enterobacter cloacae",
+    "Proteus vulgaris",
+    "Salmonella enterica subsp. enterica serovar Typhi",
+    "Shigella sonnei"
+   ]
+  },
+  "72": {
+   "choices": [
+    "Enterococcus faecalis",
+    "Escherichia coli",
+    "Klebsiella pneumoniae",
+    "Proteus mirabilis",
+    "Staphylococcus epidermidis"
+   ]
+  },
+  "74": {
+   "choices": [
+    "Aeromonas hydrophila",
+    "Bacillus anthracis",
+    "Corynebacterium diphtheriae",
+    "Klebsiella pneumoniae",
+    "Moraxella catarrhalis"
+   ]
+  },
+  "75": {
+   "choices": [
+    "Aspergillus fumigatus",
+    "Candida glabrata",
+    "Histoplasma capsulatum",
+    "Pneumocystis jirovecii",
+    "Trichophyton rubrum"
+   ]
+  },
+  "76": {
+   "choices": [
+    "EBウイルス — 単球",
+    "ロタウイルス — 腸管",
+    "ポリオウイルス — 皮膚",
+    "ライノウイルス — 神経",
+    "単純ヘルペスウイルス — 気道"
+   ]
+  },
+  "85": {
+   "text": "補体系の検査結果を以下に示す。〔CH50：低下、C3：基準範囲内、C4：低下、C1q：基準範囲内、C1-INH活性：低下〕考えられるのはどれか。"
+  },
+  "93": {
+   "choices": [
+    "酸性雨 — 微小粒子状物質〈PM2.5〉",
+    "大気汚染 — 二酸化炭素",
+    "地球温暖化 — ダイオキシン",
+    "地下水汚染 — 六価クロム",
+    "オゾン層破壊 — 光化学オキシダント"
+   ]
+  },
+  "96": {
+   "figure": "am96"
+  }
+ },
+ "PM": {
+  "2": {
+   "choices": [
+    "マラリア — Kinyoun抗酸染色",
+    "赤痢アメーバ — Hematoxylin染色",
+    "トキソプラズマ — 墨汁染色",
+    "リーシュマニア — Kohn染色",
+    "クリプトスポリジウム — Giemsa染色"
+   ]
+  },
+  "13": {
+   "choices": [
+    "抗平滑筋抗体 — リウマチ熱",
+    "抗ミトコンドリア抗体 — 強皮症",
+    "抗CCP抗体 — Behçet病",
+    "抗RNP抗体 — 混合性結合組織病〈MCTD〉",
+    "抗TSH受容体抗体 — Sjögren症候群"
+   ]
+  },
+  "41": {
+   "choices": [
+    "ALP — 4-ニトロフェノール",
+    "ALT — L-グルタミン",
+    "AST — ピリドキサルリン酸",
+    "CK — N-アセチルシステイン",
+    "α-アミラーゼ — 4,6-エチリデン-4-ニトロフェニル-マルトヘプタシド"
+   ]
+  },
+  "47": {
+   "choices": [
+    "脳 — 700 g",
+    "甲状腺 — 100 g",
+    "心臓 — 300 g",
+    "肝臓 — 500 g",
+    "脾臓 — 400 g"
+   ]
+  },
+  "51": {
+   "choices": [
+    "PAS反応 — アスペルギルス",
+    "DOPA反応 — B型肝炎ウイルス（HBs抗原）",
+    "Kossa反応 — 抗酸菌",
+    "Berlin blue染色 — クリプトコッカス",
+    "mucicarmine染色 — ヘリコバクター・ピロリ"
+   ]
+  },
+  "60": {
+   "choices": [
+    "赤芽球癆 — ヒトパルボウイルスB19感染",
+    "再生不良性貧血 — エリスロポエチン欠乏",
+    "遺伝性球状赤血球症 — αグロビン遺伝子異常",
+    "自己免疫性溶血性貧血 — 補体制御因子欠損",
+    "ビタミンB12欠乏性貧血 — 直腸切除"
+   ]
+  },
+  "65": {
+   "choices": [
+    "Auer小体 — 急性リンパ芽球性白血病",
+    "Döhle小体 — 伝染性単核球症",
+    "Russell小体 — 多発性骨髄腫",
+    "核の過分節 — 重症感染症",
+    "偽Pelger核異常 — 巨赤芽球性貧血"
+   ]
+  },
+  "71": {
+   "choices": [
+    "Burkholderia cepacia",
+    "Campylobacter jejuni",
+    "Klebsiella pneumoniae",
+    "Pseudomonas aeruginosa",
+    "Vibrio cholerae"
+   ]
+  },
+  "72": {
+   "choices": [
+    "Mycoplasma pneumoniae — PPLO寒天培地",
+    "Neisseria gonorrhoeae — SS寒天培地",
+    "Pseudomonas aeruginosa — WYOα寒天培地",
+    "Shigella sonnei — NAC寒天培地",
+    "Vibrio parahaemolyticus — CIN寒天培地"
+   ]
+  },
+  "73": {
+   "choices": [
+    "Campylobacter jejuni",
+    "Listeria monocytogenes",
+    "Shigella dysenteriae",
+    "Staphylococcus aureus",
+    "Vibrio parahaemolyticus"
+   ]
+  },
+  "86": {
+   "choices": [
+    "AFP — 大腸癌",
+    "CA125 — 乳癌",
+    "CA15-3 — 膵癌",
+    "PIVKA-Ⅱ — 卵巣癌",
+    "ProGRP — 肺小細胞癌"
+   ]
+  },
+  "90": {
+   "choices": [
+    "ウェルシュ菌 — シチュー",
+    "腸炎ビブリオ — はちみつ",
+    "ボツリヌス菌 — 生魚介類",
+    "黄色ブドウ球菌 — 生肉",
+    "カンピロバクター — おにぎり"
+   ]
+  },
+  "98": {
+   "figure": "pm98",
+   "choices": [
+    "円の中にアース（接地）線",
+    "四角の中に四角",
+    "四角の中に人型",
+    "四角の中にハート",
+    "三角の中に感嘆符"
+   ]
+  },
+  "99": {
+   "figure": "pm99"
+  }
+ }
+}

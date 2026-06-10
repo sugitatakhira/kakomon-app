@@ -10,15 +10,18 @@ def extract(htmlname, const):
 # 各年度の単体HTMLから埋め込み済みデータを取り出して合成（リポジトリ単体で再現可）
 k72=extract('kakomon-webapp-72.html','KOKUSHI_72')
 k71=extract('kakomon-webapp-71.html','KOKUSHI_71')
+k70=extract('kakomon-webapp-70.html','KOKUSHI_70')
 
 # A) inject data + sets (newest first)
 old_a='"use strict";\n\n// ===== 定数 ====='
 inject=('"use strict";\n\n'
  'const KOKUSHI_72 = '+k72+';\n'
  'const KOKUSHI_71 = '+k71+';\n'
+ 'const KOKUSHI_70 = '+k70+';\n'
  'const KOKUSHI_SETS = [\n'
  '  { key: "72", label: "第72回", data: KOKUSHI_72 },\n'
  '  { key: "71", label: "第71回", data: KOKUSHI_71 },\n'
+ '  { key: "70", label: "第70回", data: KOKUSHI_70 },\n'
  '];\n\n// ===== 定数 =====')
 assert src.count(old_a)==1
 src=src.replace(old_a,inject)
