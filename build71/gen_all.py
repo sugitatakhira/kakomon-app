@@ -67,10 +67,14 @@ function loadKokushi(key) {
 assert src.count(old_b)==1
 src=src.replace(old_b,new_b)
 
-# C) buttons per set (when empty)
+# C) buttons per set: まだ未取込（一部でも欠けている）年度のボタンを常に表示する
 old_c='''  if (questions.length > 0) h += '<button class="btn btn-danger" onclick="clearAll()">全件削除</button>';'''
 new_c=old_c+'''
-  if (questions.length === 0 && typeof KOKUSHI_SETS !== "undefined") h += KOKUSHI_SETS.map(s => '<button class="btn btn-primary" onclick="loadKokushi(\\'' + s.key + '\\')">' + s.label + 'を読み込む</button>').join('');'''
+  if (typeof KOKUSHI_SETS !== "undefined") {
+    const have = new Set(questions.map(q => q.id));
+    h += KOKUSHI_SETS.filter(s => s.data.some(q => !have.has(q.id)))
+      .map(s => '<button class="btn btn-primary" onclick="loadKokushi(\\'' + s.key + '\\')">' + s.label + 'を読み込む</button>').join('');
+  }'''
 assert src.count(old_c)==1
 src=src.replace(old_c,new_c)
 
