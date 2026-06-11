@@ -800,23 +800,25 @@ function sheetsHtml() {
   const d = new Date();
   const dateStr = d.getFullYear() + "年" + (d.getMonth()+1) + "月" + d.getDate() + "日";
   let h = '<div class="sheet page-break">';
-  h += '<div class="sheet-head"><div class="eyebrow">' + dateStr + ' 実施　問題用紙</div>';
+  h += '<div class="sheet-head"><div class="eyebrow">' + dateStr + ' 実施　問題用紙' + (shuffleOn ? '（選択肢シャッフル版）' : '') + '</div>';
   h += '<h2 class="serif">' + esc(test.title) + '</h2>';
   h += '<div class="sheet-meta"><span>全' + items.length + '問</span><span class="name-line">氏名：</span></div></div>';
   items.forEach((item, idx) => {
+    const ord = orderFor(item);
     h += '<div class="p-q"><p><strong class="serif">問' + (idx+1) + '</strong>　' + esc(item.q.text) + '</p>';
     if (item.q.image) h += '<img src="' + item.q.image + '" class="p-img">';
-    h += '<ol>' + item.q.choices.map((c, i) => '<li>' + (i+1) + '．' + esc(c) + '</li>').join("") + '</ol></div>';
+    h += '<ol>' + ord.map((oldI, newI) => '<li>' + (newI+1) + '．' + esc(item.q.choices[oldI]) + '</li>').join("") + '</ol></div>';
   });
   h += '</div>';
 
   h += '<div class="sheet">';
-  h += '<div class="sheet-head"><div class="eyebrow">教員用　模範解答・解説</div>';
+  h += '<div class="sheet-head"><div class="eyebrow">教員用　模範解答・解説' + (shuffleOn ? '（選択肢シャッフル版）' : '') + '</div>';
   h += '<h2 class="serif">' + esc(test.title) + '</h2></div>';
   h += '<table class="ans-table"><thead><tr><th style="width:48px">問</th><th style="width:48px">正解</th><th>解説</th></tr></thead><tbody>';
   items.forEach((item, idx) => {
+    const ord = orderFor(item);
     const src = [item.q.field, item.q.year].filter(Boolean).join("・");
-    const ansStr = (item.q.answers||[]).map(i => i+1).join("・") || "—";
+    const ansStr = (item.q.answers||[]).map(a => ord.indexOf(a)+1).sort((x,y)=>x-y).join("・") || "—";
     h += '<tr><td class="serif"><strong>' + (idx+1) + '</strong></td><td>' + ansStr + '</td>';
     h += '<td>' + esc(item.q.explanation || "—") + (src ? ' <span class="src">（' + esc(src) + '）</span>' : '') + '</td></tr>';
   });
@@ -824,14 +826,38 @@ function sheetsHtml() {
   return h;
 }
 
+// 選択肢シャッフル（配布用に選択肢の並びをランダム化。模範解答も同じ並びで正解位置を表示）
+let shuffleOn = false;
+let shuffleOrders = {};
+function buildShuffleOrders() {
+  shuffleOrders = {};
+  testItems().forEach(item => {
+    const n = item.q.choices.length;
+    const arr = Array.from({ length: n }, (_, i) => i);
+    for (let i = n - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; }
+    shuffleOrders[item.q.id] = arr;
+  });
+}
+function orderFor(item) {
+  const n = item.q.choices.length;
+  const o = shuffleOrders[item.q.id];
+  if (shuffleOn && o && o.length === n) return o;
+  return Array.from({ length: n }, (_, i) => i);
+}
+function toggleShuffle() { shuffleOn = !shuffleOn; if (shuffleOn) buildShuffleOrders(); renderPrint(); }
+function reshuffle() { buildShuffleOrders(); renderPrint(); toast("選択肢を再シャッフルしました"); }
+
 function renderPrint() {
   const items = testItems();
   let h;
   if (items.length === 0) {
     h = '<div class="empty">' + mascotImg("bear_point") + 'テストバンクに問題を追加すると、ここで問題用紙と模範解答をPDFで保存できます。</div>';
   } else {
-    h = '<div class="toolbar"><button class="btn btn-primary" onclick="window.print()">PDFで保存する</button></div>';
-    h += '<p class="t-meta" style="margin-bottom:16px">下のプレビューがそのままPDFになります（問題用紙＋模範解答・解説）。スマホは共有メニューやプリント画面から「PDFを保存」、PCは印刷ダイアログで「PDFに保存」を選んでください。模範解答を配らない場合はページ範囲を指定してください。</p>';
+    h = '<div class="toolbar"><button class="btn btn-primary" onclick="window.print()">PDFで保存する</button>';
+    h += '<button class="btn' + (shuffleOn ? ' btn-primary' : '') + '" onclick="toggleShuffle()">選択肢ランダム：' + (shuffleOn ? 'ON' : 'OFF') + '</button>';
+    if (shuffleOn) h += '<button class="btn btn-sm" onclick="reshuffle()">↻ 再シャッフル</button>';
+    h += '</div>';
+    h += '<p class="t-meta" style="margin-bottom:16px">下のプレビューがそのままPDFになります（問題用紙＋模範解答・解説）。スマホは共有メニューやプリント画面から「PDFを保存」、PCは印刷ダイアログで「PDFに保存」を選んでください。模範解答を配らない場合はページ範囲を指定してください。' + (shuffleOn ? '<br><b>選択肢ランダムON：</b>各問題の選択肢の並びをシャッフルしています（模範解答も同じ並びの正解位置で出ます）。「再シャッフル」で別バージョンを作れます。' : '') + '</p>';
     h += '<div class="preview">' + sheetsHtml() + '</div>';
   }
   document.getElementById("view-print").innerHTML = h;
