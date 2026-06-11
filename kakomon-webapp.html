@@ -679,7 +679,7 @@ function renderBankList() {
     return;
   }
   let h = '<div class="result-count">' + list.length + '問</div>';
-  h += '<div class="bank-hint">問題をタップするとテストに追加／解除できます（編集・削除のボタンは反応しません）。</div>';
+  h += '<div class="bank-hint">問題をタップするとテストに追加／解除できます。</div>';
   list.forEach(q => {
     const on = inTest(q.id);
     const mine = isUserMade(q);
