@@ -180,9 +180,17 @@ async function loadData() {
       if (versionChanged || missingOfficial) {
         const userAdded = questions.filter(q => !officialIds.has(q.id));
         questions = [...userAdded, ...official.map(q => ({ ...q }))];
-        await questionsPutAll(questions);
-        await metaPut("contentVersion", KOKUSHI_VERSION);
-        await metaPut("seededAll", 1);
+        // 永続化はバックグラウンドで実行（初回描画＝スプラッシュ解除をブロックしない）。
+        // メモリ上の questions は既に最新なので、画面はすぐ全問表示される。
+        _qSavedRef = questions; _qSavedLen = questions.length;
+        (async () => {
+          try {
+            await questionsPutAll(questions);
+            await metaPut("contentVersion", KOKUSHI_VERSION);
+            await metaPut("seededAll", 1);
+          } catch (e) {}
+        })();
+        return;
       }
     }
     _qSavedRef = questions; _qSavedLen = questions.length;
@@ -240,7 +248,10 @@ src=src.replace(old_storage,new_storage)
 
 # D) 起動を非同期化（loadData が IndexedDB なので await してから描画）
 old_init='// ===== 起動 =====\nloadData();\nrender();'
-new_init='// ===== 起動 =====\n(async () => { await loadData(); render(); })();'
+new_init=('// ===== 起動 =====\n'
+ '(async () => { try { await loadData(); } catch (e) {} render(); })();\n'
+ '// 安全網: 何があってもスプラッシュは一定時間で必ず解除する\n'
+ 'setTimeout(() => { try { hideSplash(); } catch (e) {} }, 6000);')
 assert src.count(old_init)==1
 src=src.replace(old_init,new_init)
 
