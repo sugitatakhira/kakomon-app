@@ -654,7 +654,7 @@ function renderBank() {
   // 絞り込みトグル
   const nActive = filters.fields.length + filters.years.length + (filters.userOnly ? 1 : 0) + (filters.coreTest ? 1 : 0);
   h += '<button class="filter-toggle" onclick="toggleFilterPanel()">';
-  h += '<span>絞り込み（年度・科目・コアテスト）' + (nActive ? '<span class="badge">' + nActive + '</span>' : '') + '</span>';
+  h += '<span>絞り込み（年度・科目' + ((typeof CORE_TESTS !== "undefined" && CORE_TESTS.length) ? '・コアテスト' : '') + '）' + (nActive ? '<span class="badge">' + nActive + '</span>' : '') + '</span>';
   h += '<span class="caret">' + (filterOpen ? '▲ 閉じる' : '▼ 開く') + '</span></button>';
   if (filterOpen) {
     h += '<div class="filter-panel">';
