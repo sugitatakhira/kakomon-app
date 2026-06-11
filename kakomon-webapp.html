@@ -129,6 +129,12 @@
   .chips { display:flex; flex-wrap:wrap; gap:6px; }
   .chip { padding:6px 12px; border:1px solid var(--line); border-radius:99px; background:#fff; font-size:13px; cursor:pointer; user-select:none; }
   .chip.on { background:#0e7490; border-color:#0e7490; color:#fff; font-weight:700; }
+  .ct-book { font-size:11px; font-weight:700; color:#0f766e; margin:8px 0 4px; letter-spacing:.04em; }
+  .ct-chips { margin-bottom:2px; }
+  .ct-chip { border-color:#99d6cf; background:#f0fdfa; font-size:12px; padding:6px 10px; display:inline-flex; align-items:center; gap:6px; }
+  .ct-chip.on { background:#0d9488; border-color:#0d9488; }
+  .ct-n { background:rgba(13,148,136,.14); color:#0f766e; border-radius:99px; font-size:10px; padding:0 6px; font-weight:700; }
+  .ct-chip.on .ct-n { background:rgba(255,255,255,.3); color:#fff; }
   .fp-clear { background:none; border:none; color:#0e7490; font-size:12px; cursor:pointer; text-decoration:underline; padding:0; }
   .result-count { font-size:12px; color:var(--muted); margin:10px 2px 2px; }
   .bank-hint { font-size:12px; color:var(--muted); margin:0 2px 10px; }
@@ -291,7 +297,7 @@ let questions = [];
 let test = { id: null, title: "国家試験対策テスト", items: [] };
 let savedTests = [];
 let tab = "bank";
-let filters = { kw: "", fields: [], years: [], userOnly: false };
+let filters = { kw: "", fields: [], years: [], userOnly: false, coreTest: null };
 let filterOpen = false;
 let form = null; // {text, choices[], answer, explanation, field, year, difficulty, editId?}
 let canStore = true;
@@ -523,8 +529,22 @@ function toggleFilterVal(key, val) {
   if (i >= 0) arr.splice(i, 1); else arr.push(val);
   renderBank();
 }
-function clearFilters() { filters.fields = []; filters.years = []; filters.userOnly = false; renderBank(); }
-function hasActiveFilter() { return !!(filters.kw.trim() || filters.fields.length || filters.years.length || filters.userOnly); }
+function clearFilters() { filters.fields = []; filters.years = []; filters.userOnly = false; filters.coreTest = null; renderBank(); }
+function hasActiveFilter() { return !!(filters.kw.trim() || filters.fields.length || filters.years.length || filters.userOnly || filters.coreTest); }
+// ===== コアテスト（章別ひも付け） =====
+let _coreMap = null;
+function coreMap() {
+  if (!_coreMap) {
+    _coreMap = {};
+    if (typeof CORE_TESTS !== "undefined") CORE_TESTS.forEach(c => { _coreMap[c.book + c.ch] = new Set(c.ids); });
+  }
+  return _coreMap;
+}
+function setCoreTest(key) {
+  filters.coreTest = (filters.coreTest === key) ? null : key;
+  if (filters.coreTest) filterOpen = true;
+  renderBank();
+}
 function fieldsInOrder() {
   const present = new Set(fieldsList());
   return FIELDS_ORDER.filter(f => present.has(f)).concat(fieldsList().filter(f => !FIELDS_ORDER.includes(f)));
@@ -541,6 +561,7 @@ function filteredQuestions() {
     const kw = filters.kw.trim();
     if (kw && !(q.text.includes(kw) || q.choices.some(c => c.includes(kw)) || (q.explanation||"").includes(kw))) return false;
     if (filters.userOnly && !isUserMade(q)) return false;
+    if (filters.coreTest) { const s = coreMap()[filters.coreTest]; if (!s || !s.has(q.id)) return false; }
     if (filters.fields.length && !filters.fields.includes(q.field)) return false;
     if (filters.years.length && !filters.years.includes(q.year)) return false;
     return true;
@@ -631,12 +652,24 @@ function renderBank() {
   // キーワード検索
   h += '<div class="search-row"><input placeholder="キーワード検索" value="' + esc(filters.kw) + '" oninput="setKeyword(this.value)"></div>';
   // 絞り込みトグル
-  const nActive = filters.fields.length + filters.years.length + (filters.userOnly ? 1 : 0);
+  const nActive = filters.fields.length + filters.years.length + (filters.userOnly ? 1 : 0) + (filters.coreTest ? 1 : 0);
   h += '<button class="filter-toggle" onclick="toggleFilterPanel()">';
-  h += '<span>絞り込み（年度・科目）' + (nActive ? '<span class="badge">' + nActive + '</span>' : '') + '</span>';
+  h += '<span>絞り込み（年度・科目・コアテスト）' + (nActive ? '<span class="badge">' + nActive + '</span>' : '') + '</span>';
   h += '<span class="caret">' + (filterOpen ? '▲ 閉じる' : '▼ 開く') + '</span></button>';
   if (filterOpen) {
     h += '<div class="filter-panel">';
+    // コアテスト（章を読めば解ける問題を抽出）
+    if (typeof CORE_TESTS !== "undefined" && CORE_TESTS.length) {
+      let lastBook = null;
+      h += '<div class="fp-group"><div class="fp-label">コアテスト（章の内容で解ける問題）</div>';
+      CORE_TESTS.forEach(c => {
+        if (c.book !== lastBook) { if (lastBook !== null) h += '</div>'; h += '<div class="ct-book">' + esc(c.book) + '</div><div class="chips ct-chips">'; lastBook = c.book; }
+        const key = c.book + c.ch;
+        const on = filters.coreTest === key;
+        h += '<span class="chip ct-chip' + (on ? ' on' : '') + '" onclick="setCoreTest(\'' + esc(key) + '\')">' + c.ch + '章 ' + esc(c.label.replace(/^.*?章\s*/, '')) + '<span class="ct-n">' + c.count + '</span></span>';
+      });
+      h += '</div></div>';
+    }
     h += '<div class="fp-group"><div class="fp-label">種類</div><div class="chips">';
     h += '<span class="chip' + (filters.userOnly ? ' on' : '') + '" onclick="toggleUserOnly()">自分で登録した問題</span>';
     h += '</div></div>';

@@ -33,11 +33,15 @@ def _b64png(path): return "data:image/png;base64," + base64.b64encode(open(path,
 MASCOTS = {n: _b64png(os.path.join(ROOT,'assets','mascot',n+'.png'))
            for n in ['upa_happy','upa_think','upa_smile','bear_point','bear_wow','bear_smile']}
 
+# コアテスト（章→該当問題ID）。coretests/gen_coretests.py で生成した対応表を読み込む。
+CORE_TESTS = json.load(open(os.path.join(ROOT,'coretests','coretests.json'),encoding='utf-8'))
+
 # A) inject data + sets (newest first)
 old_a='"use strict";\n\n// ===== 定数 ====='
 inject=('"use strict";\n\n'
  'const KOKUSHI_VERSION = "'+KOKUSHI_VERSION+'";\n'
  'const MASCOTS = '+json.dumps(MASCOTS,ensure_ascii=False)+';\n'
+ 'const CORE_TESTS = '+json.dumps(CORE_TESTS,ensure_ascii=False)+';\n'
  'const KOKUSHI_72 = '+k72+';\n'
  'const KOKUSHI_71 = '+k71+';\n'
  'const KOKUSHI_70 = '+k70+';\n'
