@@ -524,14 +524,7 @@ function tagHtml(q) {
 function renderBank() {
   let h = '<div class="toolbar">';
   h += '<button class="btn btn-primary" onclick="openForm()">＋ 問題を登録</button>';
-  if (questions.length > 0) h += '<button class="btn btn-danger" onclick="clearAll()">全件削除</button>';
-  if (questions.length === 0) {
-    h += '<button class="btn btn-dashed" onclick="loadSamples()">サンプル問題を読み込む</button>';
-    if (typeof KOKUSHI_SETS !== "undefined") {
-      const total = KOKUSHI_SETS.reduce((n, st) => n + st.data.length, 0);
-      h += '<button class="btn btn-primary" onclick="seedAll()">全' + total + '問を読み込む</button>';
-    }
-  }
+  if (questions.length === 0) h += '<button class="btn btn-dashed" onclick="loadSamples()">サンプル問題を読み込む</button>';
   h += '</div>';
 
   // キーワード検索
@@ -569,7 +562,7 @@ function renderBankList() {
   const el = document.getElementById("bank-list");
   if (!el) return;
   if (questions.length === 0) {
-    el.innerHTML = '<div class="empty">まだ問題がありません。上の「全○問を読み込む」または「＋ 問題を登録」から始めてください。</div>';
+    el.innerHTML = '<div class="empty">まだ問題がありません。「＋ 問題を登録」から始めてください。</div>';
     return;
   }
   if (!hasActiveFilter()) {

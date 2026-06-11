@@ -135,16 +135,20 @@ async function loadData() {
     if (qs && qs.length) questions = qs;
     const t = await metaGet("test");
     if (t && Array.isArray(t.items)) test = t;
-    // 公式内容のバージョン同期：KOKUSHI_VERSION が変わっていれば公式問題を最新化（ユーザー自作分・テストは保持）
-    if (typeof KOKUSHI_SETS !== "undefined" && typeof KOKUSHI_VERSION !== "undefined"
-        && (await metaGet("contentVersion")) !== KOKUSHI_VERSION) {
+    // 公式問題は常に存在させる（消えていても復元）＋バージョンが上がれば内容更新。講師の自作分・テストは保持。
+    if (typeof KOKUSHI_SETS !== "undefined" && typeof KOKUSHI_VERSION !== "undefined") {
       const official = KOKUSHI_SETS.flatMap(s => s.data);
       const officialIds = new Set(official.map(q => q.id));
-      const userAdded = questions.filter(q => !officialIds.has(q.id));   // 講師が自分で足した分だけ残す
-      questions = [...userAdded, ...official.map(q => ({ ...q }))];
-      await questionsPutAll(questions);
-      await metaPut("contentVersion", KOKUSHI_VERSION);
-      await metaPut("seededAll", 1);
+      const have = new Set(questions.map(q => q.id));
+      const versionChanged = (await metaGet("contentVersion")) !== KOKUSHI_VERSION;
+      const missingOfficial = official.some(q => !have.has(q.id));
+      if (versionChanged || missingOfficial) {
+        const userAdded = questions.filter(q => !officialIds.has(q.id));
+        questions = [...userAdded, ...official.map(q => ({ ...q }))];
+        await questionsPutAll(questions);
+        await metaPut("contentVersion", KOKUSHI_VERSION);
+        await metaPut("seededAll", 1);
+      }
     }
     _qSavedRef = questions; _qSavedLen = questions.length;
   } catch (e) {
