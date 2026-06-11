@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import json, os, re, hashlib
+import json, os, re, hashlib, base64
 HERE=os.path.dirname(__file__); ROOT=os.path.join(HERE,'..')
 src=open(os.path.join(ROOT,'kakomon-webapp.html'),encoding='utf-8').read()
 
@@ -23,10 +23,16 @@ k63=extract('kakomon-webapp-63.html','KOKUSHI_63')
 #   → 利用者端末では「公式問題だけ最新化(自作分は保持)」が走る(loadData内)。
 KOKUSHI_VERSION=hashlib.md5((k72+k71+k70+k69+k68+k67+k66+k65+k64+k63).encode('utf-8')).hexdigest()[:12]
 
+# キャラクター画像(assets/mascot/*.png)をbase64で埋め込む
+def _b64png(path): return "data:image/png;base64," + base64.b64encode(open(path,'rb').read()).decode()
+MASCOTS = {n: _b64png(os.path.join(ROOT,'assets','mascot',n+'.png'))
+           for n in ['upa_happy','upa_think','upa_smile','bear_point','bear_wow','bear_smile']}
+
 # A) inject data + sets (newest first)
 old_a='"use strict";\n\n// ===== 定数 ====='
 inject=('"use strict";\n\n'
  'const KOKUSHI_VERSION = "'+KOKUSHI_VERSION+'";\n'
+ 'const MASCOTS = '+json.dumps(MASCOTS,ensure_ascii=False)+';\n'
  'const KOKUSHI_72 = '+k72+';\n'
  'const KOKUSHI_71 = '+k71+';\n'
  'const KOKUSHI_70 = '+k70+';\n'

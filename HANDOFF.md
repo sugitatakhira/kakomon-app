@@ -75,6 +75,12 @@ CSVの「正解番号」は**1始まり**、アプリ内部の answers は**0始
    **統合版 `kakomon-webapp-all.html`(10回2000問・約15MB)は IndexedDB**(DB=`kakomon-db`、ストア `questions`(keyPath:id)/`meta`)。localStorageは数MB上限で2000問が入らないため。下記「統合版のストレージ(IndexedDB)」参照。
 6. CSV取り込みは PapaParse をCDNから読み込む（ここだけ要ネット）。完全オフライン化するならライブラリも埋め込む。
 
+## キャラクター（マスコット）（2026-06）
+ケンゼミの公式キャラ。**ウーパールーパー**(upa_happy/think/smile)と**しろくま博士**(bear_point/wow/smile)各3表情を `assets/mascot/*.png`(240px)に格納。
+- 埋め込み: `build71/gen_all.py` が assets/mascot を base64 化して `const MASCOTS = {...}` として統合版に注入（空アプリ本体には入れない＝小さく保つ。renderコードは `typeof MASCOTS` で防御）。
+- 使用箇所: ヘッダーのロゴ(=`bear_smile`、`#logo-mascot` に renderHeader が src 設定)、各空状態の挿絵(`mascotImg(name)` ヘルパー。問題バンク絞り込み前=upa_think、テストバンク空=upa_happy、PDF空=bear_point、問題ゼロ=upa_smile)。
+- 表情やキャラを差し替えるなら assets/mascot を入れ替えて `gen_all.py`→`gen_pwa.py` 再生成。
+
 ## スマホアプリ化（PWA）（2026-06 実装）
 統合版を **PWA**(ホーム画面に追加できるアプリ)化した。デプロイ一式は **`docs/`**。
 - 生成: `python3 build71/gen_all.py`(統合版HTML) → `python3 build71/gen_pwa.py`(docs/へ展開)。アイコンは `build71/gen_icons.py`。

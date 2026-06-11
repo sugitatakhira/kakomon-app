@@ -33,6 +33,9 @@
   .header-top { display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 8px; }
   .eyebrow { font-size: 11px; letter-spacing: 0.2em; color: var(--muted); }
   h1 { font-size: 24px; font-weight: 700; }
+  .title-row { display: flex; align-items: center; gap: 12px; }
+  .logo-mascot { width: 54px; height: 54px; flex-shrink: 0; }
+  .empty-mascot { display: block; width: 128px; height: 128px; margin: 4px auto 14px; }
   #save-state { font-size: 12px; color: var(--muted); min-height: 18px; }
   #save-state.error { color: var(--ng); }
   nav { display: flex; gap: 4px; margin-top: 12px; }
@@ -183,9 +186,12 @@
 <header class="no-print">
   <div class="header-inner">
     <div class="header-top">
-      <div>
-        <div class="eyebrow">検査技術ゼミナール</div>
-        <h1 class="app-title">ケンゼミ過去問データベース</h1>
+      <div class="title-row">
+        <img id="logo-mascot" class="logo-mascot" alt="ケンゼミ博士" hidden>
+        <div>
+          <div class="eyebrow">検査技術ゼミナール</div>
+          <h1 class="app-title">ケンゼミ過去問データベース</h1>
+        </div>
       </div>
       <div id="save-state"></div>
     </div>
@@ -315,6 +321,9 @@ function toast(msg) {
 
 function esc(s) {
   return String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
+}
+function mascotImg(name, cls) {
+  return (typeof MASCOTS !== "undefined" && MASCOTS[name]) ? '<img class="' + (cls || "empty-mascot") + '" src="' + MASCOTS[name] + '" alt="">' : "";
 }
 const fieldsList = () => [...new Set(questions.map(q => q.field).filter(Boolean))];
 const yearsList = () => [...new Set(questions.map(q => q.year).filter(Boolean))].sort((a,b) => String(b).localeCompare(String(a)));
@@ -505,6 +514,11 @@ document.getElementById("csv-file").addEventListener("change", e => {
 function renderHeader() {
   document.getElementById("tab-bank").textContent = "問題バンク（" + questions.length + "）";
   document.getElementById("tab-build").textContent = "テストバンク（" + test.items.length + "）";
+  const lm = document.getElementById("logo-mascot");
+  if (lm) {
+    if (typeof MASCOTS !== "undefined" && MASCOTS.bear_smile) { lm.src = MASCOTS.bear_smile; lm.hidden = false; }
+    else { lm.hidden = true; }
+  }
   ["bank","build","print"].forEach(k => {
     document.getElementById("tab-" + k).classList.toggle("active", tab === k);
     document.getElementById("view-" + k).style.display = tab === k ? "" : "none";
@@ -562,11 +576,11 @@ function renderBankList() {
   const el = document.getElementById("bank-list");
   if (!el) return;
   if (questions.length === 0) {
-    el.innerHTML = '<div class="empty">まだ問題がありません。「＋ 問題を登録」から始めてください。</div>';
+    el.innerHTML = '<div class="empty">' + mascotImg("upa_smile") + 'まだ問題がありません。「＋ 問題を登録」から始めてください。</div>';
     return;
   }
   if (!hasActiveFilter()) {
-    el.innerHTML = '<div class="empty">「絞り込み（年度・科目）」を開いて選ぶか、キーワード検索すると問題が表示されます。<br>表示された問題をタップするとテストに追加できます。</div>';
+    el.innerHTML = '<div class="empty">' + mascotImg("upa_think") + '「絞り込み（年度・科目）」を開いて選ぶか、キーワード検索すると問題が表示されます。<br>表示された問題をタップするとテストに追加できます。</div>';
     return;
   }
   const list = filteredQuestions();
@@ -608,7 +622,7 @@ function renderBuild() {
   h += '</div>';
 
   if (items.length === 0) {
-    h += '<div class="empty">問題バンクから「テストに追加」した問題がここに並びます。</div>';
+    h += '<div class="empty">' + mascotImg("upa_happy") + '問題バンクから「テストに追加」した問題がここに並びます。</div>';
   } else {
     items.forEach((item, idx) => {
       h += '<div class="card t-item">';
@@ -659,7 +673,7 @@ function renderPrint() {
   const items = testItems();
   let h;
   if (items.length === 0) {
-    h = '<div class="empty">テストバンクに問題を追加すると、ここで問題用紙と模範解答をPDFで保存できます。</div>';
+    h = '<div class="empty">' + mascotImg("bear_point") + 'テストバンクに問題を追加すると、ここで問題用紙と模範解答をPDFで保存できます。</div>';
   } else {
     h = '<div class="toolbar"><button class="btn btn-primary" onclick="window.print()">PDFで保存する</button></div>';
     h += '<p class="t-meta" style="margin-bottom:16px">下のプレビューがそのままPDFになります（問題用紙＋模範解答・解説）。スマホは共有メニューやプリント画面から「PDFを保存」、PCは印刷ダイアログで「PDFに保存」を選んでください。模範解答を配らない場合はページ範囲を指定してください。</p>';
