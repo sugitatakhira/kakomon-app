@@ -259,7 +259,7 @@ let questions = [];
 let test = { id: null, title: "国家試験対策テスト", items: [] };
 let savedTests = [];
 let tab = "bank";
-let filters = { kw: "", fields: [], years: [] };
+let filters = { kw: "", fields: [], years: [], userOnly: false };
 let filterOpen = false;
 let form = null; // {text, choices[], answer, explanation, field, year, difficulty, editId?}
 let canStore = true;
@@ -399,6 +399,9 @@ function saveQuestion() {
     questions = questions.map(p => p.id === form.editId ? q : p);
   } else {
     questions.unshift(q);
+    filters = { kw: "", fields: [], years: [], userOnly: true };
+    filterOpen = true;
+    tab = "bank";
   }
   form = null;
   saveData(); render(); renderModal();
@@ -489,16 +492,24 @@ function toggleFilterVal(key, val) {
   if (i >= 0) arr.splice(i, 1); else arr.push(val);
   renderBank();
 }
-function clearFilters() { filters.fields = []; filters.years = []; renderBank(); }
-function hasActiveFilter() { return !!(filters.kw.trim() || filters.fields.length || filters.years.length); }
+function clearFilters() { filters.fields = []; filters.years = []; filters.userOnly = false; renderBank(); }
+function hasActiveFilter() { return !!(filters.kw.trim() || filters.fields.length || filters.years.length || filters.userOnly); }
 function fieldsInOrder() {
   const present = new Set(fieldsList());
   return FIELDS_ORDER.filter(f => present.has(f)).concat(fieldsList().filter(f => !FIELDS_ORDER.includes(f)));
 }
+let _officialIds = null;
+function officialIds() {
+  if (!_officialIds) _officialIds = new Set((typeof KOKUSHI_SETS !== "undefined" ? KOKUSHI_SETS.flatMap(s => s.data) : []).map(q => q.id));
+  return _officialIds;
+}
+function isUserMade(q) { return !officialIds().has(q.id); }
+function toggleUserOnly() { filters.userOnly = !filters.userOnly; renderBank(); }
 function filteredQuestions() {
   return questions.filter(q => {
     const kw = filters.kw.trim();
     if (kw && !(q.text.includes(kw) || q.choices.some(c => c.includes(kw)) || (q.explanation||"").includes(kw))) return false;
+    if (filters.userOnly && !isUserMade(q)) return false;
     if (filters.fields.length && !filters.fields.includes(q.field)) return false;
     if (filters.years.length && !filters.years.includes(q.year)) return false;
     return true;
@@ -590,12 +601,15 @@ function renderBank() {
   // キーワード検索
   h += '<div class="search-row"><input placeholder="キーワード検索" value="' + esc(filters.kw) + '" oninput="setKeyword(this.value)"></div>';
   // 絞り込みトグル
-  const nActive = filters.fields.length + filters.years.length;
+  const nActive = filters.fields.length + filters.years.length + (filters.userOnly ? 1 : 0);
   h += '<button class="filter-toggle" onclick="toggleFilterPanel()">';
   h += '<span>絞り込み（年度・科目）' + (nActive ? '<span class="badge">' + nActive + '</span>' : '') + '</span>';
   h += '<span class="caret">' + (filterOpen ? '▲ 閉じる' : '▼ 開く') + '</span></button>';
   if (filterOpen) {
     h += '<div class="filter-panel">';
+    h += '<div class="fp-group"><div class="fp-label">種類</div><div class="chips">';
+    h += '<span class="chip' + (filters.userOnly ? ' on' : '') + '" onclick="toggleUserOnly()">自分で登録した問題</span>';
+    h += '</div></div>';
     h += '<div class="fp-group"><div class="fp-label">年度</div><div class="chips">';
     yearsList().forEach(y => {
       const on = filters.years.includes(y);
