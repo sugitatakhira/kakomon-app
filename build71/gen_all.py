@@ -6,9 +6,15 @@ src=open(os.path.join(ROOT,'kakomon-webapp.html'),encoding='utf-8').read()
 # 問題文先頭の通し番号表記を「午前15」「午後2」に統一する。
 #   旧表記ゆれ: [A15] / [B02] / [午前A15] / [午後B2] / [午前81]（角括弧つき）など。
 #   A=午前・B=午後。先頭ゼロは除去。すでに「午前15」（角括弧なし）になっている分は変化しない（冪等）。
+#   重要: 午前/午後 か A/B の標識が必ず付くものだけを対象にする。
+#   "answers":[4] のような数字だけの角括弧（解答配列）は絶対に書き換えない。
 def normalize_prefix(s):
-    return re.sub(r'\[(午前|午後)?([AB])?0*(\d+)\]',
-                  lambda m: (m.group(1) or ('午前' if m.group(2)=='A' else '午後')) + m.group(3), s)
+    def repl(m):
+        ampm, letter, num = m.group(1), m.group(2), m.group(3)
+        if not ampm and not letter:
+            return m.group(0)  # [4] 等の数字のみは対象外（解答配列を壊さない）
+        return (ampm or ('午前' if letter == 'A' else '午後')) + num
+    return re.sub(r'\[(午前|午後)?([AB])?0*(\d+)\]', repl, s)
 
 def extract(htmlname, const):
     h=open(os.path.join(ROOT,htmlname),encoding='utf-8').read()
