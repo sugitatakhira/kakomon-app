@@ -24,9 +24,20 @@
   `kakomon-dojo-session`（出題中セッション＝再読込で続きから）。容量はごく小さい。
   ※ 編集アプリのキー（`kakomon-app-data` / IndexedDB `kakomon-db`）とは別物で衝突しない。
 
+## スマホアプリ版（PWA・GitHub Pages配信）
+ケンゼミDB（`docs/`）と同じやり方で、過去問道場も **`docs/dojo/`** にPWAとして配信できる
+（同じPagesサイトの `…/kakomon-app/dojo/` で開く。既存 `docs/` には触れない）。
+```
+python3 dojo/gen_icons_dojo.py  # docs/dojo/ のアイコン（過去問/道場）。初回のみでOK
+python3 dojo/gen_pwa_dojo.py    # kakomon-dojo-all.html を docs/dojo/ にPWA展開
+```
+公開手順・スマホへの追加方法は `../docs/dojo/README.md` を参照。
+**友達・生徒には、公開された URL を送るだけ**で渡せる（HTMLファイルを直接送る必要はない）。
+
 ## 再生成
 ```
-python3 dojo/gen_dojo.py      # → kakomon-dojo-all.html を更新
+python3 dojo/gen_dojo.py        # → kakomon-dojo-all.html を更新
+python3 dojo/gen_pwa_dojo.py    # → docs/dojo/ のPWAも更新（配信している場合）
 ```
 年度を増やしたら `gen_dojo.py` の `YEARS` に番号を足すだけ（対応する `kakomon-webapp-NN.html` が必要）。
 
