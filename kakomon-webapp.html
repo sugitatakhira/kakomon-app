@@ -666,7 +666,8 @@ function renderBank() {
         if (c.book !== lastBook) { if (lastBook !== null) h += '</div>'; h += '<div class="ct-book">' + esc(c.book) + '</div><div class="chips ct-chips">'; lastBook = c.book; }
         const key = c.book + c.ch;
         const on = filters.coreTest === key;
-        h += '<span class="chip ct-chip' + (on ? ' on' : '') + '" onclick="setCoreTest(\'' + esc(key) + '\')">' + c.ch + '章 ' + esc(c.label.replace(/^.*?章\s*/, '')) + '<span class="ct-n">' + c.count + '</span></span>';
+        const btn = c.btn || (c.ch + '章 ' + c.label.replace(/^.*?章\s*/, ''));
+        h += '<span class="chip ct-chip' + (on ? ' on' : '') + '" onclick="setCoreTest(\'' + esc(key) + '\')">' + esc(btn) + '<span class="ct-n">' + c.count + '</span></span>';
       });
       h += '</div></div>';
     }
