@@ -69,6 +69,7 @@ function loadData() {
       const d = JSON.parse(raw);
       if (Array.isArray(d.questions)) questions = d.questions;
       if (d.test && Array.isArray(d.test.items)) test = d.test;
+      if (Array.isArray(d.savedTests)) savedTests = d.savedTests;
     }
   } catch (e) {
     canStore = false;
@@ -84,7 +85,7 @@ function saveData() {
   clearTimeout(saveTimer);
   saveTimer = setTimeout(() => {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({ questions, test }));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ questions, test, savedTests }));
       el.textContent = "✓ 保存しました";
       setTimeout(() => { if (el.textContent === "✓ 保存しました") el.textContent = ""; }, 1500);
     } catch (e) {
@@ -141,6 +142,8 @@ async function loadData() {
     if (qs && qs.length) questions = qs;
     const t = await metaGet("test");
     if (t && Array.isArray(t.items)) test = t;
+    const stv = await metaGet("savedTests");
+    if (Array.isArray(stv)) savedTests = stv;
     // 公式問題は常に存在させる（消えていても復元）＋バージョンが上がれば内容更新。講師の自作分・テストは保持。
     if (typeof KOKUSHI_SETS !== "undefined" && typeof KOKUSHI_VERSION !== "undefined") {
       const official = KOKUSHI_SETS.flatMap(s => s.data);
@@ -175,6 +178,7 @@ function saveData() {
   saveTimer = setTimeout(async () => {
     try {
       await metaPut("test", test);
+      await metaPut("savedTests", savedTests);
       if (questions !== _qSavedRef || questions.length !== _qSavedLen) {
         await questionsPutAll(questions);
         _qSavedRef = questions; _qSavedLen = questions.length;

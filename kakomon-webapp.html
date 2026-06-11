@@ -36,6 +36,13 @@
   .title-row { display: flex; align-items: center; gap: 12px; }
   .logo-mascot { width: 54px; height: 54px; flex-shrink: 0; }
   .empty-mascot { display: block; width: 128px; height: 128px; margin: 4px auto 14px; }
+  .saved-test { display:flex; align-items:center; gap:10px; padding:10px 0; border-top:1px solid #e7e5e4; }
+  .saved-test:first-of-type { border-top:none; }
+  .st-body { flex:1; min-width:0; }
+  .st-name { font-weight:600; }
+  .st-now { font-size:11px; color:var(--ok); font-weight:700; margin-left:4px; }
+  .st-meta { font-size:12px; color:var(--muted); }
+  .st-actions { display:flex; gap:6px; flex-shrink:0; flex-wrap:wrap; justify-content:flex-end; }
   #save-state { font-size: 12px; color: var(--muted); min-height: 18px; }
   #save-state.error { color: var(--ng); }
   nav { display: flex; gap: 4px; margin-top: 12px; }
@@ -249,7 +256,8 @@ const SAMPLE_QUESTIONS = [
 
 // ===== 状態 =====
 let questions = [];
-let test = { title: "国家試験対策テスト", items: [] };
+let test = { id: null, title: "国家試験対策テスト", items: [] };
+let savedTests = [];
 let tab = "bank";
 let filters = { kw: "", fields: [], years: [] };
 let filterOpen = false;
@@ -264,6 +272,7 @@ function loadData() {
       const d = JSON.parse(raw);
       if (Array.isArray(d.questions)) questions = d.questions;
       if (d.test && Array.isArray(d.test.items)) test = d.test;
+      if (Array.isArray(d.savedTests)) savedTests = d.savedTests;
     }
   } catch (e) {
     canStore = false;
@@ -279,7 +288,7 @@ function saveData() {
   clearTimeout(saveTimer);
   saveTimer = setTimeout(() => {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({ questions, test }));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ questions, test, savedTests }));
       el.textContent = "✓ 保存しました";
       setTimeout(() => { if (el.textContent === "✓ 保存しました") el.textContent = ""; }, 1500);
     } catch (e) {
@@ -434,6 +443,43 @@ function setPoints(idx, v) {
   saveData(); renderHeader(); renderBuildMeta();
 }
 function setTitle(v) { test.title = v; saveData(); }
+function fmtDate(ts) { const d = new Date(ts); return d.getFullYear() + "/" + (d.getMonth()+1) + "/" + d.getDate(); }
+function saveCurrentTest() {
+  if (!test.items.length) { toast("先に問題を追加してください"); return; }
+  if (!test.id) test.id = uid();
+  const rec = { id: test.id, title: (test.title||"").trim() || "無題のテスト", items: test.items.map(i => ({ ...i })), savedAt: Date.now() };
+  const idx = savedTests.findIndex(t => t.id === rec.id);
+  if (idx >= 0) savedTests[idx] = rec; else savedTests.unshift(rec);
+  saveData(); render();
+  toast("「" + rec.title + "」を保存しました");
+}
+function loadSavedTest(id) {
+  const rec = savedTests.find(t => t.id === id);
+  if (!rec) return;
+  test = { id: rec.id, title: rec.title, items: rec.items.map(i => ({ ...i })) };
+  saveData(); render();
+  toast("「" + rec.title + "」を開きました");
+}
+function duplicateSavedTest(id) {
+  const rec = savedTests.find(t => t.id === id);
+  if (!rec) return;
+  savedTests.unshift({ id: uid(), title: rec.title + " のコピー", items: rec.items.map(i => ({ ...i })), savedAt: Date.now() });
+  saveData(); render();
+  toast("複製しました");
+}
+function deleteSavedTest(id) {
+  const rec = savedTests.find(t => t.id === id);
+  confirmAction("保存したテスト「" + (rec ? rec.title : "") + "」を削除しますか？", () => {
+    savedTests = savedTests.filter(t => t.id !== id);
+    saveData(); render();
+    toast("削除しました");
+  });
+}
+function newTest() {
+  const go = () => { test = { id: null, title: "新しいテスト", items: [] }; saveData(); render(); toast("新しいテストを作成しました"); };
+  if (test.items.length) confirmAction("編集中のテストを片付けて、新しいテストを作りますか？（保存したテストは消えません）", go);
+  else go();
+}
 
 // ===== 検索 =====
 function setKeyword(v) { filters.kw = v; renderBankList(); }
@@ -615,28 +661,55 @@ function renderBuildMeta() {
 
 function renderBuild() {
   const items = testItems();
-  let h = '<div class="card mb" style="margin-bottom:16px">';
+  let h = '';
+
+  // 現在編集中のテスト
+  h += '<div class="card mb" style="margin-bottom:16px">';
   h += '<label>テスト名</label>';
   h += '<input value="' + esc(test.title) + '" oninput="setTitle(this.value)">';
   h += '<div class="t-meta" id="build-meta" style="margin-top:8px">' + items.length + '問</div>';
-  h += '</div>';
+  h += '<div class="toolbar" style="margin:10px 0 0">';
+  h += '<button class="btn btn-primary" onclick="saveCurrentTest()">このテストを保存</button>';
+  h += '<button class="btn" onclick="newTest()">新しいテスト</button>';
+  h += '</div></div>';
 
+  // 問題リスト
   if (items.length === 0) {
-    h += '<div class="empty">' + mascotImg("upa_happy") + '問題バンクから「テストに追加」した問題がここに並びます。</div>';
+    h += '<div class="empty">' + mascotImg("upa_happy") + '問題バンクで問題をタップして追加すると、ここに並びます。<br>名前を付けて「このテストを保存」すると、下の一覧に残って後で再利用できます。</div>';
   } else {
     items.forEach((item, idx) => {
       h += '<div class="card t-item">';
       h += '<div class="t-num serif">' + (idx+1) + '</div>';
       h += '<div class="t-body"><p>' + esc(item.q.text) + '</p>';
       h += '<div class="t-meta">' + esc(item.q.field || "") + (item.q.year ? "・" + esc(item.q.year) + "年度" : "") + '</div></div>';
-      h += '<div class="t-side">';
-      h += '<div class="t-move">';
+      h += '<div class="t-side"><div class="t-move">';
       h += '<button class="btn btn-sm" onclick="moveItem(' + idx + ',-1)" aria-label="上へ">↑</button>';
       h += '<button class="btn btn-sm" onclick="moveItem(' + idx + ',1)" aria-label="下へ">↓</button>';
       h += '<button class="btn btn-sm btn-danger" onclick="toggleTest(\'' + item.qid + '\')">外す</button>';
       h += '</div></div></div>';
     });
   }
+
+  // 保存したテスト一覧
+  h += '<div class="card" style="margin-top:24px">';
+  h += '<label>保存したテスト（' + savedTests.length + '）</label>';
+  if (savedTests.length === 0) {
+    h += '<p class="t-meta">まだありません。テストを作って「このテストを保存」を押すと、ここに溜まって後でいつでも呼び出せます。</p>';
+  } else {
+    savedTests.forEach(t => {
+      const cur = t.id && t.id === test.id;
+      h += '<div class="saved-test">';
+      h += '<div class="st-body"><div class="st-name">' + esc(t.title) + (cur ? '<span class="st-now">編集中</span>' : '') + '</div>';
+      h += '<div class="st-meta">' + t.items.length + '問' + (t.savedAt ? '・' + fmtDate(t.savedAt) + ' 保存' : '') + '</div></div>';
+      h += '<div class="st-actions">';
+      h += '<button class="btn btn-sm btn-primary" onclick="loadSavedTest(\'' + t.id + '\')">開く</button>';
+      h += '<button class="btn btn-sm" onclick="duplicateSavedTest(\'' + t.id + '\')">複製</button>';
+      h += '<button class="btn btn-sm btn-danger" onclick="deleteSavedTest(\'' + t.id + '\')">削除</button>';
+      h += '</div></div>';
+    });
+  }
+  h += '</div>';
+
   document.getElementById("view-build").innerHTML = h;
 }
 
