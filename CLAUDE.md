@@ -45,4 +45,5 @@
   統合版 `radiology/kakomon-webapp-all.html`（全15回3000問・タイトル「放射技術ゼミナール／ホウゼミ」）。
 - 再生成：各 `radiology/buildNN/`（cmapfix→parse→extract_beppu→buildNN.py→gen_html.py）→
   `radiology/gen_all.py`（統合版）。
-- **未了（任意）**：`docs/houzemi/` へのPWA配信（ケンゼミ `docs/` と同要領）。
+- **PWA配信済み**：`docs/houzemi/`（GitHub Pages公開で `https://<user>.github.io/kakomon-app/houzemi/`）。
+  再生成：`radiology/gen_all.py`→`gen_icons.py`→`gen_pwa.py`。配色インディゴ・保存 `houzemi-db`。
