@@ -1,0 +1,42 @@
+{
+  "AM": {
+    "5": {
+      "figure": "am5"
+    },
+    "45": {
+      "figure": "am45"
+    },
+    "47": {
+      "figure": "am47"
+    },
+    "72": {
+      "figure": "am72"
+    },
+    "76": {
+      "figure": "am76"
+    },
+    "95": {
+      "figure": "am95"
+    },
+    "43": {
+      "explanation": "※採点除外"
+    },
+    "99": {
+      "explanation": "※採点除外"
+    }
+  },
+  "PM": {
+    "47": {
+      "figure": "pm47"
+    },
+    "75": {
+      "figure": "pm75"
+    },
+    "94": {
+      "figure": "pm94"
+    },
+    "42": {
+      "explanation": "※採点除外"
+    }
+  }
+}
