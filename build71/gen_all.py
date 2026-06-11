@@ -6,9 +6,15 @@ src=open(os.path.join(ROOT,'kakomon-webapp.html'),encoding='utf-8').read()
 # 問題文先頭の通し番号表記を「午前15」「午後2」に統一する。
 #   旧表記ゆれ: [A15] / [B02] / [午前A15] / [午後B2] / [午前81]（角括弧つき）など。
 #   A=午前・B=午後。先頭ゼロは除去。すでに「午前15」（角括弧なし）になっている分は変化しない（冪等）。
+#   重要: 午前/午後 か A/B の標識が必ず付くものだけを対象にする。
+#   "answers":[4] のような数字だけの角括弧（解答配列）は絶対に書き換えない。
 def normalize_prefix(s):
-    return re.sub(r'\[(午前|午後)?([AB])?0*(\d+)\]',
-                  lambda m: (m.group(1) or ('午前' if m.group(2)=='A' else '午後')) + m.group(3), s)
+    def repl(m):
+        ampm, letter, num = m.group(1), m.group(2), m.group(3)
+        if not ampm and not letter:
+            return m.group(0)  # [4] 等の数字のみは対象外（解答配列を壊さない）
+        return (ampm or ('午前' if letter == 'A' else '午後')) + num
+    return re.sub(r'\[(午前|午後)?([AB])?0*(\d+)\]', repl, s)
 
 def extract(htmlname, const):
     h=open(os.path.join(ROOT,htmlname),encoding='utf-8').read()
@@ -180,9 +186,17 @@ async function loadData() {
       if (versionChanged || missingOfficial) {
         const userAdded = questions.filter(q => !officialIds.has(q.id));
         questions = [...userAdded, ...official.map(q => ({ ...q }))];
-        await questionsPutAll(questions);
-        await metaPut("contentVersion", KOKUSHI_VERSION);
-        await metaPut("seededAll", 1);
+        // 永続化はバックグラウンドで実行（初回描画＝スプラッシュ解除をブロックしない）。
+        // メモリ上の questions は既に最新なので、画面はすぐ全問表示される。
+        _qSavedRef = questions; _qSavedLen = questions.length;
+        (async () => {
+          try {
+            await questionsPutAll(questions);
+            await metaPut("contentVersion", KOKUSHI_VERSION);
+            await metaPut("seededAll", 1);
+          } catch (e) {}
+        })();
+        return;
       }
     }
     _qSavedRef = questions; _qSavedLen = questions.length;
@@ -238,9 +252,21 @@ assert src.count(old_storage)==1
 src=src.replace(old_storage,new_storage)
 
 
-# D) 起動を非同期化（loadData が IndexedDB なので await してから描画）
+# D) 起動: まず埋め込みデータで即描画（スプラッシュをIndexedDB待ちにしない）→
+#    その後バックグラウンドで保存データ(自作問題・テスト)を読み込んで再描画。
 old_init='// ===== 起動 =====\nloadData();\nrender();'
-new_init='// ===== 起動 =====\n(async () => { await loadData(); render(); })();'
+new_init=('// ===== 起動 =====\n'
+ '// 1) 埋め込み済みの公式データだけで即描画。IndexedDBを一切待たないのでスプラッシュは必ず解除される。\n'
+ 'try {\n'
+ '  if (typeof KOKUSHI_SETS !== "undefined" && questions.length === 0) {\n'
+ '    questions = KOKUSHI_SETS.flatMap(s => s.data).map(q => ({ ...q }));\n'
+ '  }\n'
+ '  render();\n'
+ '} catch (e) { try { hideSplash(); } catch (e2) {} }\n'
+ '// 2) 保存データ(自作問題・テスト)をバックグラウンドで読み込み、整合できたら再描画。\n'
+ '(async () => { try { await loadData(); render(); } catch (e) {} })();\n'
+ '// 3) 安全網: 何があってもスプラッシュは一定時間で必ず解除する。\n'
+ 'setTimeout(() => { try { hideSplash(); } catch (e) {} }, 3000);')
 assert src.count(old_init)==1
 src=src.replace(old_init,new_init)
 
