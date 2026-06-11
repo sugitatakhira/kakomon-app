@@ -183,9 +183,10 @@ function beatValue(dt, m){
 function mNormal(o){
   o=o||{}; const A=o.amp==null?1:o.amp;
   const P = o.p===false ? null : {a:(o.pAmp==null?0.13:o.pAmp), c:(o.pc==null?-160:o.pc), w:(o.pw==null?24:o.pw)};
-  const q = o.qAmp==null?-0.06:o.qAmp, r=o.rAmp==null?1.0:o.rAmp, s=o.sAmp==null?-0.25:o.sAmp;
-  const jt = o.jt==null?48:o.jt;
-  const qrs = o.qrs || [[-46,0],[-34,A*q],[-14,0],[0,A*r],[18,0],[30,A*s],[jt,0]];
+  const q = o.qAmp==null?-0.09:o.qAmp, r=o.rAmp==null?1.15:o.rAmp, s=o.sAmp==null?-0.16:o.sAmp;
+  const jt = o.jt==null?52:o.jt;
+  // Q→R→S を連続した折れ線に（中間で基線に戻さない）→ 量感のある自然なQRS
+  const qrs = o.qrs || [[-50,0],[-38,A*q],[0,A*r],[30,A*s],[jt,0]];
   const st = {level:(o.st==null?0:o.st), t0:jt, t1:(o.stEnd==null?385:o.stEnd)};
   const T = o.t===false ? null : {a:(o.tAmp==null?0.32:o.tAmp), c:(o.tc==null?250:o.tc), wl:(o.twl==null?62:o.twl), wr:(o.twr==null?46:o.twr)};
   const U = o.u ? {a:o.u, c:(o.uc==null?410:o.uc), w:42} : null;
@@ -224,8 +225,8 @@ function buildBeats(spec){
     case 'sinusarr':{ // 呼吸性洞性不整脈
       let t=0.45,i=0; while(t<dur-0.05){ beats.push(bN(t,{})); const base=rr(75); t+=base*(1+0.22*Math.sin(i*0.9)); i++; } break; }
     case 'afib':{ // 心房細動: 不規則RR・P波消失・f波
-      let t=0.4; while(t<dur-0.05){ beats.push(bN(t,{p:false})); t+= 0.46 + rnd()*0.55; }
-      baseline = tt=>{ let v=0; for(let i=1;i<=5;i++) v+=(0.018/i)*Math.sin(2*Math.PI*(6+i*2.3)*tt + i*1.7); return v; };
+      let t=0.4; while(t<dur-0.05){ beats.push(bN(t,{p:false})); t+= 0.38 + rnd()*0.66; }
+      baseline = tt=>{ return 0.06*Math.sin(2*Math.PI*8.5*tt) + 0.04*Math.sin(2*Math.PI*6.1*tt+1.3) + 0.03*Math.sin(2*Math.PI*11.5*tt+2.2); };
       break; }
     case 'aflutter':{ // 心房粗動: のこぎり波(F波) ~300/min
       const ratio = spec.ratio||2; const fr=300;
@@ -265,22 +266,22 @@ function buildBeats(spec){
     case 'junctional':{ for(let t=0.5;t<dur-0.05;t+=rr(spec.rate||46)) beats.push(bN(t,{p:false, bumps:[{a:-0.1,c:62,w:16}]})); break; } // 接合部調律(逆行性P)
     case 'aivr':{ for(let t=0.4;t<dur-0.02;t+=rr(70)) beats.push(bW(t,{amp:0.85})); break; } // 促進心室固有調律
     case 'sinuspause':{ let t=0.45, i=0; while(t<dur-0.05){ beats.push(bN(t,{})); i++; if(i===3){ t+=rr(70)*2.4; } else t+=rr(70); } break; }
-    case 'rbbb':{ // 右脚ブロック rSR'(V1)
+    case 'rbbb':{ // 右脚ブロック rSR'(V1) 幅広(~140ms)
       for(let t=0.5;t<dur-0.05;t+=rr(72)) beats.push({tR:t, m:{
-        P:{a:0.12,c:-160,w:22},
-        qrs:[[-58,0],[-44,0.32],[-26,-0.26],[2,0],[24,0.7],[44,0.2],[78,0]],
-        st:{level:0,t0:78,t1:380}, T:{a:-0.34,c:250,wl:60,wr:48}, U:null, bumps:[] }});
+        P:{a:0.12,c:-165,w:24},
+        qrs:[[-66,0],[-52,0.3],[-34,-0.22],[-6,0.06],[26,0.72],[50,0.56],[80,0]],
+        st:{level:0,t0:80,t1:380}, T:{a:-0.32,c:250,wl:60,wr:48}, U:null, bumps:[] }});
       break; }
-    case 'lbbb':{ // 左脚ブロック 幅広ノッチR(V6)
+    case 'lbbb':{ // 左脚ブロック 幅広ノッチR(V6) 幅広(~150ms)
       for(let t=0.5;t<dur-0.05;t+=rr(72)) beats.push({tR:t, m:{
-        P:{a:0.12,c:-160,w:22},
-        qrs:[[-62,0],[-34,0.55],[-8,0.44],[20,0.86],[64,0]],
-        st:{level:-0.05,t0:64,t1:385}, T:{a:-0.4,c:255,wl:64,wr:52}, U:null, bumps:[] }});
+        P:{a:0.12,c:-165,w:24},
+        qrs:[[-78,0],[-50,0.46],[-18,0.66],[6,0.58],[34,0.92],[60,0.5],[84,0]],
+        st:{level:-0.06,t0:84,t1:390}, T:{a:-0.4,c:258,wl:64,wr:52}, U:null, bumps:[] }});
       break; }
     case 'wpw':{ // WPW: 短PR + δ波（緩やかな立ち上がり）
       for(let t=0.5;t<dur-0.05;t+=rr(74)) beats.push({tR:t, m:{
-        P:{a:0.13,c:-120,w:22},
-        qrs:[[-95,0],[-58,0.06],[-40,0.22],[0,1.0],[20,0],[30,-0.18],[55,0]],
+        P:{a:0.13,c:-120,w:24},
+        qrs:[[-98,0],[-62,0.05],[-44,0.18],[-22,0.5],[0,1.05],[28,-0.1],[55,0]],
         st:{level:0,t0:55,t1:385}, T:{a:-0.16,c:250,wl:58,wr:46}, U:null, bumps:[] }});
       break; }
     case 'stemi_ant':{ for(let t=0.5;t<dur-0.05;t+=rr(78)) beats.push(bN(t,{qAmp:-0.18, st:0.42, stEnd:360, tAmp:0.55, tc:255, twl:55, twr:55})); break; }
@@ -289,8 +290,8 @@ function buildBeats(spec){
     case 'hyperk':{ // 高K: テント状T・QRS幅広・P平低
       for(let t=0.5;t<dur-0.05;t+=rr(70)) beats.push({tR:t, m:{
         P:null,
-        qrs:[[-58,0],[-42,-0.08],[-16,0],[0,1.0],[22,0],[42,-0.3],[72,0]],
-        st:{level:0,t0:72,t1:330}, T:{a:0.85,c:225,wl:30,wr:30}, U:null, bumps:[] }});
+        qrs:[[-60,0],[-46,-0.1],[0,1.0],[42,-0.26],[74,0]],
+        st:{level:0,t0:74,t1:330}, T:{a:0.85,c:228,wl:34,wr:34}, U:null, bumps:[] }});
       break; }
     case 'longqt':{ for(let t=0.5;t<dur-0.05;t+=rr(64)) beats.push(bN(t,{tc:355, twl:80, twr:62, tAmp:0.26, stEnd:470})); break; }
     case 'hypok':{ for(let t=0.5;t<dur-0.05;t+=rr(74)) beats.push(bN(t,{tAmp:0.12, st:-0.06, u:0.22})); break; } // 低K: T平低+U波
@@ -365,7 +366,7 @@ function drawECG(canvas, spec){
   const wander = t => 0.022*Math.sin(2*Math.PI*0.22*t+0.6) + 0.012*Math.sin(2*Math.PI*0.07*t);
 
   // 波形本体（細かくサンプリングして滑らかに）
-  ctx.strokeStyle=getCss('--trace'); ctx.lineWidth=1.7;
+  ctx.strokeStyle=getCss('--trace'); ctx.lineWidth=1.9;
   ctx.beginPath();
   const step=0.5; let first=true;
   for(let px=xOff; px<=W-3; px+=step){
