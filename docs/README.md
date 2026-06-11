@@ -4,7 +4,7 @@
 **アプリのように**（全画面・アイコン付き・オフライン可）使えます。iPhone / Android 両対応。
 
 中身：
-- `index.html` … アプリ本体（第63〜72回＝2000問＋別冊画像、約15MB）
+- `index.html` … アプリ本体（第58〜72回＝3000問＋別冊画像、約24MB）
 - `manifest.webmanifest` … アプリ名・アイコン・全画面設定
 - `sw.js` … Service Worker（オフライン用にキャッシュ）
 - `icon-*.png` … アプリアイコン
