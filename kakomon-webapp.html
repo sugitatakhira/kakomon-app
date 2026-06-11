@@ -17,11 +17,35 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
     font-family: "Hiragino Sans", "Yu Gothic UI", "Meiryo", sans-serif;
-    background: var(--paper);
+    background-color: #eef3f3;
+    background-image:
+      radial-gradient(120% 80% at 50% -10%, rgba(13,148,136,0.10) 0%, rgba(13,148,136,0) 55%),
+      radial-gradient(circle at 1px 1px, rgba(15,118,110,0.06) 1px, transparent 1.6px);
+    background-size: auto, 22px 22px;
+    background-attachment: fixed, fixed;
     color: var(--ink);
     font-size: 14px;
     line-height: 1.6;
+    min-height: 100vh;
   }
+
+  /* ===== 起動スプラッシュ ===== */
+  .splash {
+    position: fixed; inset: 0; z-index: 9999;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 24px; text-align: center; color: #fff;
+    background: linear-gradient(160deg, #0d9488 0%, #0f766e 42%, #082f49 100%);
+    transition: opacity .55s ease;
+  }
+  .splash.hide { opacity: 0; pointer-events: none; }
+  .splash .s-eyebrow { font-size: 12px; letter-spacing: .34em; color: #99f6e4; margin-bottom: 16px; text-indent: .34em; }
+  .splash .s-title {
+    font-family: "Hiragino Maru Gothic ProN", "ヒラギノ丸ゴ ProN", "Rounded Mplus 1c", system-ui, "Hiragino Sans", sans-serif;
+    font-weight: 700; font-size: clamp(30px, 9vw, 50px); letter-spacing: .03em; line-height: 1.22;
+    text-shadow: 0 2px 18px rgba(0,0,0,.22);
+  }
+  .splash .s-bar { width: 96px; height: 5px; border-radius: 3px; background: #fbbf24; margin: 22px 0 10px; }
+  .splash .s-db { font-size: 12px; letter-spacing: .34em; color: #fbbf24; font-weight: 700; text-indent: .34em; }
   .serif { font-family: "Hiragino Mincho ProN", "Yu Mincho", "BIZ UDMincho", serif; }
   .app-title { font-family: "Hiragino Maru Gothic ProN", "ヒラギノ丸ゴ ProN", "Rounded Mplus 1c", "Quicksand", system-ui, "Hiragino Sans", sans-serif; letter-spacing: 0.01em; }
 
@@ -190,6 +214,13 @@
 </style>
 </head>
 <body>
+
+<div class="splash no-print" id="splash">
+  <div class="s-eyebrow">検査技術ゼミナール</div>
+  <div class="s-title">過去問データベース</div>
+  <div class="s-bar"></div>
+  <div class="s-db">KENZEMI 過去問 DB</div>
+</div>
 
 <header class="no-print">
   <div class="header-inner">
@@ -847,6 +878,12 @@ function render() {
   renderBank();
   renderBuild();
   renderPrint();
+  hideSplash();
+}
+function hideSplash() {
+  const s = document.getElementById("splash");
+  if (!s || s.classList.contains("hide")) return;
+  setTimeout(() => { s.classList.add("hide"); setTimeout(() => s.remove(), 700); }, 400);
 }
 
 // ===== 起動 =====
