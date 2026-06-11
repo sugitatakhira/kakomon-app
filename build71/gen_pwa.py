@@ -8,7 +8,7 @@ docs/ 配下にデプロイ一式を出力する。docs/ をHTTPSで公開(GitHu
 スプラッシュで固まるため。外部JSONなら gzip 転送＋ネイティブ JSON.parse＋非同期なので、
 軽量シェルが即描画され、フリーズしない。
 SWのキャッシュ名は index.html＋data.json の内容ハッシュに連動 → 変更時だけ自動で新版に差し替わる。"""
-import os, re, json, hashlib, subprocess
+import os, re, json, hashlib, subprocess, base64, shutil
 HERE=os.path.dirname(__file__); ROOT=os.path.join(HERE,'..'); DOCS=os.path.join(ROOT,'docs')
 os.makedirs(DOCS, exist_ok=True)
 html=open(os.path.join(ROOT,'kakomon-webapp-all.html'),encoding='utf-8').read()
@@ -39,8 +39,32 @@ try:
     data_json=subprocess.check_output(['node',_tmp]).decode('utf-8')
 finally:
     os.remove(_tmp)
-json.loads(data_json)  # 妥当性チェック
+data=json.loads(data_json)  # 妥当性チェック
+#    2-b') 別冊画像(base64)を img/ に実ファイルとして書き出し、data.json からは
+#          URLパス参照に置換する。画像は遅延読込＋表示時にSWが都度キャッシュ。
+#          これで data.json は本文のみ(約1MB)になり初回読込が軽くなる。
+imgdir=os.path.join(DOCS,'img')
+if os.path.isdir(imgdir): shutil.rmtree(imgdir)
+os.makedirs(imgdir, exist_ok=True)
+_EXT={'image/jpeg':'jpg','image/jpg':'jpg','image/png':'png','image/webp':'webp','image/gif':'gif'}
+def _safe_id(qid): return qid.replace('午前','a').replace('午後','p')
+_nimg=0; _ibytes=0
+for _s in data['sets']:
+    for _q in _s['data']:
+        _du=_q.get('image')
+        if not _du: continue
+        _m=re.match(r'data:(image/[^;]+);base64,(.*)$', _du, re.S)
+        if not _m: continue
+        _mime,_b64=_m.group(1),_m.group(2)
+        _ext=_EXT.get(_mime,'jpg')
+        _fn='img/%s.%s'%(_safe_id(_q['id']),_ext)
+        with open(os.path.join(DOCS,_fn),'wb') as _f:
+            _raw=base64.b64decode(_b64); _f.write(_raw)
+        _q['image']=_fn; _nimg+=1; _ibytes+=len(_raw)
+data_json=json.dumps(data, ensure_ascii=False, separators=(',',':'))
+json.loads(data_json)
 open(os.path.join(DOCS,'kakomon-data.json'),'w',encoding='utf-8').write(data_json)
+print("externalized %d images (%.1fMB) -> docs/img/" % (_nimg,_ibytes/1e6))
 #    2-c) インライン定数を「空の可変グローバル＋適用関数」に置換
 boot_decl=('\nlet KOKUSHI_VERSION = "", MASCOTS = {}, CORE_TESTS = [], KOKUSHI_SETS = [];\n'
   'function applyDB(d){ KOKUSHI_VERSION = d.version; MASCOTS = d.mascots || {}; CORE_TESTS = d.coreTests || []; KOKUSHI_SETS = d.sets || []; }\n')
