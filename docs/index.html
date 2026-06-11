@@ -869,10 +869,14 @@ function renderBuild() {
     h += '<div class="empty">' + mascotImg("upa_happy") + '問題バンクで問題をタップして追加すると、ここに並びます。<br>名前を付けて「このテストを保存」すると、下の一覧に残って後で再利用できます。</div>';
   } else {
     items.forEach((item, idx) => {
+      const ord = orderFor(item);
       h += '<div class="card t-item">';
       h += '<div class="t-num serif">' + (idx+1) + '</div>';
       h += '<div class="t-body"><p>' + esc(item.q.text) + '</p>';
-      h += '<div class="t-meta">' + esc(item.q.field || "") + (item.q.year ? "・" + esc(item.q.year) + "年度" : "") + '</div></div>';
+      if (item.q.image) h += '<img src="' + item.q.image + '" alt="別冊図" class="q-img" loading="lazy">';
+      h += '<ol class="q-choices">' + ord.map((oldI, newI) =>
+        '<li>' + (newI+1) + '. ' + esc(item.q.choices[oldI]) + ((item.q.answers||[]).includes(oldI) ? '<span class="correct-mark">◎</span>' : '') + '</li>').join("") + '</ol>';
+      h += '<div class="t-meta">' + esc(item.q.field || "") + (item.q.year ? "・" + esc(item.q.year) + "年度" : "") + (shuffleOn ? '・<b>シャッフル後の並び（◎が正解）</b>' : '・◎が正解') + '</div></div>';
       h += '<div class="t-side"><div class="t-move">';
       h += '<button class="btn btn-sm" onclick="moveItem(' + idx + ',-1)" aria-label="上へ">↑</button>';
       h += '<button class="btn btn-sm" onclick="moveItem(' + idx + ',1)" aria-label="下へ">↓</button>';
