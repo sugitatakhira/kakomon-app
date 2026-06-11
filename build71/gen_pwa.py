@@ -36,7 +36,7 @@ open(os.path.join(DOCS,'index.html'),'w',encoding='utf-8').write(html)
 # 3) manifest
 manifest={
  "name":"ケンゼミ過去問データベース","short_name":"ケンゼミ過去問",
- "description":"検査技術ゼミナール｜臨床検査技師国家試験 第62〜72回の過去問2200問(別冊画像つき)。検索・テスト編成・印刷ができる。",
+ "description":"検査技術ゼミナール｜臨床検査技師国家試験 第61〜72回の過去問2400問(別冊画像つき)。検索・テスト編成・印刷ができる。",
  "start_url":"./index.html","scope":"./","display":"standalone","orientation":"portrait",
  "background_color":"#f5f5f4","theme_color":"#0e7490","lang":"ja",
  "icons":[

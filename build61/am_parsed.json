@@ -1,0 +1,1402 @@
+[
+{
+"n": 1,
+"text": "栄養サポートチームが栄養状態の評価に用いる検査項目はどれか。",
+"choices": [
+"カリウム",
+"ナトリウム",
+"アルブミン",
+"クレアチニン",
+"免疫グロブリン"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 2,
+"text": "細菌培養の検体で4 ℃に保存するのが適切でないのはどれか。",
+"choices": [
+"喀痰",
+"髄液",
+"胆汁",
+"中間尿",
+"関節液"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 3,
+"text": "血清成分で食後に変動する項目はどれか。",
+"choices": [
+"AST",
+"アルブミン",
+"クレアチニン",
+"トリグリセライド",
+"総コレステロール1 TP07ct-amor-5"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 4,
+"text": "尿色調の異常とその原因の組合せで正しいのはどれか。2つ選べ。",
+"choices": [
+"橙色⟨GAP⟩ヘモグロビン",
+"黄褐色⟨GAP⟩ウロビリン体",
+"鮮紅色⟨GAP⟩ビリルビン",
+"乳白色⟨GAP⟩メラニン",
+"赤ブドウ酒色⟨GAP⟩ヘマトポルフィリン"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": true
+},
+{
+"n": 5,
+"text": "尿沈渣の無染色標本（別冊No. 1）を別に示す。認められるのはどれか。",
+"choices": [
+"顆粒円柱",
+"脂肪円柱",
+"上皮円柱",
+"赤血球円柱",
+"白血球円柱"
+],
+"beppu": "1",
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 6,
+"text": "イチゴゼリー状の下痢便を呈する疾患はどれか。",
+"choices": [
+"コレラ",
+"細菌性赤痢",
+"アメーバ赤痢",
+"サルモネラ腸炎",
+"カンピロバクター腸炎2 TP07ct-amor-6"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 7,
+"text": "淡水魚の生食によってヒトに感染するのはどれか。2つ選べ。",
+"choices": [
+"肝蛭",
+"肝吸虫",
+"横川吸虫",
+"宮崎肺吸虫",
+"日本住血吸虫"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 8,
+"text": "妊婦が感染すると子宮内の胎児に重篤な障害を与える寄生虫症はどれか。",
+"choices": [
+"蟯虫症",
+"アニサキス症",
+"Lambl鞭毛虫症",
+"腟トリコモナス症",
+"トキソプラズマ症"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 9,
+"text": "体毛に付着していた虫体（体長2.5 mm）の写真（別冊No. 2）を別に示す。正しいのはどれか。",
+"choices": [
+"ケジラミ",
+"ツツガムシ",
+"ヒゼンダニ",
+"アタマジラミ",
+"コロモジラミ3 TP07ct-amor-7"
+],
+"beppu": "2",
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 10,
+"text": "急性期の診断に末梢血塗抹標本のWright-Giemsa染色が有用なのはどれか。",
+"choices": [
+"旋毛虫症",
+"広東住血線虫症",
+"Manson住血吸虫症",
+"Westerman肺吸虫症",
+"バンクロフト〈Bancroft〉糸状虫症"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 11,
+"text": "異所性刺激による不整脈はどれか。",
+"choices": [
+"左脚ブロック",
+"心房細動",
+"洞不整脈",
+"房室ブロック",
+"WPW症候群"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 12,
+"text": "炎症性腸疾患はどれか。",
+"choices": [
+"Zollinger-Ellison症候群",
+"サルコイドーシス",
+"過敏性腸症候群",
+"吸収不良症候群",
+"Crohn病4 TP07ct-amor-8"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 13,
+"text": "エンドトキシンショックを起こすのはどれか。",
+"choices": [
+"緑膿菌",
+"カンジダ",
+"肺炎球菌",
+"黄色ブドウ球菌",
+"溶血性連鎖球菌"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 14,
+"text": "疾患と血中濃度が上昇するホルモンの組合せで正しいのはどれか。",
+"choices": [
+"Addison病⟨GAP⟩副腎皮質刺激ホルモン",
+"Basedow病⟨GAP⟩甲状腺刺激ホルモン",
+"尿崩症⟨GAP⟩バソプレッシン",
+"橋本病⟨GAP⟩副甲状腺ホルモン",
+"副腎性Cushing症候群アルドステロン"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": true
+},
+{
+"n": 15,
+"text": "腎糸球体障害の指標となる検査項目はどれか。2つ選べ。",
+"choices": [
+"エリスロポエチン",
+"クレアチニンクリアランス〈CCr〉",
+"尿中微量アルブミン",
+"尿中N-アセチルグルコサミニダーゼ〈NAG〉",
+"尿中b 2-ミクログロブリン5 TP07ct-amor-9"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 16,
+"text": "心電図波形とその成因の組合せで誤っているのはどれか。",
+"choices": [
+"P ⟨GAP⟩波⟨GAP⟩心房の再分極",
+"QRS波⟨GAP⟩心室の脱分極",
+"T ⟨GAP⟩波⟨GAP⟩心室の再分極",
+"PQ間隔⟨GAP⟩房室伝導時間",
+"QT間隔⟨GAP⟩電気的収縮時間"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": true
+},
+{
+"n": 17,
+"text": "心電図（別冊No. 3）を別に示す。所見で正しいのはどれか。",
+"choices": [
+"心房細動",
+"WPW症候群",
+"左脚ブロック",
+"Brugada症候群",
+"Ⅲ度房室ブロック"
+],
+"beppu": "3",
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 18,
+"text": "健常成人の足関節上腕血圧比〈ABI〉で正しいのはどれか。",
+"choices": [
+"0.40",
+"0.60",
+"1.10",
+"1.60",
+"1.80 6 TP07ct-amor-10"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 19,
+"text": "肺気腫の患者で増加するのはどれか。",
+"choices": [
+"1秒量〈FEV 1.0〉",
+"1秒率〈FEV 1％〉",
+"ピークフロー値〈PEF〉",
+"機能的残気量〈FRC〉",
+"肺拡散能〈DLco〉"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 20,
+"text": "動脈血酸素解離曲線を右方移動（P 50を増加）させる因子はどれか。",
+"choices": [
+"体温の上昇",
+"pHの上昇",
+"PaO 2の低下",
+"PaCO 2の低下",
+"2,3-DPG〈diphosphoglycerate〉の低下"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 21,
+"text": "重症の睡眠時無呼吸症候群と考えられる終夜睡眠ポリグラフィの結果はどれか。",
+"choices": [
+"オトガイ筋の活性が高い。",
+"無呼吸低呼吸指数4回/時間",
+"中途覚醒〈arousal〉35回/時間",
+"脳波でi波を認める睡眠ステージが多い。",
+"無呼吸時の経皮的動脈血酸素飽和度〈SpO 2〉の最低値95％7 TP07ct-amor-11"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 22,
+"text": "心臓超音波検査において左室長軸断層像で観察できない部位はどれか。",
+"choices": [
+"右⟨GAP⟩室",
+"左⟨GAP⟩房",
+"心室中隔",
+"大動脈弁",
+"肺動脈弁"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": true
+},
+{
+"n": 23,
+"text": "上腹部正中横走査による膵臓の超音波像（別冊No. 4）を別に示す。矢印で示すのはどれか。",
+"choices": [
+"脾静脈",
+"下大静脈",
+"腹腔動脈",
+"腹部大動脈",
+"上腸間膜動脈"
+],
+"beppu": "4",
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 24,
+"text": "甲状腺疾患と超音波所見の組合せで正しいのはどれか。",
+"choices": [
+"亜急性甲状腺炎⟨GAP⟩微細石灰化",
+"橋本病⟨GAP⟩嚢胞性病変",
+"乳頭癌⟨GAP⟩辺縁低エコー帯",
+"Basedow病甲状腺びまん性腫大",
+"悪性リンパ腫⟨GAP⟩甲状腺びまん性萎縮8 TP07ct-amor-12"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": true
+},
+{
+"n": 25,
+"text": "部位と機能の組合せで正しいのはどれか。",
+"choices": [
+"側頭葉⟨GAP⟩体性感覚",
+"後頭葉⟨GAP⟩聴覚",
+"海⟨GAP⟩馬⟨GAP⟩記憶",
+"脳⟨GAP⟩幹⟨GAP⟩嗅覚",
+"小⟨GAP⟩脳⟨GAP⟩意識"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": true
+},
+{
+"n": 26,
+"text": "疾患と脳波所見の組合せで誤っているのはどれか。",
+"choices": [
+"肝性脳症⟨GAP⟩三相波",
+"欠神発作⟨GAP⟩ 2 Hz棘徐波複合",
+"West症候群⟨GAP⟩ヒプスアリスミア",
+"単純ヘルペス脳炎⟨GAP⟩周期性一側性てんかん型放電",
+"古典型Creutzfeldt-Jakob病⟨GAP⟩周期性同期性放電"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": true
+},
+{
+"n": 27,
+"text": "脳波（別冊No. 5）を別に示す。焦点部位はどれか。",
+"choices": [
+"中心部",
+"左前頭部",
+"右前頭部",
+"左側頭部",
+"右側頭部9 TP07ct-amor-13"
+],
+"beppu": "5",
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 28,
+"text": "誘発脳波について誤っているのはどれか。",
+"choices": [
+"加算平均を行う。",
+"立ち上がり潜時を測定する。",
+"聴覚刺激はクリック音で行う。",
+"体性感覚刺激は電気刺激で行う。",
+"視覚刺激は白黒格子パターンリバーサル画像で行う。"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 29,
+"text": "ヒトの生体乾燥重量（％）で最も多く存在する元素はどれか。",
+"choices": [
+"水⟨GAP⟩素",
+"炭⟨GAP⟩素",
+"窒⟨GAP⟩素",
+"酸⟨GAP⟩素",
+"カルシウム"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": true
+},
+{
+"n": 30,
+"text": "280 nmにおける吸光度が2.0と0.5の2種類のアルブミン溶液を1：2の割合で混合した。この混合液の280 nmにおける吸光度として正しいのはどれか。",
+"choices": [
+"0.1",
+"0.5",
+"1.0",
+"1.2",
+"1.5 10 TP07ct-amor-14"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 31,
+"text": "抗原抗体反応で非特異反応の要因はどれか。2つ選べ。",
+"choices": [
+"異好性抗体",
+"カイロミクロン",
+"リウマトイド因子",
+"高アルブミン血症",
+"高ビリルビン血症"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 32,
+"text": "低ナトリウム血症をきたすのはどれか。",
+"choices": [
+"下⟨GAP⟩痢",
+"嘔⟨GAP⟩吐",
+"尿崩症",
+"Cushing症候群",
+"ADH不適合分泌症候群〈SIADH〉"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": true
+},
+{
+"n": 33,
+"text": "糖尿病の診断基準で用いられるのはどれか。2つ選べ。",
+"choices": [
+"血⟨GAP⟩糖",
+"尿⟨GAP⟩糖",
+"HbA1c",
+"グリコアルブミン",
+"1,5-アンヒドログルシトール〈1,5-AG〉11 TP07ct-amor-15"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": true
+},
+{
+"n": 34,
+"text": "蛋白含有量（重量％）が最も多いリポ蛋白はどれか。",
+"choices": [
+"HDL",
+"IDL",
+"LDL",
+"VLDL",
+"カイロミクロン"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 35,
+"text": "レシチンコレステロールアシルトランスフェラーゼ〈LCAT〉を活性化するアポリポ蛋白はどれか。",
+"choices": [
+"アポA1",
+"アポA2",
+"アポB100",
+"アポC2",
+"アポE"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 36,
+"text": "血清蛋白について誤っているのはどれか。",
+"choices": [
+"アルブミンは遊離脂肪酸を運搬する。",
+"アルブミンはカルシウムと正の相関をする。",
+"免疫グロブリンは大部分がc分画に含まれる。",
+"乳幼児期の免疫グロブリン濃度は成人より高い。",
+"トランスサイレチンの半減期はアルブミンより短い。12 TP07ct-amor-16"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 37,
+"text": "尿素窒素濃度42 mg/dLの標準液の尿素濃度に最も近いのはどれか。ただし、尿素［（NH 2）2 CO］の分子量は60とする。",
+"choices": [
+"0.7 mmol/L",
+"1.5 mmol/L",
+"7 mmol/L",
+"15 mmol/L",
+"70 mmol/L"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 38,
+"text": "ビリルビンについて正しいのはどれか。",
+"choices": [
+"間接ビリルビンはジアゾ試薬に反応する。",
+"バナジン酸酸化法は吸光度の減少を測定する。",
+"ビリルビンの抱合体は主にタウリン抱合である。",
+"ビリルビンは紫外線により還元されてビリベルジンとなる。",
+"直接ビリルビンはアルブミンに結合したビリルビンである。"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 39,
+"text": "LDアイソザイムのうち急性心筋梗塞で最も上昇するアイソザイムについて正しいのはどれか。",
+"choices": [
+"血中半減期が最も長い。",
+"急性肝炎でも最も上昇する。",
+"4 ℃保存で最も不安定である。",
+"Mサブユニットの4量体である。",
+"電気泳動で最も陰極側に泳動される。13 TP07ct-amor-17"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 40,
+"text": "転移酵素はどれか。",
+"choices": [
+"CK",
+"LD",
+"リパーゼ",
+"アミラーゼ",
+"コリンエステラーゼ"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 41,
+"text": "骨形成マーカーはどれか。2つ選べ。",
+"choices": [
+"オステオカルシン",
+"デオキシピリジノリン",
+"骨型アルカリホスファターゼ",
+"酒石酸抵抗性酸性ホスファターゼ",
+"Ⅰ型コラーゲン架橋N末端テロペプチド"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 42,
+"text": "甲状腺疾患患者において自己抗体が産生されないのはどれか。",
+"choices": [
+"TSH受容体",
+"マイクロゾーム",
+"サイログロブリン",
+"甲状腺ペルオキシダーゼ",
+"サイロキシン結合グロブリン14 TP07ct-amor-18"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 43,
+"text": "脂肪細胞から分泌されるのはどれか。",
+"choices": [
+"インスリン",
+"グルカゴン",
+"プロラクチン",
+"ソマトスタチン",
+"アディポネクチン"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 44,
+"text": "サルコイドーシスで高値を示すのはどれか。",
+"choices": [
+"アルドラーゼ",
+"アデノシンデアミナーゼ〈ADA〉",
+"アンギオテンシン変換酵素〈ACE〉",
+"ロイシンアミノペプチダーゼ〈LAP〉",
+"レシチンコレステロールアシルトランスフェラーゼ〈LCAT〉"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 45,
+"text": "外胚葉に由来するのはどれか。",
+"choices": [
+"骨",
+"心⟨GAP⟩臓",
+"腎⟨GAP⟩臓",
+"膵⟨GAP⟩臓",
+"大⟨GAP⟩脳15 TP07ct-amor-19"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": true
+},
+{
+"n": 46,
+"text": "皮膚と同様の上皮組織を有するのはどれか。",
+"choices": [
+"胃",
+"気管支",
+"食⟨GAP⟩道",
+"胆⟨GAP⟩嚢",
+"尿⟨GAP⟩管"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": true
+},
+{
+"n": 47,
+"text": "癌抑制遺伝子はどれか。",
+"choices": [
+"ras",
+"p53",
+"myc",
+"erb -B2",
+"cyclin D"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 48,
+"text": "悪性腫瘍はどれか。",
+"choices": [
+"血管腫",
+"骨軟骨腫",
+"脂肪腫",
+"多形腺腫",
+"中皮腫16 TP07ct-amor-20"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 49,
+"text": "動脈血が流れるのはどれか。2つ選べ。",
+"choices": [
+"肝静脈",
+"臍帯静脈",
+"食道静脈",
+"肺静脈",
+"脾静脈"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 50,
+"text": "H-E染色標本（別冊No. 6）を別に示す。臓器はどれか。",
+"choices": [
+"胃",
+"肺",
+"胆⟨GAP⟩嚢",
+"副⟨GAP⟩腎",
+"甲状腺"
+],
+"beppu": "6",
+"nchoices": 5,
+"flag_gap": true
+},
+{
+"n": 51,
+"text": "小葉構造を持つのはどれか。2つ選べ。",
+"choices": [
+"大⟨GAP⟩脳",
+"肝⟨GAP⟩臓",
+"膵⟨GAP⟩臓",
+"脾⟨GAP⟩臓",
+"膀⟨GAP⟩胱17 TP07ct-amor-21"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": true
+},
+{
+"n": 52,
+"text": "凍結標本作製法で誤っているのはどれか。",
+"choices": [
+"水溶性包埋剤を用いる。",
+"骨組織の標本作製に適している。",
+"薄切に適した温度は-20 ℃である。",
+"ホルマリン固定した組織は剥がれやすい。",
+"凍結速度が遅いと組織の損傷は大きくなる。"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 53,
+"text": "腎臓の染色標本（別冊No. 7）を別に示す。染色法はどれか。",
+"choices": [
+"azan染色",
+"Bodian染色",
+"Congo red染色",
+"elastica van Gieson染色",
+"PAM染色18 TP07ct-amor-22"
+],
+"beppu": "7",
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 54,
+"text": "肺に沈着したアスベスト小体の染色標本（別冊No. 8）を別に示す。染色法はどれか。",
+"choices": [
+"Alcian blue染色",
+"Berlin blue染色",
+"methylene blue染色",
+"Nile blue染色",
+"Victoria blue染色"
+],
+"beppu": "8",
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 55,
+"text": "電子顕微鏡標本作製で固定に用いる試薬はどれか。2つ選べ。",
+"choices": [
+"ピクリン酸",
+"オスミウム酸",
+"トリクロロ酢酸",
+"ブアン〈Bouin〉液",
+"グルタールアルデヒド19 TP07ct-amor-23"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 56,
+"text": "喀痰細胞診のPapanicolaou染色標本（別冊No. 9Ａ、Ｂ）を別に示す。Ａ、Ｂは同一標本中の異なる視野である。組織型はどれか。",
+"choices": [
+"カルチノイド",
+"小細胞癌",
+"腺⟨GAP⟩癌",
+"大細胞癌",
+"扁平上皮癌No. 9Ａ、Ｂ"
+],
+"beppu": "9Ａ",
+"nchoices": 5,
+"flag_gap": true
+},
+{
+"n": 57,
+"text": "子宮頸部細胞診のPapanicolaou染色標本（別冊No. 10）を別に示す。関係の深い微生物はどれか。",
+"choices": [
+"カンジダ",
+"クラミジア",
+"トリコモナス",
+"ヘルペスウイルス",
+"ヒトパピローマウイルス20 TP07ct-amor-24"
+],
+"beppu": "10",
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 58,
+"text": "ホルマリンについて正しいのはどれか。",
+"choices": [
+"pHは中性である。",
+"酸化によりギ酸を生じる。",
+"組織固定には原液を使用する。",
+"長期固定で蛋白質が溶出する。",
+"ホルマリン色素除去はメタノールに浸漬する。"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 59,
+"text": "脾臓の機能として誤っているのはどれか。",
+"choices": [
+"髄外造血",
+"血球の貯留",
+"細菌の処理",
+"老化血球の処理",
+"T細胞の分化誘導"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 60,
+"text": "凝固を抑制するのはどれか。",
+"choices": [
+"プロテインC",
+"プロトロンビン",
+"プラスミノゲン",
+"a 1-アンチトリプシン",
+"プラスミノゲンアクチベータインヒビター21 TP07ct-amor-25"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 61,
+"text": "疾患と診断に用いる細胞表面マーカーの組合せで正しいのはどれか。",
+"choices": [
+"Hodgkinリンパ腫⟨GAP⟩ CD4",
+"後天性免疫不全症候群⟨GAP⟩ CD25",
+"成人T細胞白血病⟨GAP⟩ CD34",
+"急性前骨髄球性白血病⟨GAP⟩ CD41",
+"発作性夜間ヘモグロビン尿症⟨GAP⟩ CD55"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": true
+},
+{
+"n": 62,
+"text": "ビタミンB 12欠乏性貧血の骨髄塗抹標本で特徴的な所見はどれか。",
+"choices": [
+"裸核像の増加",
+"細胞質の空胞形成",
+"環状鉄芽球の出現",
+"核と細胞質の成熟乖離",
+"核と細胞質の面積比〈N/C比〉上昇"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 63,
+"text": "線溶亢進で上昇するのはどれか。2つ選べ。",
+"choices": [
+"FDP",
+"プロテインS",
+"凝固第因子",
+"トロンビン-アンチトロンビン複合体〈TAT〉",
+"プラスミン-プラスミンインヒビター複合体〈PIC〉22 TP07ct-amor-26"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 64,
+"text": "溶血性貧血で低下するのはどれか。",
+"choices": [
+"LD",
+"間接ビリルビン",
+"ハプトグロビン",
+"フェリチン",
+"網赤血球数"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 65,
+"text": "好中球に中毒性顆粒がみられるのはどれか。",
+"choices": [
+"アルコール性肝硬変",
+"関節リウマチ",
+"前立腺癌",
+"敗血症",
+"慢性骨髄性白血病"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 66,
+"text": "骨髄塗抹Wright-Giemsa染色標本（別冊No. 11）を別に示す。考えられるのはどれか。",
+"choices": [
+"赤白血病",
+"多発性骨髄腫",
+"Hodgkinリンパ腫",
+"骨髄異形成症候群",
+"急性巨核芽球性白血病23 TP07ct-amor-27"
+],
+"beppu": "11",
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 67,
+"text": "von Willebrand病と血友病Aの鑑別に有用なのはどれか。2つ選べ。",
+"choices": [
+"活性化部分トロンボプラスチン時間",
+"リストセチンコファクター活性",
+"プロトロンビン時間",
+"第Ⅷ因子活性",
+"出血時間"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 68,
+"text": "インフルエンザウイルスに認められるのはどれか。2つ選べ。",
+"choices": [
+"RNA",
+"カプシド",
+"リボソーム",
+"ミトコンドリア",
+"ペプチドグリカン層"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 69,
+"text": "菌種と検査法の組合せで正しいのはどれか。",
+"choices": [
+"Aspergillus fumigatus ⟨GAP⟩墨汁法",
+"Clostridium tetani ⟨GAP⟩ Hiss法",
+"Corynebacterium diphtheriae ⟨GAP⟩ Leifson法",
+"Mycobacterium kansasii ⟨GAP⟩オーラミン法",
+"Nocardia asteroides ⟨GAP⟩ Wirtz法24 TP07ct-amor-28"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": true
+},
+{
+"n": 70,
+"text": "分離培地の成分を表に示す。ペプトン⟨GAP⟩ 10 gブドウ糖⟨GAP⟩ 40 gクロラムフェニコール⟨GAP⟩ 0.05 g寒天⟨GAP⟩ 15 g精製水⟨GAP⟩ 1,000 mLこの培地を用いるのはどれか。",
+"choices": [
+"Candida albicans",
+"Legionella pneumophila",
+"Mycobacterium tuberculosis",
+"Streptococcus pyogenes",
+"Vibrio parahaemolyticus"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": true
+},
+{
+"n": 71,
+"text": "b -ラクタム系抗菌薬に対する細菌の耐性機序として正しいのはどれか。2つ選べ。",
+"choices": [
+"リボソームの変化",
+"核酸合成酵素の変化",
+"リン酸化による不活化",
+"加水分解酵素による不活化",
+"ペニシリン結合蛋白〈PBP〉の変化25 TP07ct-amor-29"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 72,
+"text": "結核菌について正しいのはどれか。",
+"choices": [
+"芽胞を形成する。",
+"人工培地に発育しない。",
+"塩酸アルコールで脱色されない。",
+"土壤や環境水に広く分布している。",
+"ワクチン株としてMycobacterium tuberculosisを用いる。26 TP07ct-amor-30次の文を読み73、74の問いに答えよ。膿のGram染色標本（別冊No. 12）を別に示す。"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 73,
+"text": "起因菌と考えられるのはどれか。",
+"choices": [
+"Bacillus cereus",
+"Candida parapsilosis",
+"Corynebacterium diphtheriae",
+"Nocardia asteroides",
+"Staphylococcus aureus"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 74,
+"text": "この起因菌の分離培地はどれか。",
+"choices": [
+"小川培地",
+"荒川培地",
+"CCFA培地",
+"Sabouraud培地",
+"マンニット食塩培地27 TP07ct-amor-31"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 75,
+"text": "Salmonella entericaとCitrobacter freundiiを鑑別する性状はどれか。",
+"choices": [
+"VP反応",
+"硫化水素産生",
+"インドール産生",
+"乳糖・白糖分解能",
+"リジン脱炭酸反応"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 76,
+"text": "真菌とその性質の組合せで正しいのはどれか。2つ選べ。",
+"choices": [
+"Aspergillus fumigatus ⟨GAP⟩大分生子",
+"Candida albicans ⟨GAP⟩厚膜胞子",
+"Candida glabrata ⟨GAP⟩仮性菌糸",
+"Sporothrix schenckii ⟨GAP⟩二形性真菌",
+"Trichophyton rubrum ⟨GAP⟩莢⟨GAP⟩膜"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": true
+},
+{
+"n": 77,
+"text": "HIVとその感染症について正しいのはどれか。",
+"choices": [
+"DNAウイルスである。",
+"CD4陽性T細胞に感染する。",
+"HIV1からHIV6に分類される。",
+"感染後無症候期が続きウインドウ期に移行する。",
+"後天性免疫不全症候群〈AIDS〉を発症すると血中ウイルス量は減少する。28 TP07ct-amor-32"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 78,
+"text": "尿中抗原検査が行われているのはどれか。",
+"choices": [
+"Clostridium difficile",
+"Legionella pneumophila",
+"Mycobacterium tuberculosis",
+"Mycoplasma pneumoniae",
+"Neisseria meningitidis"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 79,
+"text": "抗ウイルス作用を有するサイトカインはどれか。",
+"choices": [
+"インターフェロンa〈IFN- a〉",
+"インターロイキン1〈IL-1〉",
+"インターロイキン4〈IL-4〉",
+"インターロイキン6〈IL-6〉",
+"腫瘍壊死因子a〈TNF- a〉"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 80,
+"text": "膜傷害複合体を構成する補体成分はどれか。",
+"choices": [
+"C1",
+"C2",
+"C3",
+"C4",
+"C5 29 TP07ct-amor-33"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 81,
+"text": "HIV感染のスクリーニング法はどれか。2つ選べ。",
+"choices": [
+"受身凝集法",
+"間接蛍光抗体法",
+"酵素免疫測定法",
+"Ouchterlony法〈二重免疫拡散法〉",
+"イムノブロット法〈ウエスタンブロット法〉"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 82,
+"text": "肺小細胞癌に特異性の高い腫瘍マーカーはどれか。",
+"choices": [
+"CA15-3",
+"CEA",
+"CYFRA21-1",
+"ProGRP",
+"SCC"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 83,
+"text": "Ⅰ型アレルギーはどれか。2つ選べ。",
+"choices": [
+"アナフィラキシーショック",
+"全身性エリテマトーデス",
+"自己免疫性溶血性貧血",
+"接触性皮膚炎",
+"蕁麻疹30 TP07ct-amor-34"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 84,
+"text": "関節リウマチの診断に用いられるのはどれか。",
+"choices": [
+"抗CCP抗体",
+"抗DNA抗体",
+"抗SS-A抗体",
+"抗好中球細胞質抗体",
+"抗カルジオリピン抗体"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 85,
+"text": "インターフェロンc遊離試験が用いられるのはどれか。",
+"choices": [
+"結核菌感染症",
+"溶血性連鎖球菌感染症",
+"マイコプラズマ感染症",
+"B型肝炎ウイルス感染症",
+"C型肝炎ウイルス感染症"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 86,
+"text": "ABO血液型について正しいのはどれか。",
+"choices": [
+"抗原は蛋白である。",
+"抗体は主にIgMである。",
+"遺伝子は第6染色体にある。",
+"抗原は血小板には発現しない。",
+"オモテ検査は血清側の検査である。31 TP07ct-amor-35"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 87,
+"text": "A型Rh（D）陰性患者と交差適合試験を行った場合、主試験も副試験も不適合となる赤血球製剤はどれか。",
+"choices": [
+"A型Rh（D）陽性",
+"A型Rh（D）陰性",
+"B型Rh（D）陰性",
+"O型Rh（D）陰性",
+"AB型Rh（D）陰性"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 88,
+"text": "Rh血液型について正しいのはどれか。",
+"choices": [
+"検査（試験管法）は37 ℃で行う。",
+"日本人のD陰性頻度は5％である。",
+"D陰性の確認は間接抗グロブリン試験で行う。",
+"D陽性患者にD陰性血液を輸血してはならない。",
+"日本人で検出される抗体で頻度が最も高いのは抗Dである。"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 89,
+"text": "輸血後GVHDの予防策として適切なのはどれか。2つ選べ。",
+"choices": [
+"血液製剤の放射線照射",
+"近親者からの輸血",
+"自己血輸血",
+"新鮮血輸血",
+"免疫抑制薬32 TP07ct-amor-36"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 90,
+"text": "我が国の国民医療費の中で65歳以上の医療費が占める割合に最も近いのはどれか。",
+"choices": [
+"15％",
+"35％",
+"55％",
+"75％",
+"95％"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 91,
+"text": "因果関係の判定において、「疫学研究で得られた事実が、他の領域の研究で得られた既知の知識や事実と矛盾なく説明できること」が該当するのはどれか。",
+"choices": [
+"一致性",
+"強固性",
+"時間性",
+"整合性",
+"特異性"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 92,
+"text": "蚊が媒介動物である感染症はどれか。2つ選べ。",
+"choices": [
+"ペスト",
+"手足口病",
+"デング熱",
+"日本脳炎",
+"発疹チフス33 TP07ct-amor-37"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 93,
+"text": "国民健康・栄養調査で正しいのはどれか。",
+"choices": [
+"全数調査である。",
+"文部科学省が実施する。",
+"国勢調査員が調査を行う。",
+"根拠となる法律は栄養士法である。",
+"生活習慣の状況についての調査を含む。"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 94,
+"text": "保健所の設置について定めているのはどれか。",
+"choices": [
+"医師法",
+"医療法",
+"健康増進法",
+"地域保健法",
+"高齢者の医療の確保に関する法律"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 95,
+"text": "マクロショックに関連する生体の特性はどれか。",
+"choices": [
+"光学的特性",
+"磁気的特性",
+"電気的特性",
+"熱的特性",
+"力学的特性34 TP07ct-amor-38"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 96,
+"text": "RLC直列回路のインピーダンス［Ω］はどれか。ただし、抵抗器の抵抗値は4 Ω、誘導性リアクタンスは7 Ω、容量性リアクタンスは4 Ωとする。",
+"choices": [
+"2",
+"5",
+"7",
+"11",
+"15"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 97,
+"text": "電気抵抗の変化を利用する光電トランスデューサはどれか。",
+"choices": [
+"光電管",
+"太陽電池",
+"CdSセル",
+"フォトダイオード",
+"フォトトランジスタ"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 98,
+"text": "病院電気設備の安全基準（JIS T 1022）で定められている瞬時特別非常電源の立ち上がり時間はどれか。",
+"choices": [
+"0.1秒以内",
+"0.5秒以内",
+"1秒以内",
+"5秒以内",
+"10秒以内35 TP07ct-amor-39"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 99,
+"text": "画像解像度を示すのはどれか。",
+"choices": [
+"bit",
+"dot",
+"dpi",
+"byte",
+"pixel"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": false
+},
+{
+"n": 100,
+"text": "天秤の秤量はどれか。",
+"choices": [
+"校正用分銅の誤差",
+"応答できる最小質量",
+"重力加速度の地域差",
+"測定できる最大質量",
+"測定質量と真の質量との差36 TP07ct-amor-40 TP07ct-amor-41 TP07ct-amor-42 TP07ct-amor-43 TP07ct-amor-44"
+],
+"beppu": null,
+"nchoices": 5,
+"flag_gap": false
+}
+]
