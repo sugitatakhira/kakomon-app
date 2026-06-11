@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>心電図問題演習 | ECG検定3級レベル（入門）</title>
+<style>
+  :root{
+    --bg:#0f1115; --panel:#1a1d24; --panel2:#222631; --txt:#e8eaf0; --sub:#9aa3b2;
+    --accent:#5aa9f0; --accent2:#3f7fd0; --wrong:#e76f51; --right:#36c2a8; --line:#2c313c;
+    --ecgbg:#fff6f6; --gridmin:#f3c9c9; --gridmaj:#e89a9a; --trace:#101418;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Hiragino Sans","Yu Gothic","Noto Sans JP",system-ui,sans-serif;
+    background:var(--bg);color:var(--txt);line-height:1.6;-webkit-text-size-adjust:100%}
+  header{background:linear-gradient(135deg,#1c2f4a,#142033);padding:18px 16px;border-bottom:1px solid var(--line);
+    position:sticky;top:0;z-index:10}
+  header h1{margin:0;font-size:1.15rem;letter-spacing:.02em}
+  header .sub{color:#a9d2f7;font-size:.78rem;margin-top:2px}
+  .wrap{max-width:860px;margin:0 auto;padding:16px}
+  .bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:14px}
+  .progress{flex:1;min-width:160px;height:9px;background:var(--panel2);border-radius:6px;overflow:hidden}
+  .progress > i{display:block;height:100%;background:linear-gradient(90deg,var(--accent2),var(--accent));width:0;transition:width .3s}
+  .stat{font-size:.82rem;color:var(--sub);white-space:nowrap}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:16px;
+    box-shadow:0 6px 24px rgba(0,0,0,.25)}
+  .qmeta{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+  .tag{font-size:.7rem;background:var(--panel2);color:#bfe9df;border:1px solid #2f4f49;padding:2px 9px;border-radius:20px}
+  .qno{font-weight:700;color:var(--accent)}
+  .ecgbox{background:var(--ecgbg);border-radius:10px;padding:8px;overflow-x:auto;margin:6px 0 14px;
+    border:1px solid #e7c4c4}
+  canvas{display:block;height:auto;max-width:none}
+  .qtext{font-size:1.02rem;font-weight:600;margin:6px 2px 12px}
+  .opts{display:grid;gap:9px}
+  .opt{display:flex;gap:10px;align-items:flex-start;text-align:left;background:var(--panel2);border:1.5px solid var(--line);
+    color:var(--txt);padding:11px 13px;border-radius:10px;cursor:pointer;font-size:.96rem;transition:.15s;font-family:inherit}
+  .opt:hover{border-color:var(--accent2)}
+  .opt .k{font-weight:700;color:var(--sub);min-width:1.3em}
+  .opt.correct{border-color:var(--right);background:rgba(54,194,168,.13)}
+  .opt.wrong{border-color:var(--wrong);background:rgba(231,111,81,.13)}
+  .opt.disabled{cursor:default;opacity:.92}
+  .explain{margin-top:14px;padding:13px;border-radius:10px;background:#13241f;border:1px solid #244a40;
+    font-size:.92rem;display:none}
+  .explain.show{display:block}
+  .explain .head{font-weight:700;margin-bottom:5px}
+  .explain .head.ok{color:var(--right)} .explain .head.ng{color:var(--wrong)}
+  .nav{display:flex;gap:10px;justify-content:space-between;margin-top:6px}
+  button.btn{background:var(--accent2);color:#04130f;border:none;padding:11px 18px;border-radius:10px;font-weight:700;
+    cursor:pointer;font-size:.95rem;font-family:inherit}
+  button.btn:hover{background:var(--accent)}
+  button.btn.ghost{background:transparent;color:var(--sub);border:1px solid var(--line)}
+  button.btn:disabled{opacity:.4;cursor:default}
+  .result{text-align:center;padding:26px 16px}
+  .result .score{font-size:2.6rem;font-weight:800;color:var(--accent)}
+  .review h3{margin:18px 0 8px;font-size:1rem}
+  .rev{font-size:.86rem;padding:9px 11px;border-radius:8px;background:var(--panel2);margin-bottom:6px;
+    border-left:3px solid var(--line);cursor:pointer}
+  .rev.ng{border-left-color:var(--wrong)} .rev.ok{border-left-color:var(--right)}
+  footer{color:var(--sub);font-size:.74rem;text-align:center;padding:24px 16px 40px}
+  .toprow{display:flex;gap:8px;flex-wrap:wrap}
+  select{background:var(--panel2);color:var(--txt);border:1px solid var(--line);border-radius:8px;padding:7px 9px;font-family:inherit}
+  .hint{font-size:.78rem;color:var(--sub);margin-top:8px}
+</style>
+</head>
+<body>
+<header>
+  <h1>🫀 心電図問題演習〈入門〉</h1>
+  <div class="sub">ECG検定3級 想定レベル ／ 全<span id="total">45</span>問 ・ 波形は自動描画</div>
+</header>
+
+<div class="wrap">
+  <!-- start screen -->
+  <div id="start" class="card">
+    <div class="qtext" style="margin-bottom:8px">心電図の基本を学ぶ入門レベルの演習です。</div>
+    <p style="color:var(--sub);font-size:.92rem;margin:0 0 14px">
+      標準12誘導／モニター心電図の波形を画面上に描画します（25mm/s・10mm/mV、左端に1mVの較正波）。
+      波形各部の名称・心拍数の数え方・正常洞調律の認識・代表的な所見の基礎など、
+      心電図検定3級で問われやすい基本事項を中心に構成しています。
+    </p>
+    <div class="toprow" style="margin-bottom:14px">
+      <select id="mode">
+        <option value="seq">出題順（テーマ別）</option>
+        <option value="shuffle">シャッフル出題</option>
+      </select>
+      <select id="count">
+        <option value="45">全45問</option>
+        <option value="20">ランダム20問</option>
+        <option value="10">ランダム10問</option>
+      </select>
+    </div>
+    <button class="btn" id="startBtn">演習をはじめる ▶</button>
+    <div class="hint">※ 学習用に作成した教育コンテンツです。実際の診療判断には用いないでください。</div>
+  </div>
+
+  <!-- quiz screen -->
+  <div id="quiz" style="display:none">
+    <div class="bar">
+      <div class="progress"><i id="pbar"></i></div>
+      <div class="stat"><span id="pos">1</span>/<span id="cnt">50</span>　正答 <span id="correctN">0</span></div>
+    </div>
+    <div class="card">
+      <div class="qmeta">
+        <span class="qno">Q<span id="qno">1</span></span>
+        <span class="tag" id="cat">不整脈</span>
+        <span class="tag" id="leadTag">誘導 II</span>
+      </div>
+      <div class="ecgbox"><canvas id="ecg"></canvas></div>
+      <div class="qtext" id="qtext"></div>
+      <div class="opts" id="opts"></div>
+      <div class="explain" id="explain">
+        <div class="head" id="exHead"></div>
+        <div id="exBody"></div>
+      </div>
+      <div class="nav">
+        <button class="btn ghost" id="prevBtn">◀ 前へ</button>
+        <button class="btn" id="nextBtn">次へ ▶</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- result screen -->
+  <div id="result" style="display:none">
+    <div class="card result">
+      <div>あなたのスコア</div>
+      <div class="score"><span id="finScore">0</span> / <span id="finTotal">50</span></div>
+      <div id="finPct" style="color:var(--sub)"></div>
+      <div id="finComment" style="margin-top:8px"></div>
+      <div style="margin-top:18px"><button class="btn" id="retryBtn">もう一度</button></div>
+    </div>
+    <div class="card review">
+      <h3>振り返り（クリックでその問題へ）</h3>
+      <div id="reviewList"></div>
+    </div>
+  </div>
+</div>
+
+<footer>心電図問題演習アプリ ・ 波形はJavaScriptによる手続き的生成（教育用シミュレーション）</footer>
+
+<script>
+/* =========================================================
+   ECG 波形描画エンジン（生理学的モデル）
+   - QRS: 折れ線（鋭く角張った棘波）→ 実波形に近い形状
+   - P/T波: 非対称ガウス曲線（なめらかな丘）
+   - ST: J点から滑らかに偏位、PR部・TP部は等電位
+   - 微小な基線動揺・筋電ノイズを重畳して実記録に近づける
+   - 標準ECGグリッド（25mm/s, 10mm/mV）
+   ========================================================= */
+const PX_MM = 5;                 // 1mm = 5px
+const PX_S  = PX_MM * 25;        // 25mm/s
+const PX_MV = PX_MM * 10;        // 10mm/mV
+
+// 簡易シード乱数（再現性確保）
+let _seed = 1;
+function seedReset(s){ _seed = (s>>>0) || 1; }
+function rnd(){ _seed = (_seed*1103515245 + 12345) & 0x7fffffff; return _seed/0x7fffffff; }
+function hash(str){ let h=2166136261; for(let i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,16777619);} return h>>>0; }
+
+// --- 基本関数 ---
+function gauss(x,s){ return Math.exp(-(x*x)/(2*s*s)); }
+function asym(x,wl,wr){ const s=x<0?wl:wr; return Math.exp(-(x*x)/(2*s*s)); } // 非対称ガウス（T波）
+function ramp(x,a,b){ if(x<=a)return 0; if(x>=b)return 1; return 0.5-0.5*Math.cos(Math.PI*(x-a)/(b-a)); }
+function smoothWin(x,t0,t1){ const r=20; return ramp(x,t0-r,t0+r)*(1-ramp(x,t1-r,t1+r)); } // ST台形窓
+function poly(pts,x){ // 折れ線（QRS用）: 区間外は0
+  if(!pts.length || x<pts[0][0] || x>pts[pts.length-1][0]) return 0;
+  for(let i=0;i<pts.length-1;i++){ const a=pts[i],b=pts[i+1];
+    if(x>=a[0]&&x<=b[0]){ const f=(x-a[0])/(b[0]-a[0]); return a[1]+(b[1]-a[1])*f; } }
+  return 0;
+}
+
+/* 1拍の電位（dt: R基準ms） m=形態オブジェクト */
+function beatValue(dt, m){
+  let v=0;
+  if(m.P)  v += m.P.a * gauss(dt - m.P.c, m.P.w);
+  if(m.qrs) v += poly(m.qrs, dt);
+  if(m.st && m.st.level) v += m.st.level * smoothWin(dt, m.st.t0, m.st.t1);
+  if(m.T)  v += m.T.a * asym(dt - m.T.c, m.T.wl, m.T.wr);
+  if(m.U)  v += m.U.a * gauss(dt - m.U.c, m.U.w);
+  if(m.bumps) for(const b of m.bumps) v += b.a * gauss(dt - b.c, b.w);
+  return v;
+}
+
+/* --- 形態テンプレート --- */
+// 標準的なP-QRS-T（誘導II型）
+function mNormal(o){
+  o=o||{}; const A=o.amp==null?1:o.amp;
+  const P = o.p===false ? null : {a:(o.pAmp==null?0.13:o.pAmp), c:(o.pc==null?-160:o.pc), w:(o.pw==null?24:o.pw)};
+  const q = o.qAmp==null?-0.06:o.qAmp, r=o.rAmp==null?1.0:o.rAmp, s=o.sAmp==null?-0.25:o.sAmp;
+  const jt = o.jt==null?48:o.jt;
+  const qrs = o.qrs || [[-46,0],[-34,A*q],[-14,0],[0,A*r],[18,0],[30,A*s],[jt,0]];
+  const st = {level:(o.st==null?0:o.st), t0:jt, t1:(o.stEnd==null?385:o.stEnd)};
+  const T = o.t===false ? null : {a:(o.tAmp==null?0.32:o.tAmp), c:(o.tc==null?250:o.tc), wl:(o.twl==null?62:o.twl), wr:(o.twr==null?46:o.twr)};
+  const U = o.u ? {a:o.u, c:(o.uc==null?410:o.uc), w:42} : null;
+  const bumps = o.bumps || (o.prdep ? [{a:-0.045, c:-95, w:34}] : []);
+  return {P, qrs, st, T, U, bumps};
+}
+// 幅広QRS（PVC/VT/補充/ペーシング）: 不一致性T
+function mWide(o){
+  o=o||{}; const A=o.amp==null?1:o.amp; const pol=o.pol==null?1:o.pol;
+  const qrs = pol>0
+    ? [[-72,0],[-54,A*0.12],[-10,A*0.55],[0,A*1.05],[28,A*0.55],[58,A*-0.15],[86,A*-0.55],[118,0]]
+    : [[-72,0],[-54,A*-0.12],[-10,A*-0.55],[0,A*-1.05],[28,A*-0.55],[58,A*0.15],[86,A*0.55],[118,0]];
+  const T = {a:pol*(o.tAmp==null?-0.42:o.tAmp), c:(o.tc==null?255:o.tc), wl:72, wr:56};
+  return {P:null, qrs, st:{level:0,t0:118,t1:400}, T, U:null, bumps:[]};
+}
+function bN(tR,o){ return {tR, m:mNormal(o)}; }
+function bW(tR,o){ return {tR, m:mWide(o)}; }
+function bP(tR,a){ return {tR, m:{P:{a:(a==null?0.14:a),c:0,w:24}, qrs:null, st:null, T:null, U:null, bumps:[]}}; }
+
+/* 各病態の beats / baseline を構築 */
+function buildBeats(spec){
+  const dur = spec.duration||6;
+  const lead = spec.lead || 'II';
+  let beats=[], baseline=null, spikes=[];
+  seedReset(hash(spec.kind+(spec.lead||'')));
+  const rr = r=>60/r;
+  const k = spec.kind;
+
+  function sinusTimes(rate, from){ const t0=from==null?0.45:from; const a=[]; for(let t=t0;t<dur-0.05;t+=rr(rate)) a.push(t); return a; }
+  function addSinus(rate,o){ sinusTimes(rate).forEach(t=>beats.push(bN(t,o))); }
+
+  switch(k){
+    case 'sinus':   addSinus(spec.rate||72,{}); break;
+    case 'brady':   addSinus(spec.rate||44,{}); break;
+    case 'tachy':   addSinus(spec.rate||118,{}); break;
+    case 'sinusarr':{ // 呼吸性洞性不整脈
+      let t=0.45,i=0; while(t<dur-0.05){ beats.push(bN(t,{})); const base=rr(75); t+=base*(1+0.22*Math.sin(i*0.9)); i++; } break; }
+    case 'afib':{ // 心房細動: 不規則RR・P波消失・f波
+      let t=0.4; while(t<dur-0.05){ beats.push(bN(t,{p:false})); t+= 0.46 + rnd()*0.55; }
+      baseline = tt=>{ let v=0; for(let i=1;i<=5;i++) v+=(0.018/i)*Math.sin(2*Math.PI*(6+i*2.3)*tt + i*1.7); return v; };
+      break; }
+    case 'aflutter':{ // 心房粗動: のこぎり波(F波) ~300/min
+      const ratio = spec.ratio||2; const fr=300;
+      for(let t=0.5;t<dur-0.05;t+=rr(fr/ratio)){ beats.push(bN(t,{p:false})); }
+      baseline = tt=>{ const f=fr/60; const ph=(tt*f)%1; const saw=-(2*ph-1); return saw*0.14 - 0.03*Math.sin(2*Math.PI*f*tt); };
+      break; }
+    case 'svt':{ addSinus(spec.rate||186,{p:false, tAmp:0.18}); break; } // 発作性上室頻拍
+    case 'atrialtach':{ addSinus(spec.rate||170,{pc:-150, pAmp:0.16, pw:18}); break; } // 心房頻拍
+    case 'pac':{ // 上室期外収縮
+      const T=sinusTimes(78); T.forEach((t,idx)=>{ if(idx===3){ beats.push(bN(t-0.22,{pAmp:0.19, pc:-150, pw:17})); } else beats.push(bN(t,{})); });
+      break; }
+    case 'pvc':{ // 心室期外収縮（単発）
+      const T=sinusTimes(75); T.forEach((t,idx)=>{ if(idx===3){ beats.push(bW(t-0.18,{})); } else beats.push(bN(t,{})); });
+      break; }
+    case 'bigeminy':{ // 心室二段脈
+      let t=0.45, n=0; while(t<dur-0.05){ beats.push(bN(t,{})); beats.push(bW(t+0.40,{pol:1})); t+=rr(68); n++; }
+      break; }
+    case 'couplet':{ const T=sinusTimes(75); T.forEach((t,idx)=>{ if(idx===3){ beats.push(bW(t-0.16,{})); beats.push(bW(t+0.20,{})); } else beats.push(bN(t,{})); }); break; }
+    case 'multifocal':{ const T=sinusTimes(75); T.forEach((t,idx)=>{ if(idx===2){beats.push(bW(t-0.14,{pol:1}));} else if(idx===4){beats.push(bW(t-0.14,{pol:-1}));} else beats.push(bN(t,{})); }); break; }
+    case 'vt':{ for(let t=0.28;t<dur-0.02;t+=rr(spec.rate||180)) beats.push(bW(t,{})); break; } // 心室頻拍
+    case 'torsades':{ for(let t=0.28;t<dur-0.02;t+=rr(250)){ const env=0.5+0.6*Math.abs(Math.sin(2*Math.PI*0.55*t)); beats.push(bW(t,{amp:env, pol:(Math.sin(2*Math.PI*0.55*t)>=0?1:-1)})); } break; }
+    case 'vfib':{ baseline=tt=>0.55*Math.sin(2*Math.PI*5.2*tt + 2.2*Math.sin(2*Math.PI*1.3*tt))*(1+0.35*Math.sin(2*Math.PI*0.8*tt+1)); break; }
+    case 'asystole':{ const T=sinusTimes(70); T.forEach((t,idx)=>{ if(idx<2) beats.push(bN(t,{})); }); baseline=tt=> tt>1.6 ? 0.015*Math.sin(2*Math.PI*0.3*tt) : 0; break; }
+    case 'avb1':{ addSinus(spec.rate||66,{pc:-260, pw:22}); break; } // I度AVブロック（PR延長）
+    case 'wenckebach':{ // Wenckebach (Mobitz I)
+      const Pi=0.88; let pr=0.17; let cnt=0;
+      for(let i=0,t=0.5;t<dur-0.05;i++,t=0.5+i*Pi){ beats.push(bP(t,0.14)); if(cnt<3){ beats.push(bN(t+pr,{p:false})); pr+=0.075; cnt++; } else { pr=0.17; cnt=0; } }
+      break; }
+    case 'mobitz2':{ // Mobitz II（PR一定・突然脱落）
+      const Pi=0.8; const pr=0.18;
+      for(let i=0,t=0.5;t<dur-0.05;i++,t=0.5+i*Pi){ beats.push(bP(t,0.14)); if((i+1)%3!==0) beats.push(bN(t+pr,{p:false})); }
+      break; }
+    case 'avb3':{ // 完全房室ブロック（房室解離）
+      for(let t=0.4;t<dur-0.02;t+=rr(96)) beats.push(bP(t,0.14));            // 心房 ~96/min
+      for(let t=0.7;t<dur-0.02;t+=rr(38)) beats.push(bW(t,{amp:0.9}));        // 心室補充 ~38/min
+      break; }
+    case 'junctional':{ for(let t=0.5;t<dur-0.05;t+=rr(spec.rate||46)) beats.push(bN(t,{p:false, bumps:[{a:-0.1,c:62,w:16}]})); break; } // 接合部調律(逆行性P)
+    case 'aivr':{ for(let t=0.4;t<dur-0.02;t+=rr(70)) beats.push(bW(t,{amp:0.85})); break; } // 促進心室固有調律
+    case 'sinuspause':{ let t=0.45, i=0; while(t<dur-0.05){ beats.push(bN(t,{})); i++; if(i===3){ t+=rr(70)*2.4; } else t+=rr(70); } break; }
+    case 'rbbb':{ // 右脚ブロック rSR'(V1)
+      for(let t=0.5;t<dur-0.05;t+=rr(72)) beats.push({tR:t, m:{
+        P:{a:0.12,c:-160,w:22},
+        qrs:[[-58,0],[-44,0.32],[-26,-0.26],[2,0],[24,0.7],[44,0.2],[78,0]],
+        st:{level:0,t0:78,t1:380}, T:{a:-0.34,c:250,wl:60,wr:48}, U:null, bumps:[] }});
+      break; }
+    case 'lbbb':{ // 左脚ブロック 幅広ノッチR(V6)
+      for(let t=0.5;t<dur-0.05;t+=rr(72)) beats.push({tR:t, m:{
+        P:{a:0.12,c:-160,w:22},
+        qrs:[[-62,0],[-34,0.55],[-8,0.44],[20,0.86],[64,0]],
+        st:{level:-0.05,t0:64,t1:385}, T:{a:-0.4,c:255,wl:64,wr:52}, U:null, bumps:[] }});
+      break; }
+    case 'wpw':{ // WPW: 短PR + δ波（緩やかな立ち上がり）
+      for(let t=0.5;t<dur-0.05;t+=rr(74)) beats.push({tR:t, m:{
+        P:{a:0.13,c:-120,w:22},
+        qrs:[[-95,0],[-58,0.06],[-40,0.22],[0,1.0],[20,0],[30,-0.18],[55,0]],
+        st:{level:0,t0:55,t1:385}, T:{a:-0.16,c:250,wl:58,wr:46}, U:null, bumps:[] }});
+      break; }
+    case 'stemi_ant':{ for(let t=0.5;t<dur-0.05;t+=rr(78)) beats.push(bN(t,{qAmp:-0.18, st:0.42, stEnd:360, tAmp:0.55, tc:255, twl:55, twr:55})); break; }
+    case 'stemi_inf':{ for(let t=0.5;t<dur-0.05;t+=rr(66)) beats.push(bN(t,{qAmp:-0.22, st:0.34, stEnd:365, tAmp:0.45, tc:255})); break; }
+    case 'ischemia':{ for(let t=0.5;t<dur-0.05;t+=rr(82)) beats.push(bN(t,{st:-0.18, tAmp:-0.24, tc:255})); break; } // ST低下+陰性T
+    case 'hyperk':{ // 高K: テント状T・QRS幅広・P平低
+      for(let t=0.5;t<dur-0.05;t+=rr(70)) beats.push({tR:t, m:{
+        P:null,
+        qrs:[[-58,0],[-42,-0.08],[-16,0],[0,1.0],[22,0],[42,-0.3],[72,0]],
+        st:{level:0,t0:72,t1:330}, T:{a:0.85,c:225,wl:30,wr:30}, U:null, bumps:[] }});
+      break; }
+    case 'longqt':{ for(let t=0.5;t<dur-0.05;t+=rr(64)) beats.push(bN(t,{tc:355, twl:80, twr:62, tAmp:0.26, stEnd:470})); break; }
+    case 'hypok':{ for(let t=0.5;t<dur-0.05;t+=rr(74)) beats.push(bN(t,{tAmp:0.12, st:-0.06, u:0.22})); break; } // 低K: T平低+U波
+    case 'digitalis':{ for(let t=0.5;t<dur-0.05;t+=rr(70)) beats.push(bN(t,{tAmp:0.1, tc:200, bumps:[{a:-0.13,c:120,w:48}]})); break; } // ジギタリス効果（盆状ST）
+    case 'earlyrepol':{ for(let t=0.5;t<dur-0.05;t+=rr(62)) beats.push(bN(t,{st:0.10, tAmp:0.45, bumps:[{a:0.12,c:55,w:13}]})); break; } // 早期再分極（J点ノッチ）
+    case 'pericarditis':{ for(let t=0.5;t<dur-0.05;t+=rr(94)) beats.push(bN(t,{st:0.12, prdep:true, tAmp:0.28})); break; } // 急性心膜炎
+    case 'brugada':{ // Brugada: coved型ST上昇(V1)
+      for(let t=0.6;t<dur-0.05;t+=rr(70)) beats.push({tR:t, m:{
+        P:{a:0.12,c:-160,w:22},
+        qrs:[[-52,0],[-36,0.3],[-12,0.55],[6,0.28]],
+        st:{level:0}, T:{a:-0.34,c:135,wl:48,wr:78}, U:null, bumps:[{a:0.16,c:42,w:48}] }});
+      break; }
+    case 'lvh':{ for(let t=0.5;t<dur-0.05;t+=rr(72)) beats.push(bN(t,{amp:2.0, st:-0.1, tAmp:-0.34, tc:250})); break; } // 左室肥大(V5,ストレイン)
+    case 'rvh':{ // 右室肥大(V1優勢R)
+      for(let t=0.5;t<dur-0.05;t+=rr(82)) beats.push({tR:t, m:{
+        P:{a:0.12,c:-160,w:20},
+        qrs:[[-50,0],[-36,-0.04],[0,1.0],[24,-0.12],[52,0]],
+        st:{level:-0.05,t0:52,t1:360}, T:{a:-0.28,c:240,wl:55,wr:46}, U:null, bumps:[] }});
+      break; }
+    case 'lowvoltage':{ for(let t=0.5;t<dur-0.05;t+=rr(80)) beats.push(bN(t,{amp:0.32, pAmp:0.05, tAmp:0.09})); break; } // 低電位
+    case 'alternans':{ let n=0; for(let t=0.5;t<dur-0.05;t+=rr(110)){ beats.push(bN(t,{amp:(n%2? 0.5:1.15)})); n++; } break; } // 電気的交互脈
+    case 'wandering':{ let n=0; for(let t=0.5;t<dur-0.05;t+=rr(64)*(1+0.18*Math.sin(n))){ const ps=[0.16,0.05,-0.08,0.12][n%4]; beats.push(bN(t,{pAmp:ps, pc:-165})); n++; } break; }
+    case 'paced_v':{ for(let t=0.55;t<dur-0.05;t+=rr(70)){ spikes.push(t-0.04); beats.push(bW(t,{pol:1, amp:0.9})); } break; } // 心室ペーシング
+    case 'paced_av':{ for(let t=0.55;t<dur-0.05;t+=rr(70)){ spikes.push(t-0.22); beats.push(bP(t-0.18,0.12)); spikes.push(t-0.04); beats.push(bW(t,{amp:0.9})); } break; } // DDD
+    default: addSinus(72,{});
+  }
+  return {beats, baseline, spikes, duration:dur, lead};
+}
+
+function drawECG(canvas, spec){
+  const build = buildBeats(spec);
+  const dur = build.duration;
+  const W = Math.round(PX_S*dur) + 70;   // +較正波スペース
+  const H = 260;
+  const dpr = Math.min(window.devicePixelRatio||1, 2.5);
+  canvas.width = W*dpr; canvas.height = H*dpr;
+  canvas.style.width = W+'px'; canvas.style.height = H+'px';
+  const ctx = canvas.getContext('2d'); ctx.scale(dpr,dpr);
+
+  // 背景
+  ctx.fillStyle = getCss('--ecgbg'); ctx.fillRect(0,0,W,H);
+  // グリッド（細1mm / 太5mm）
+  for(let x=0;x<=W;x+=PX_MM){ const maj=(Math.round(x/PX_MM)%5===0);
+    ctx.strokeStyle=maj?getCss('--gridmaj'):getCss('--gridmin'); ctx.lineWidth=maj?1.1:0.7;
+    ctx.beginPath(); ctx.moveTo(x+.5,0); ctx.lineTo(x+.5,H); ctx.stroke(); }
+  for(let y=0;y<=H;y+=PX_MM){ const maj=(Math.round(y/PX_MM)%5===0);
+    ctx.strokeStyle=maj?getCss('--gridmaj'):getCss('--gridmin'); ctx.lineWidth=maj?1.1:0.7;
+    ctx.beginPath(); ctx.moveTo(0,y+.5); ctx.lineTo(W,y+.5); ctx.stroke(); }
+
+  const baseY = H*0.55;
+  const xOff = 60;                          // 較正波の後から波形開始
+  const v2y = v => baseY - v*PX_MV;
+  const t2x = t => xOff + t*PX_S;
+
+  // 較正波（1mV 矩形）
+  ctx.strokeStyle=getCss('--trace'); ctx.lineWidth=1.7; ctx.lineJoin='round'; ctx.lineCap='round';
+  ctx.beginPath();
+  ctx.moveTo(12, baseY); ctx.lineTo(26, baseY);
+  ctx.lineTo(26, v2y(1)); ctx.lineTo(44, v2y(1));
+  ctx.lineTo(44, baseY); ctx.lineTo(xOff, baseY);
+  ctx.stroke();
+
+  // ペーシングスパイク
+  if(build.spikes && build.spikes.length){
+    ctx.strokeStyle='#1763a8'; ctx.lineWidth=1.3;
+    build.spikes.forEach(t=>{ const x=t2x(t); ctx.beginPath(); ctx.moveTo(x, baseY+5); ctx.lineTo(x, v2y(1.5)); ctx.stroke(); });
+  }
+
+  // 微小ノイズ・基線動揺用（誘導ごとに固定）
+  seedReset(hash(spec.kind+'noise'));
+  const noise=[]; for(let i=0;i<2200;i++) noise.push((rnd()-0.5));
+  const wander = t => 0.022*Math.sin(2*Math.PI*0.22*t+0.6) + 0.012*Math.sin(2*Math.PI*0.07*t);
+
+  // 波形本体（細かくサンプリングして滑らかに）
+  ctx.strokeStyle=getCss('--trace'); ctx.lineWidth=1.7;
+  ctx.beginPath();
+  const step=0.5; let first=true;
+  for(let px=xOff; px<=W-3; px+=step){
+    const t = (px - xOff)/PX_S;
+    let v = build.baseline ? build.baseline(t) : 0;
+    v += wander(t);
+    v += 0.006*noise[(Math.round(px*2))%noise.length];   // 筋電様の微小ノイズ
+    for(const b of build.beats){
+      const dtms = (t-b.tR)*1000;
+      if(dtms>-360 && dtms<520) v += beatValue(dtms, b.m);
+    }
+    const y = baseY - v*PX_MV;
+    if(first){ ctx.moveTo(px,y); first=false; } else ctx.lineTo(px,y);
+  }
+  ctx.stroke();
+
+  // 誘導ラベル
+  ctx.fillStyle='#9c5050'; ctx.font='bold 14px sans-serif';
+  ctx.fillText(build.lead, 9, 18);
+  ctx.fillStyle='#b07a7a'; ctx.font='10px sans-serif';
+  ctx.fillText('25mm/s   10mm/mV', W-135, H-9);
+}
+function getCss(v){ return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
+
+/* =========================================================
+   問題データ（45問・ECG検定3級＝入門レベル想定）
+   ========================================================= */
+const QUESTIONS = [
+ // --- 波の名称・基本 ---
+ {cat:'基本',spec:{kind:'sinus',rate:72,lead:'II'},q:'心房の興奮（脱分極）を表す波はどれか。',
+  opts:['P波','QRS波','T波','U波'],a:0,
+  ex:'最初の小さな丘がP波で、心房の興奮（脱分極）を表します。続く大きな尖りがQRS波（心室の興奮）です。'},
+
+ {cat:'基本',spec:{kind:'sinus',rate:72,lead:'II'},q:'心室の興奮（脱分極）を表す波はどれか。',
+  opts:['QRS波','P波','T波','U波'],a:0,
+  ex:'最も大きく鋭い振れがQRS波で、心室の興奮（脱分極）を表します。幅は通常0.10秒未満です。'},
+
+ {cat:'基本',spec:{kind:'sinus',rate:72,lead:'II'},q:'心室の再分極（回復）を表す波はどれか。',
+  opts:['T波','P波','QRS波','δ波'],a:0,
+  ex:'QRSのあとに現れるなだらかな丘がT波で、心室の再分極（電気的な回復）を表します。'},
+
+ {cat:'基本',spec:{kind:'sinus',rate:72,lead:'II'},q:'この心電図の調律として正しいものはどれか。',
+  opts:['正常洞調律','心房細動','心室頻拍','心室細動'],a:0,
+  ex:'規則正しいRR間隔で、各QRSの前に一定の間隔でP波があります。これが正常洞調律です。'},
+
+ {cat:'基本',spec:{kind:'sinus',rate:72,lead:'II'},q:'正常洞調律と判断する条件として正しいものはどれか。',
+  opts:['各QRSの前に一定間隔でP波がある','P波が全く見えない','QRSが幅広い','RRが全く不規則'],a:0,
+  ex:'洞調律は「規則的なリズム」「各QRSの前に一定のPR間隔でP波」「正常なP波の向き」で判断します。'},
+
+ // --- 計測の基礎 ---
+ {cat:'計測',spec:{kind:'sinus',rate:75,lead:'II'},q:'記録は25mm/s。横方向の大きいマス1個（5mm）は何秒に相当するか。',
+  opts:['0.2秒','0.04秒','0.5秒','1.0秒'],a:0,
+  ex:'25mm/sでは1mm（小マス）=0.04秒、大マス（5mm）=0.2秒です。これが時間の基本単位になります。'},
+
+ {cat:'計測',spec:{kind:'sinus',rate:75,lead:'II'},q:'標準感度で、縦方向に1mVは何mmに相当するか。',
+  opts:['10mm','1mm','5mm','100mm'],a:0,
+  ex:'標準感度は10mm/mV。縦の小マス1mm=0.1mVです。記録の左端にある四角い較正波が1mV(=10mm)の目印です。'},
+
+ {cat:'計測',spec:{kind:'sinus',rate:75,lead:'II'},q:'RR間隔が大きいマス4個分のとき、心拍数はおよそいくつか。',
+  opts:['約75/min','約60/min','約100/min','約150/min'],a:0,
+  ex:'「300 ÷ 大マスの数」で概算します。300÷4=75/min。簡単で実用的な数え方です。'},
+
+ {cat:'計測',spec:{kind:'sinus',rate:60,lead:'II'},q:'RR間隔が大きいマス5個分のとき、心拍数はおよそいくつか。',
+  opts:['約60/min','約75/min','約50/min','約100/min'],a:0,
+  ex:'300÷5=60/min。大マス3個なら100、4個なら75、5個なら60、6個なら50と覚えると便利です。'},
+
+ {cat:'計測',spec:{kind:'sinus',rate:100,lead:'II'},q:'RR間隔が大きいマス3個分のとき、心拍数はおよそいくつか。',
+  opts:['約100/min','約75/min','約60/min','約150/min'],a:0,
+  ex:'300÷3=100/min。心拍数の概算は「300の法則」で素早く求められます。'},
+
+ {cat:'計測',spec:{kind:'sinus',rate:72,lead:'II'},q:'心電図の横軸（左右方向）が表すものはどれか。',
+  opts:['時間','電位','心拍数','体温'],a:0,
+  ex:'横軸は時間（25mm/sで進む）、縦軸は電位（電圧）を表します。'},
+
+ {cat:'計測',spec:{kind:'sinus',rate:72,lead:'II'},q:'記録の左端にある四角い波（較正波）が表すものはどれか。',
+  opts:['1mVの大きさの目印','心拍数','時間の長さ','ノイズ'],a:0,
+  ex:'較正波は感度の基準で、高さ10mm=1mVを示します。波の大きさを評価する基準になります。'},
+
+ // --- 正常値の基礎 ---
+ {cat:'正常値',spec:{kind:'sinus',rate:72,lead:'II'},q:'成人の正常な心拍数の範囲はどれか。',
+  opts:['60〜100/min','30〜50/min','100〜150/min','150〜200/min'],a:0,
+  ex:'安静時の正常心拍数は60〜100/min。60未満を徐脈、100超を頻脈といいます。'},
+
+ {cat:'正常値',spec:{kind:'sinus',rate:72,lead:'II'},q:'PR間隔（P波の始まりからQRSの始まりまで）の正常範囲はどれか。',
+  opts:['0.12〜0.20秒','0.40〜0.60秒','0.01〜0.05秒','0.80〜1.0秒'],a:0,
+  ex:'PR間隔の正常は0.12〜0.20秒。0.20秒を超えるとI度房室ブロックです。'},
+
+ {cat:'正常値',spec:{kind:'sinus',rate:72,lead:'II'},q:'正常なQRS幅の上限はおよそどれか。',
+  opts:['0.10秒','0.30秒','0.50秒','0.04秒'],a:0,
+  ex:'正常QRS幅はおよそ0.10秒未満（0.06〜0.10秒）。0.12秒以上に広いと脚ブロックなどを考えます。'},
+
+ // --- 洞調律のバリエーション ---
+ {cat:'洞調律',spec:{kind:'brady',rate:45,lead:'II'},q:'P波は正常で各QRSに先行、心拍数は約45/min。最も考えられるのは。',
+  opts:['洞性徐脈','洞性頻脈','心房細動','正常'],a:0,
+  ex:'P波が正常で心拍数が60/min未満。洞性徐脈です（運動選手や睡眠中にもみられます）。'},
+
+ {cat:'洞調律',spec:{kind:'tachy',rate:115,lead:'II'},q:'P波は正常で各QRSに先行、心拍数は約115/min。最も考えられるのは。',
+  opts:['洞性頻脈','洞性徐脈','心室頻拍','心房粗動'],a:0,
+  ex:'正常なP波を伴い心拍数が100/minを超える規則的な頻脈。洞性頻脈です（発熱・運動・緊張などで生じます）。'},
+
+ {cat:'洞調律',spec:{kind:'sinusarr',lead:'II'},q:'P波は常に正常な形で、RR間隔だけが周期的に変動している。何か。',
+  opts:['呼吸性洞性不整脈','心房細動','期外収縮','心停止'],a:0,
+  ex:'呼吸に伴いRRが緩やかに変動するもので、健常者（特に若年者）にみられる生理的な現象です。'},
+
+ // --- 代表的な不整脈（基礎） ---
+ {cat:'不整脈',spec:{kind:'afib',rate:90,lead:'II'},q:'はっきりしたP波がなく、RR間隔がバラバラ（不規則）。最も考えられるのは。',
+  opts:['心房細動','正常洞調律','洞性徐脈','I度房室ブロック'],a:0,
+  ex:'P波が見えず、RR間隔が不規則（絶対性不整脈）なのが心房細動の特徴。脳梗塞予防が重要な不整脈です。'},
+
+ {cat:'不整脈',spec:{kind:'aflutter',ratio:2,lead:'II'},q:'基線に規則正しいノコギリの歯のような波が連続している。何か。',
+  opts:['心房粗動','心房細動','洞性頻脈','心室細動'],a:0,
+  ex:'鋸歯状（のこぎり状）のF波が約300/minで規則的に続くのが心房粗動。心房細動とは「規則性」で区別します。'},
+
+ {cat:'期外収縮',spec:{kind:'pvc',lead:'II'},q:'予定より早く、先行するP波のない幅広いQRSが1拍出現した。これは何か。',
+  opts:['心室期外収縮（PVC）','上室期外収縮（PAC）','正常','心房細動'],a:0,
+  ex:'P波を伴わず幅広いQRSが早期に出るのが心室期外収縮（PVC）。健常者にもよくみられます。'},
+
+ {cat:'期外収縮',spec:{kind:'pac',lead:'II'},q:'予定より早くQRSが出現し、その前に形の違うP波を伴う（QRS幅は正常）。これは何か。',
+  opts:['上室期外収縮（PAC）','心室期外収縮（PVC）','洞性不整脈','心房粗動'],a:0,
+  ex:'早く出た拍の前に異所性のP波があり、QRS幅は正常。上室（心房）期外収縮（PAC）です。'},
+
+ {cat:'期外収縮',spec:{kind:'bigeminy',lead:'II'},q:'正常な拍と期外収縮が1拍ごとに交互に出ている。このパターンの呼び名は。',
+  opts:['二段脈（bigeminy）','三段脈','心房細動','心室細動'],a:0,
+  ex:'正常拍と期外収縮が交互に繰り返すパターンを二段脈（bigeminy）といいます。'},
+
+ {cat:'致死的不整脈',spec:{kind:'vt',rate:180,lead:'II'},q:'幅広いQRSの速い波が規則的に連続している（約180/min）。最も考えられるのは。',
+  opts:['心室頻拍（VT）','洞性頻脈','心房細動','正常'],a:0,
+  ex:'幅広いQRSが100/min以上で連続する危険な不整脈が心室頻拍（VT）。緊急対応が必要です。'},
+
+ {cat:'致死的不整脈',spec:{kind:'vfib',lead:'II'},q:'QRSの形が分からない、不規則でばらばらの波が続いている。直ちに必要な処置は。',
+  opts:['電気的除細動（AED）','経過観察','安静のみ','水分補給'],a:0,
+  ex:'まとまったQRSがなく不規則に揺れるのは心室細動（VF）。直ちに胸骨圧迫と電気的除細動（AED）が必要です。'},
+
+ {cat:'頻拍',spec:{kind:'svt',rate:185,lead:'II'},q:'幅の狭いQRSが規則的にとても速く（約185/min）出ている。最も考えられるのは。',
+  opts:['発作性上室頻拍（PSVT）','心室頻拍','心房細動','洞性徐脈'],a:0,
+  ex:'幅の狭い（正常な形の）QRSが規則的に非常に速い頻拍は発作性上室頻拍（PSVT）が代表的です。'},
+
+ // --- 伝導・ペーシング ---
+ {cat:'房室ブロック',spec:{kind:'avb1',lead:'II'},q:'すべてのP波にQRSが続くが、PR間隔が一定して長い（約0.28秒）。何か。',
+  opts:['I度房室ブロック','正常','心房細動','洞性頻脈'],a:0,
+  ex:'PR間隔が0.20秒を超えて一定に延長し、QRSの脱落がないものがI度房室ブロックです。'},
+
+ {cat:'房室ブロック',spec:{kind:'mobitz2',lead:'II'},q:'P波は規則的に出ているが、ときどきQRSだけが抜け落ちる（脱落する）。何か。',
+  opts:['II度房室ブロック','I度房室ブロック','心房細動','正常'],a:0,
+  ex:'P波の一部が心室に伝わらずQRSが脱落するものがII度房室ブロックです。'},
+
+ {cat:'房室ブロック',spec:{kind:'avb3',lead:'II'},q:'P波とQRSがそれぞれ別々のリズムで出ていて、互いに関係がない。何か。',
+  opts:['完全（III度）房室ブロック','I度房室ブロック','心房粗動','正常'],a:0,
+  ex:'心房（P波）と心室（QRS）が無関係に動く（房室解離）のが完全房室ブロック。高度な徐脈になりペースメーカが必要です。'},
+
+ {cat:'脚ブロック',spec:{kind:'rbbb',lead:'V1'},q:'QRSの幅が広い（0.12秒以上）が、規則的な洞調律。最も考えられるのは。',
+  opts:['脚ブロック','心房細動','洞性頻脈','正常'],a:0,
+  ex:'洞調律でQRS幅だけが広い（≧0.12秒）場合、左右どちらかの脚ブロックを考えます（この波形は右脚ブロック型）。'},
+
+ {cat:'ペーシング',spec:{kind:'paced_v',lead:'II'},q:'各QRSの直前に細く鋭いまっすぐな線（スパイク）がある。何を示すか。',
+  opts:['ペースメーカ（電気刺激）','期外収縮','ノイズのみ','心房細動'],a:0,
+  ex:'QRS直前の鋭いスパイクはペースメーカの電気刺激。続いて幅広いQRSが出ます（心室ペーシング）。'},
+
+ // --- 虚血・電解質（基礎） ---
+ {cat:'虚血',spec:{kind:'stemi_inf',lead:'III'},q:'基線よりST部分がはっきり上昇している。緊急で疑うべき病態はどれか。',
+  opts:['急性心筋梗塞','正常','低血糖','貧血'],a:0,
+  ex:'ST上昇は急性心筋梗塞（STEMI）の重要なサイン。すぐに対応が必要な緊急所見です。'},
+
+ {cat:'虚血',spec:{kind:'stemi_ant',lead:'V3'},q:'胸部誘導でST上昇と異常Q波を認める。考えられる病態はどれか。',
+  opts:['急性心筋梗塞','心室肥大','低カリウム血症','正常'],a:0,
+  ex:'ST上昇＋異常Q波は心筋梗塞の所見。前胸部誘導（V1〜V4）に出れば前壁梗塞を示します。'},
+
+ {cat:'虚血',spec:{kind:'ischemia',lead:'V5'},q:'ST部分が基線より下がり（ST低下）、T波が陰性になっている。最も考えられるのは。',
+  opts:['心筋虚血（狭心症など）','心筋梗塞のST上昇','正常','高カルシウム血症'],a:0,
+  ex:'ST低下と陰性T波は心筋虚血（狭心症）でみられる代表的な所見です。'},
+
+ {cat:'電解質',spec:{kind:'hyperk',lead:'II'},q:'左右対称で先のとがった高いT波（テント状T）が目立つ。考えられる電解質異常はどれか。',
+  opts:['高カリウム血症','低カリウム血症','高カルシウム血症','低ナトリウム血症'],a:0,
+  ex:'尖って高い「テント状T波」は高カリウム血症の代表的サイン。進行すると危険な不整脈を起こします。'},
+
+ // --- その他の識別 ---
+ {cat:'致死的不整脈',spec:{kind:'asystole',lead:'II'},q:'数拍のあと、波がほぼ平坦になって続いている。この状態は。',
+  opts:['心静止（心停止）','正常','洞性徐脈','心房細動'],a:0,
+  ex:'電気的活動が失われ平坦になった状態が心静止（asystole）。直ちに胸骨圧迫が必要です（AEDの適応ではありません）。'},
+
+ {cat:'洞機能',spec:{kind:'sinuspause',lead:'II'},q:'規則的な洞調律の途中で、急に長い休み（P波もQRSもない）が現れた。何か。',
+  opts:['洞停止','期外収縮','心房細動','正常'],a:0,
+  ex:'一定のリズムの中で突然長い休止が入るのが洞停止。失神の原因になることがあります。'},
+
+ {cat:'早期興奮',spec:{kind:'wpw',lead:'II'},q:'PR間隔が短く、QRSの立ち上がりがなだらか（δ波）。最も考えられるのは。',
+  opts:['WPW症候群','右脚ブロック','I度房室ブロック','正常'],a:0,
+  ex:'短いPRとδ（デルタ）波が特徴のWPW症候群。副伝導路によって心室が早く興奮します。'},
+
+ {cat:'肥大',spec:{kind:'lvh',lead:'V5'},q:'QRSの振れ（高さ）が非常に大きい。最も考えられるのは。',
+  opts:['左室肥大','低電位','心房細動','正常'],a:0,
+  ex:'QRSの高電位は心室肥大（特に左室肥大）を示唆します。高血圧などが背景にあります。'},
+
+ {cat:'調律',spec:{kind:'junctional',rate:46,lead:'II'},q:'はっきりしたP波が先行せず、幅の狭いQRSが約46/minで規則的。最も考えられるのは。',
+  opts:['房室接合部調律','心室頻拍','心房細動','正常洞調律'],a:0,
+  ex:'洞結節の代わりに房室接合部がリズムを作る補充調律。幅の狭いQRSで40〜60/min程度になります。'},
+
+ {cat:'頻拍',spec:{kind:'atrialtach',rate:170,lead:'II'},q:'正常とは違う形のP波が先行する規則的な頻拍（約170/min）。最も考えられるのは。',
+  opts:['心房頻拍','洞性頻脈','心室頻拍','心房細動'],a:0,
+  ex:'異所性のP波が先行する規則的な上室性の頻拍が心房頻拍です。'},
+
+ {cat:'基本',spec:{kind:'sinus',rate:72,lead:'II'},q:'P波からQRSまでの一定の間隔を何と呼ぶか。',
+  opts:['PR間隔','QT間隔','RR間隔','ST部分'],a:0,
+  ex:'P波の始まりからQRSの始まりまでがPR間隔（房室伝導の時間）。正常は0.12〜0.20秒です。'},
+
+ {cat:'基本',spec:{kind:'sinus',rate:72,lead:'II'},q:'となり合うQRS（R波）どうしの間隔を何と呼ぶか。',
+  opts:['RR間隔','PR間隔','QT間隔','P波'],a:0,
+  ex:'R波とR波の間隔がRR間隔で、心拍数の計算に使います（300÷大マス数）。'},
+
+ {cat:'致死的不整脈',spec:{kind:'pvc',lead:'II'},q:'心室期外収縮（PVC）について、心電図上の特徴として正しいのはどれか。',
+  opts:['先行P波がなく幅広いQRS','必ず幅の狭いQRS','常にP波が先行する','心拍が必ず速くなる'],a:0,
+  ex:'PVCは先行P波を伴わず、幅広い（≧0.12秒）QRSが早期に出るのが特徴です。'},
+
+ {cat:'基本',spec:{kind:'sinus',rate:72,lead:'II'},q:'正常な心臓で電気的興奮を最初に作り出す部位（歩調とり）はどこか。',
+  opts:['洞結節','房室結節','His束','プルキンエ線維'],a:0,
+  ex:'正常では右房にある洞結節が最初に興奮を作ります（歩調とり＝ペースメーカ）。その後、心房→房室結節→His束→心室へと伝わります。'},
+];
+
+/* =========================================================
+   アプリ制御
+   ========================================================= */
+const $ = id=>document.getElementById(id);
+let order=[], idx=0, answers=[], usedQuestions=[];
+
+document.getElementById('total').textContent = QUESTIONS.length;
+
+$('startBtn').onclick = ()=>{
+  const mode = $('mode').value, count = parseInt($('count').value,10);
+  let arr = QUESTIONS.map((_,i)=>i);
+  if(mode==='shuffle' || count<QUESTIONS.length){ for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; } }
+  order = arr.slice(0, Math.min(count, QUESTIONS.length));
+  answers = new Array(order.length).fill(null);
+  idx=0;
+  $('start').style.display='none'; $('result').style.display='none'; $('quiz').style.display='block';
+  $('cnt').textContent = order.length;
+  render();
+};
+
+function render(){
+  const q = QUESTIONS[order[idx]];
+  $('qno').textContent = order[idx]+1;
+  $('cat').textContent = q.cat;
+  $('leadTag').textContent = '誘導 ' + (q.spec.lead||'II');
+  $('pos').textContent = idx+1;
+  $('pbar').style.width = ((idx)/order.length*100)+'%';
+  $('qtext').textContent = q.q;
+  drawECG($('ecg'), q.spec);
+
+  const optsEl = $('opts'); optsEl.innerHTML='';
+  const chosen = answers[idx];
+  q.opts.forEach((o,i)=>{
+    const b=document.createElement('button'); b.className='opt';
+    b.innerHTML = '<span class="k">'+'ABCD'[i]+'</span><span>'+o+'</span>';
+    if(chosen!=null){
+      b.classList.add('disabled');
+      if(i===q.a) b.classList.add('correct');
+      if(i===chosen && chosen!==q.a) b.classList.add('wrong');
+    } else {
+      b.onclick = ()=>choose(i);
+    }
+    optsEl.appendChild(b);
+  });
+
+  const ex=$('explain');
+  if(chosen!=null){
+    ex.classList.add('show');
+    const ok = chosen===q.a;
+    $('exHead').className = 'head '+(ok?'ok':'ng');
+    $('exHead').textContent = ok ? '正解 ✓' : '不正解 ✗（正答: '+'ABCD'[q.a]+'. '+q.opts[q.a]+'）';
+    $('exBody').textContent = q.ex;
+  } else { ex.classList.remove('show'); }
+
+  $('prevBtn').disabled = idx===0;
+  $('nextBtn').textContent = (idx===order.length-1) ? '結果をみる' : '次へ ▶';
+  updateScore();
+}
+
+function choose(i){
+  if(answers[idx]!=null) return;
+  answers[idx]=i;
+  render();
+}
+function updateScore(){
+  const n = answers.filter((a,i)=>a!=null && a===QUESTIONS[order[i]].a).length;
+  $('correctN').textContent = n;
+}
+
+$('nextBtn').onclick = ()=>{ if(idx<order.length-1){ idx++; render(); } else { showResult(); } };
+$('prevBtn').onclick = ()=>{ if(idx>0){ idx--; render(); } };
+
+function showResult(){
+  const n = answers.filter((a,i)=>a!=null && a===QUESTIONS[order[i]].a).length;
+  $('quiz').style.display='none'; $('result').style.display='block';
+  $('finScore').textContent=n; $('finTotal').textContent=order.length;
+  const pct = Math.round(n/order.length*100);
+  $('finPct').textContent = '正答率 '+pct+'%';
+  let c = pct>=90?'素晴らしい！基礎は完璧です。2級にも挑戦してみましょう🎉': pct>=70?'good! あと一歩、間違えた所を復習しましょう。': pct>=50?'基本をもう一度おさらいしましょう。':'まずは波の名称と正常波形から覚えていきましょう。';
+  $('finComment').textContent=c;
+
+  const rl=$('reviewList'); rl.innerHTML='';
+  order.forEach((qi,i)=>{
+    const q=QUESTIONS[qi]; const ok = answers[i]===q.a;
+    const d=document.createElement('div'); d.className='rev '+(ok?'ok':'ng');
+    d.innerHTML = '<b>Q'+(qi+1)+'</b> '+(ok?'✓':'✗')+' '+q.cat+' — '+q.opts[q.a];
+    d.onclick = ()=>{ idx=i; $('result').style.display='none'; $('quiz').style.display='block'; render(); window.scrollTo(0,0); };
+    rl.appendChild(d);
+  });
+  window.scrollTo(0,0);
+}
+$('retryBtn').onclick = ()=>{ $('result').style.display='none'; $('start').style.display='block'; };
+</script>
+</body>
+</html>
