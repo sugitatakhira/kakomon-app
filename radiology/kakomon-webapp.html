@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ケンゼミ過去問データベース</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<style>
+  :root {
+    --ink: #1c1917;
+    --paper: #f5f5f4;
+    --line: #d6d3d1;
+    --muted: #78716c;
+    --ok: #047857;
+    --ng: #b91c1c;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "Hiragino Sans", "Yu Gothic UI", "Meiryo", sans-serif;
+    background-color: #eef3f3;
+    background-image:
+      radial-gradient(120% 80% at 50% -10%, rgba(13,148,136,0.10) 0%, rgba(13,148,136,0) 55%),
+      radial-gradient(circle at 1px 1px, rgba(15,118,110,0.06) 1px, transparent 1.6px);
+    background-size: auto, 22px 22px;
+    background-attachment: fixed, fixed;
+    color: var(--ink);
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* ===== 起動スプラッシュ ===== */
+  .splash {
+    position: fixed; inset: 0; z-index: 9999;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 24px; text-align: center; color: #fff;
+    background: linear-gradient(160deg, #0d9488 0%, #0f766e 42%, #082f49 100%);
+    transition: opacity .55s ease;
+  }
+  .splash.hide { opacity: 0; pointer-events: none; }
+  .splash .s-eyebrow { font-size: 12px; letter-spacing: .34em; color: #99f6e4; margin-bottom: 16px; text-indent: .34em; }
+  .splash .s-title {
+    font-family: "Hiragino Maru Gothic ProN", "ヒラギノ丸ゴ ProN", "Rounded Mplus 1c", system-ui, "Hiragino Sans", sans-serif;
+    font-weight: 700; font-size: clamp(30px, 9vw, 50px); letter-spacing: .03em; line-height: 1.22;
+    text-shadow: 0 2px 18px rgba(0,0,0,.22);
+  }
+  .splash .s-bar { width: 96px; height: 5px; border-radius: 3px; background: #fbbf24; margin: 22px 0 10px; }
+  .splash .s-db { font-size: 12px; letter-spacing: .34em; color: #fbbf24; font-weight: 700; text-indent: .34em; }
+  .serif { font-family: "Hiragino Mincho ProN", "Yu Mincho", "BIZ UDMincho", serif; }
+  .app-title { font-family: "Hiragino Maru Gothic ProN", "ヒラギノ丸ゴ ProN", "Rounded Mplus 1c", "Quicksand", system-ui, "Hiragino Sans", sans-serif; letter-spacing: 0.01em; }
+
+  /* ===== ヘッダー ===== */
+  header { background: #fff; border-bottom: 4px double var(--ink); }
+  .header-inner {
+    max-width: 960px; margin: 0 auto; padding: 16px 16px 0;
+  }
+  .header-top { display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 8px; }
+  .eyebrow { font-size: 11px; letter-spacing: 0.2em; color: var(--muted); }
+  h1 { font-size: 24px; font-weight: 700; }
+  .title-row { display: flex; align-items: center; gap: 12px; }
+  .logo-mascot { width: 54px; height: 54px; flex-shrink: 0; }
+  .empty-mascot { display: block; width: 128px; height: 128px; margin: 4px auto 14px; }
+  .saved-test { display:flex; align-items:center; gap:10px; padding:10px 0; border-top:1px solid #e7e5e4; }
+  .saved-test:first-of-type { border-top:none; }
+  .st-body { flex:1; min-width:0; }
+  .st-name { font-weight:600; }
+  .st-now { font-size:11px; color:var(--ok); font-weight:700; margin-left:4px; }
+  .st-meta { font-size:12px; color:var(--muted); }
+  .st-actions { display:flex; gap:6px; flex-shrink:0; flex-wrap:wrap; justify-content:flex-end; }
+  #save-state { font-size: 12px; color: var(--muted); min-height: 18px; }
+  #save-state.error { color: var(--ng); }
+  nav { display: flex; gap: 4px; margin-top: 12px; }
+  nav button {
+    padding: 8px 16px; font-size: 14px; border: 1px solid transparent; border-bottom: none;
+    border-radius: 8px 8px 0 0; background: #fff; color: var(--muted); cursor: pointer;
+  }
+  nav button.active { background: var(--paper); border-color: var(--line); color: var(--ink); font-weight: 700; }
+  nav button:hover { color: var(--ink); }
+
+  main { max-width: 960px; margin: 0 auto; padding: 24px 16px 64px; }
+
+  /* ===== 共通部品 ===== */
+  .btn {
+    padding: 8px 16px; font-size: 14px; border-radius: 6px; cursor: pointer;
+    border: 1px solid var(--line); background: #fff; color: var(--ink);
+  }
+  .btn:hover { background: #fafaf9; }
+  .btn-primary { background: #292524; border-color: #292524; color: #fff; }
+  .btn-primary:hover { background: #44403c; }
+  .btn-danger { color: var(--ng); }
+  .btn-danger:hover { background: #fef2f2; }
+  .btn-ok { background: var(--ok); border-color: var(--ok); color: #fff; }
+  .btn-dashed { border-style: dashed; border-color: #a8a29e; }
+  .btn-sm { padding: 4px 10px; font-size: 12px; }
+  button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+    outline: 2px solid #1e3a5f; outline-offset: 1px;
+  }
+  input, select, textarea {
+    font: inherit; border: 1px solid var(--line); border-radius: 6px;
+    padding: 6px 8px; background: #fff; width: 100%;
+  }
+  label { font-size: 11px; color: var(--muted); display: block; margin-bottom: 4px; }
+  .card { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 12px; }
+  .toolbar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+  .filters { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 16px; }
+  @media (max-width: 640px) { .filters { grid-template-columns: 1fr 1fr; } .filters input { grid-column: span 2; } }
+  .empty { text-align: center; color: var(--muted); padding: 64px 16px; }
+  .tag {
+    display: inline-block; padding: 1px 10px; background: #e7e5e4;
+    border-radius: 99px; font-size: 11px; margin-right: 6px;
+  }
+  .q-card { margin-bottom: 12px; }
+  .q-text { font-weight: 600; margin: 8px 0; }
+  .q-img { max-width: 100%; max-height: 360px; border: 1px solid var(--line); border-radius: 6px; margin-bottom: 8px; display: block; }
+  .q-choices { list-style: none; color: #57534e; margin-bottom: 8px; }
+  .q-choices .correct-mark { color: var(--ok); font-weight: 700; margin-left: 4px; }
+  .q-expl { font-size: 12px; color: var(--muted); border-top: 1px solid #e7e5e4; padding-top: 8px; margin-bottom: 8px; }
+  .q-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  /* 絞り込みパネル & タップ追加 */
+  .search-row { margin-bottom: 10px; }
+  .filter-toggle { display:flex; align-items:center; justify-content:space-between; gap:8px; width:100%;
+    padding:10px 14px; border:1px solid var(--line); border-radius:8px; background:#fff; cursor:pointer; font:inherit; }
+  .filter-toggle .badge { background:#0e7490; color:#fff; border-radius:99px; font-size:11px; padding:1px 8px; margin-left:6px; }
+  .filter-toggle .caret { color:var(--muted); font-size:11px; }
+  .filter-panel { border:1px solid var(--line); border-top:none; border-radius:0 0 8px 8px; padding:12px 14px; background:#fafaf9; margin-bottom:8px; }
+  .fp-group { margin-bottom:12px; }
+  .fp-group:last-of-type { margin-bottom:6px; }
+  .fp-label { font-size:12px; font-weight:700; color:var(--muted); margin-bottom:6px; }
+  .chips { display:flex; flex-wrap:wrap; gap:6px; }
+  .chip { padding:6px 12px; border:1px solid var(--line); border-radius:99px; background:#fff; font-size:13px; cursor:pointer; user-select:none; }
+  .chip.on { background:#0e7490; border-color:#0e7490; color:#fff; font-weight:700; }
+  .ct-book { font-size:11px; font-weight:700; color:#0f766e; margin:8px 0 4px; letter-spacing:.04em; }
+  .ct-chips { margin-bottom:2px; }
+  .ct-chip { border-color:#99d6cf; background:#f0fdfa; font-size:12px; padding:6px 10px; display:inline-flex; align-items:center; gap:6px; }
+  .ct-chip.on { background:#0d9488; border-color:#0d9488; }
+  .ct-n { background:rgba(13,148,136,.14); color:#0f766e; border-radius:99px; font-size:10px; padding:0 6px; font-weight:700; }
+  .ct-chip.on .ct-n { background:rgba(255,255,255,.3); color:#fff; }
+  .fp-clear { background:none; border:none; color:#0e7490; font-size:12px; cursor:pointer; text-decoration:underline; padding:0; }
+  .result-count { font-size:12px; color:var(--muted); margin:10px 2px 2px; }
+  .bank-hint { font-size:12px; color:var(--muted); margin:0 2px 10px; }
+  .q-card { cursor:pointer; position:relative; padding-right:44px; transition:border-color .12s, background .12s; }
+  .q-card:hover { border-color:#a8a29e; }
+  .q-card.in-test { border-color:var(--ok); background:#f0fdf4; }
+  .q-card-check { position:absolute; top:10px; right:10px; width:28px; height:28px; border-radius:50%;
+    border:1.5px solid var(--line); display:flex; align-items:center; justify-content:center; font-size:15px; color:#a8a29e; background:#fff; }
+  .q-card.in-test .q-card-check { background:var(--ok); border-color:var(--ok); color:#fff; }
+  .tag-mine { background:#0e7490; color:#fff; }
+
+  /* テストバンク */
+  .t-item { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 8px; }
+  .t-num { font-size: 18px; font-weight: 700; width: 32px; text-align: center; flex-shrink: 0; }
+  .t-body { flex: 1; min-width: 0; }
+  .t-meta { font-size: 12px; color: var(--muted); }
+  .t-side { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; }
+  .t-points { display: flex; align-items: center; gap: 4px; font-size: 12px; }
+  .t-points input { width: 56px; text-align: right; padding: 2px 6px; }
+  .t-move { display: flex; gap: 4px; }
+
+  /* モーダル */
+  #modal-bg {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 50;
+    display: none; align-items: flex-start; justify-content: center;
+    padding: 16px; overflow-y: auto;
+  }
+  #modal-bg.open { display: flex; }
+  .modal { background: #fff; border-radius: 10px; width: 100%; max-width: 600px; padding: 20px; margin: 16px 0; }
+  .modal h2 { font-size: 16px; margin-bottom: 12px; }
+  .choice-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .ans-btn {
+    width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--line);
+    background: #fff; color: #a8a29e; cursor: pointer; flex-shrink: 0; font-size: 13px;
+  }
+  .ans-btn.on { background: var(--ok); border-color: var(--ok); color: #fff; }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 12px 0 16px; }
+  .modal-actions { display: flex; justify-content: flex-end; gap: 8px; }
+  .mb { margin-bottom: 12px; }
+
+  /* ===== 印刷用紙 ===== */
+  .sheet { background: #fff; padding: 40px; margin-bottom: 24px; }
+  .preview .sheet { border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+  @media (max-width: 640px) { .sheet { padding: 20px; } }
+  .sheet-head { border-bottom: 4px double var(--ink); padding-bottom: 12px; margin-bottom: 24px; }
+  .sheet-head .eyebrow { margin-bottom: 4px; }
+  .sheet-head h2 { font-size: 20px; }
+  .sheet-meta { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 12px; font-size: 14px; }
+  .name-line { border-bottom: 1px solid var(--ink); padding-left: 8px; padding-right: 64px; }
+  .p-q { margin-bottom: 24px; page-break-inside: avoid; }
+  .p-q .pts { font-size: 11px; color: var(--muted); margin-left: 8px; }
+  .p-q ol { list-style: none; margin-left: 32px; margin-top: 6px; }
+  .p-img { max-width: 80%; max-height: 320px; margin: 8px 0 8px 32px; border: 1px solid var(--line); }
+  .ans-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .ans-table th { text-align: left; border-bottom: 2px solid var(--ink); padding: 6px 8px 6px 0; }
+  .ans-table td { border-bottom: 1px solid var(--line); padding: 6px 8px 6px 0; vertical-align: top; }
+  .ans-table .src { font-size: 11px; color: #a8a29e; }
+
+  #print-area { display: none; }
+  @media print {
+    .no-print { display: none !important; }
+    #print-area { display: block; }
+    body { background: #fff; }
+    .sheet { padding: 0; margin: 0; }
+    .page-break { page-break-after: always; }
+  }
+  .notice {
+    background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px;
+    padding: 8px 12px; font-size: 12px; color: #92400e; margin-bottom: 16px; display: none;
+  }
+  #confirm-bg {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 60;
+    display: none; align-items: center; justify-content: center; padding: 16px;
+  }
+  #confirm-bg.open { display: flex; }
+  #toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    background: #1c1917; color: #fff; padding: 10px 18px; border-radius: 8px;
+    font-size: 13px; z-index: 70; opacity: 0; pointer-events: none;
+    transition: opacity 0.2s; max-width: 90%;
+  }
+  #toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<div class="splash no-print" id="splash">
+  <div class="s-eyebrow">検査技術ゼミナール</div>
+  <div class="s-title">過去問データベース</div>
+  <div class="s-bar"></div>
+  <div class="s-db">KENZEMI 過去問 DB</div>
+</div>
+
+<header class="no-print">
+  <div class="header-inner">
+    <div class="header-top">
+      <div class="title-row">
+        <img id="logo-mascot" class="logo-mascot" alt="ケンゼミ博士" hidden>
+        <div>
+          <div class="eyebrow">検査技術ゼミナール</div>
+          <h1 class="app-title">ケンゼミ過去問データベース</h1>
+        </div>
+      </div>
+      <div id="save-state"></div>
+    </div>
+    <nav>
+      <button id="tab-bank" onclick="setTab('bank')"></button>
+      <button id="tab-build" onclick="setTab('build')"></button>
+      <button id="tab-print" onclick="setTab('print')">PDFで保存</button>
+    </nav>
+  </div>
+</header>
+
+<main class="no-print">
+  <div class="notice" id="storage-notice">
+    このブラウザではデータを保存できないため、画面を閉じると入力内容が消えます。CSV書き出しでバックアップしてください。
+  </div>
+  <section id="view-bank"></section>
+  <section id="view-build" style="display:none"></section>
+  <section id="view-print" style="display:none"></section>
+</main>
+
+<div id="print-area"></div>
+
+<div id="modal-bg">
+  <div class="modal" id="modal"></div>
+</div>
+
+<div id="confirm-bg">
+  <div class="modal" id="confirm-box" style="max-width:380px">
+    <p id="confirm-msg" style="margin-bottom:16px"></p>
+    <div class="modal-actions">
+      <button class="btn" id="confirm-no">キャンセル</button>
+      <button class="btn btn-primary" id="confirm-yes">OK</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<input type="file" id="csv-file" accept=".csv" style="display:none">
+
+<script>
+"use strict";
+
+// ===== 定数 =====
+const DIFFS = ["易", "普通", "難"];
+const FIELDS_ORDER = ["診療画像検査学","核医学検査技術学","放射線治療技術学","医用画像情報学","画像工学","基礎医学大要","放射線生物学","放射線物理学","医用工学","放射線計測学","診療画像機器学","X線撮影技術学","放射線安全管理学"];
+const STORAGE_KEY = "kakomon-app-data";
+const SAMPLE_QUESTIONS = [
+  { id:"s1", text:"体温調節中枢が存在する部位はどれか。", choices:["延髄","視床下部","小脳","大脳皮質"], answers:[1], explanation:"体温調節中枢は間脳の視床下部に存在する。", field:"人体の構造と機能", year:"2024", difficulty:"易" },
+  { id:"s2", text:"成人の安静時における正常な呼吸数はどれか。", choices:["5〜10回/分","12〜20回/分","25〜30回/分","35〜40回/分"], answers:[1], explanation:"成人の安静時呼吸数の基準値は12〜20回/分である。", field:"基礎看護学", year:"2024", difficulty:"易" },
+  { id:"s3", text:"標準予防策（スタンダードプリコーション）の対象でないのはどれか。", choices:["汗","血液","唾液","尿"], answers:[0], explanation:"標準予防策では血液・体液・分泌物・排泄物・粘膜・損傷皮膚を感染源とみなすが、汗は対象外。", field:"基礎看護学", year:"2023", difficulty:"普通" },
+  { id:"s4", text:"インスリンを分泌する臓器はどれか。", choices:["肝臓","腎臓","膵臓","脾臓"], answers:[2], explanation:"インスリンは膵臓ランゲルハンス島のβ細胞から分泌される。", field:"人体の構造と機能", year:"2023", difficulty:"易" },
+  { id:"s5", text:"災害発生直後のトリアージで最優先治療群を示す色はどれか。", choices:["黒","赤","黄","緑"], answers:[1], explanation:"赤（カテゴリーI）は生命に関わる重篤な状態で、最優先で治療を行う群を示す。", field:"統合分野", year:"2025", difficulty:"普通" },
+];
+
+// ===== 状態 =====
+let questions = [];
+let test = { id: null, title: "国家試験対策テスト", items: [] };
+let savedTests = [];
+let tab = "bank";
+let filters = { kw: "", fields: [], years: [], userOnly: false, coreTest: null };
+let filterOpen = false;
+let form = null; // {text, choices[], answer, explanation, field, year, difficulty, editId?}
+let canStore = true;
+
+// ===== 保存・読み込み =====
+function loadData() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const d = JSON.parse(raw);
+      if (Array.isArray(d.questions)) questions = d.questions;
+      if (d.test && Array.isArray(d.test.items)) test = d.test;
+      if (Array.isArray(d.savedTests)) savedTests = d.savedTests;
+    }
+  } catch (e) {
+    canStore = false;
+    document.getElementById("storage-notice").style.display = "block";
+  }
+}
+let saveTimer = null;
+function saveData() {
+  const el = document.getElementById("save-state");
+  if (!canStore) return;
+  el.textContent = "保存中…";
+  el.classList.remove("error");
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ questions, test, savedTests }));
+      el.textContent = "✓ 保存しました";
+      setTimeout(() => { if (el.textContent === "✓ 保存しました") el.textContent = ""; }, 1500);
+    } catch (e) {
+      el.textContent = "保存に失敗しました（容量超過の可能性）";
+      el.classList.add("error");
+    }
+  }, 400);
+}
+
+// ===== ユーティリティ =====
+const uid = () => Math.random().toString(36).slice(2, 10);
+
+let _confirmYes = null;
+function confirmAction(message, onYes) {
+  _confirmYes = onYes;
+  document.getElementById("confirm-msg").textContent = message;
+  document.getElementById("confirm-bg").classList.add("open");
+}
+function closeConfirm() {
+  document.getElementById("confirm-bg").classList.remove("open");
+  _confirmYes = null;
+}
+document.getElementById("confirm-yes").addEventListener("click", () => {
+  const cb = _confirmYes; closeConfirm(); if (cb) cb();
+});
+document.getElementById("confirm-no").addEventListener("click", closeConfirm);
+document.getElementById("confirm-bg").addEventListener("click", e => {
+  if (e.target.id === "confirm-bg") closeConfirm();
+});
+
+let _toastTimer = null;
+function toast(msg) {
+  const el = document.getElementById("toast");
+  el.textContent = msg;
+  el.classList.add("show");
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => el.classList.remove("show"), 2200);
+}
+
+function esc(s) {
+  return String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
+}
+function mascotImg(name, cls) {
+  return (typeof MASCOTS !== "undefined" && MASCOTS[name]) ? '<img class="' + (cls || "empty-mascot") + '" src="' + MASCOTS[name] + '" alt="">' : "";
+}
+const fieldsList = () => [...new Set(questions.map(q => q.field).filter(Boolean))];
+const yearsList = () => [...new Set(questions.map(q => q.year).filter(Boolean))].sort((a,b) => String(b).localeCompare(String(a)));
+const inTest = id => test.items.some(i => i.qid === id);
+const testItems = () => test.items.map(i => ({ ...i, q: questions.find(q => q.id === i.qid) })).filter(i => i.q);
+const totalPoints = () => testItems().reduce((s, i) => s + i.points, 0);
+
+// ===== タブ =====
+function setTab(t) {
+  tab = t;
+  render();
+}
+
+// ===== 問題操作 =====
+function openForm(editId) {
+  if (editId) {
+    const q = questions.find(x => x.id === editId);
+    const choices = [...q.choices];
+    while (choices.length < 4) choices.push("");
+    form = { ...q, choices, answers: [...(q.answers||[])], image: q.image||"", editId };
+  } else {
+    form = { text:"", choices:["","","",""], answers:[0], explanation:"", field:"", year:"", difficulty:"普通", image:"" };
+  }
+  renderModal();
+}
+function closeForm() { form = null; renderModal(); }
+
+function readFormInputs() {
+  if (!form) return;
+  form.text = document.getElementById("f-text").value;
+  form.explanation = document.getElementById("f-expl").value;
+  form.field = document.getElementById("f-field").value;
+  form.year = document.getElementById("f-year").value;
+  form.choices = form.choices.map((_, i) => document.getElementById("f-choice-" + i).value);
+}
+function toggleAnswer(i) {
+  readFormInputs();
+  const s = new Set(form.answers);
+  if (s.has(i)) s.delete(i); else s.add(i);
+  form.answers = [...s].sort((a,b)=>a-b);
+  renderModal();
+}
+function addChoice() { readFormInputs(); if (form.choices.length < 5) form.choices.push(""); renderModal(); }
+
+function saveQuestion() {
+  readFormInputs();
+  if (!form.text.trim()) { toast("設問文を入力してください"); return; }
+  const choices = form.choices.map(c => c.trim()).filter(Boolean);
+  if (choices.length < 2) { toast("選択肢を2つ以上入力してください"); return; }
+  const answers = (form.answers||[]).filter(i => i < choices.length).sort((a,b)=>a-b);
+  const q = {
+    id: form.editId || uid(),
+    text: form.text.trim(),
+    choices,
+    answers,
+    explanation: form.explanation.trim(),
+    field: form.field.trim(),
+    year: form.year.trim(),
+    difficulty: form.difficulty,
+  };
+  if (form.image) q.image = form.image;
+  if (form.editId) {
+    questions = questions.map(p => p.id === form.editId ? q : p);
+  } else {
+    questions.unshift(q);
+    filters = { kw: "", fields: [], years: [], userOnly: true };
+    filterOpen = true;
+    tab = "bank";
+  }
+  form = null;
+  saveData(); render(); renderModal();
+}
+
+function deleteQuestion(id) {
+  confirmAction("この問題を削除しますか？", () => {
+    questions = questions.filter(q => q.id !== id);
+    test.items = test.items.filter(i => i.qid !== id);
+    saveData(); render();
+    toast("問題を削除しました");
+  });
+}
+
+function loadSamples() {
+  questions = SAMPLE_QUESTIONS.map(q => ({ ...q }));
+  saveData(); render();
+}
+
+function clearAll() {
+  confirmAction("問題バンクの全" + questions.length + "問を削除します。よろしいですか？", () => {
+    questions = [];
+    test.items = [];
+    saveData(); render();
+    toast("すべて削除しました");
+  });
+}
+
+// ===== テスト操作 =====
+function toggleTest(id) {
+  if (inTest(id)) { test.items = test.items.filter(i => i.qid !== id); saveData(); render(); toast("テストから外しました"); }
+  else { test.items.push({ qid: id, points: 1 }); saveData(); render(); toast("テストに追加しました"); }
+}
+function moveItem(idx, dir) {
+  const j = idx + dir;
+  if (j < 0 || j >= test.items.length) return;
+  [test.items[idx], test.items[j]] = [test.items[j], test.items[idx]];
+  saveData(); render();
+}
+function setPoints(idx, v) {
+  test.items[idx].points = Math.max(0, Number(v) || 0);
+  saveData(); renderHeader(); renderBuildMeta();
+}
+function setTitle(v) { test.title = v; saveData(); }
+function fmtDate(ts) { const d = new Date(ts); return d.getFullYear() + "/" + (d.getMonth()+1) + "/" + d.getDate(); }
+function saveCurrentTest() {
+  if (!test.items.length) { toast("先に問題を追加してください"); return; }
+  if (!test.id) test.id = uid();
+  const rec = { id: test.id, title: (test.title||"").trim() || "無題のテスト", items: test.items.map(i => ({ ...i })), savedAt: Date.now() };
+  const idx = savedTests.findIndex(t => t.id === rec.id);
+  if (idx >= 0) savedTests[idx] = rec; else savedTests.unshift(rec);
+  saveData(); render();
+  toast("「" + rec.title + "」を保存しました");
+}
+function loadSavedTest(id) {
+  const rec = savedTests.find(t => t.id === id);
+  if (!rec) return;
+  test = { id: rec.id, title: rec.title, items: rec.items.map(i => ({ ...i })) };
+  saveData(); render();
+  toast("「" + rec.title + "」を開きました");
+}
+function duplicateSavedTest(id) {
+  const rec = savedTests.find(t => t.id === id);
+  if (!rec) return;
+  savedTests.unshift({ id: uid(), title: rec.title + " のコピー", items: rec.items.map(i => ({ ...i })), savedAt: Date.now() });
+  saveData(); render();
+  toast("複製しました");
+}
+function deleteSavedTest(id) {
+  const rec = savedTests.find(t => t.id === id);
+  confirmAction("保存したテスト「" + (rec ? rec.title : "") + "」を削除しますか？", () => {
+    savedTests = savedTests.filter(t => t.id !== id);
+    saveData(); render();
+    toast("削除しました");
+  });
+}
+function newTest() {
+  const go = () => { test = { id: null, title: "新しいテスト", items: [] }; saveData(); render(); toast("新しいテストを作成しました"); };
+  if (test.items.length) confirmAction("編集中のテストを片付けて、新しいテストを作りますか？（保存したテストは消えません）", go);
+  else go();
+}
+
+// ===== 検索 =====
+function setKeyword(v) { filters.kw = v; renderBankList(); }
+function toggleFilterPanel() { filterOpen = !filterOpen; renderBank(); }
+function toggleFilterVal(key, val) {
+  const arr = filters[key]; const i = arr.indexOf(val);
+  if (i >= 0) arr.splice(i, 1); else arr.push(val);
+  renderBank();
+}
+function clearFilters() { filters.fields = []; filters.years = []; filters.userOnly = false; filters.coreTest = null; renderBank(); }
+function hasActiveFilter() { return !!(filters.kw.trim() || filters.fields.length || filters.years.length || filters.userOnly || filters.coreTest); }
+// ===== コアテスト（章別ひも付け） =====
+let _coreMap = null;
+function coreMap() {
+  if (!_coreMap) {
+    _coreMap = {};
+    if (typeof CORE_TESTS !== "undefined") CORE_TESTS.forEach(c => { _coreMap[c.book + c.ch] = new Set(c.ids); });
+  }
+  return _coreMap;
+}
+function setCoreTest(key) {
+  filters.coreTest = (filters.coreTest === key) ? null : key;
+  if (filters.coreTest) filterOpen = true;
+  renderBank();
+}
+function fieldsInOrder() {
+  const present = new Set(fieldsList());
+  return FIELDS_ORDER.filter(f => present.has(f)).concat(fieldsList().filter(f => !FIELDS_ORDER.includes(f)));
+}
+let _officialIds = null;
+function officialIds() {
+  if (!_officialIds) _officialIds = new Set((typeof KOKUSHI_SETS !== "undefined" ? KOKUSHI_SETS.flatMap(s => s.data) : []).map(q => q.id));
+  return _officialIds;
+}
+function isUserMade(q) { return !officialIds().has(q.id); }
+function toggleUserOnly() { filters.userOnly = !filters.userOnly; renderBank(); }
+function filteredQuestions() {
+  return questions.filter(q => {
+    const kw = filters.kw.trim();
+    if (kw && !(q.text.includes(kw) || q.choices.some(c => c.includes(kw)) || (q.explanation||"").includes(kw))) return false;
+    if (filters.userOnly && !isUserMade(q)) return false;
+    if (filters.coreTest) { const s = coreMap()[filters.coreTest]; if (!s || !s.has(q.id)) return false; }
+    if (filters.fields.length && !filters.fields.includes(q.field)) return false;
+    if (filters.years.length && !filters.years.includes(q.year)) return false;
+    return true;
+  });
+}
+
+// ===== CSV =====
+function exportCSV() {
+  const rows = questions.map(q => ({
+    "設問": q.text,
+    "選択肢1": q.choices[0]||"", "選択肢2": q.choices[1]||"", "選択肢3": q.choices[2]||"",
+    "選択肢4": q.choices[3]||"", "選択肢5": q.choices[4]||"",
+    "正解番号": (q.answers||[]).map(i => i + 1).join(","),
+    "解説": q.explanation, "分野": q.field, "年度": q.year, "難易度": q.difficulty,
+  }));
+  const csv = Papa.unparse(rows);
+  const blob = new Blob(["\uFEFF" + csv], { type: "text/csv" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "問題データ.csv";
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+document.getElementById("csv-file").addEventListener("change", e => {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  Papa.parse(file, {
+    header: true, skipEmptyLines: true,
+    complete: res => {
+      const imported = res.data.map(r => {
+        const choices = [r["選択肢1"], r["選択肢2"], r["選択肢3"], r["選択肢4"], r["選択肢5"]]
+          .map(c => (c||"").trim()).filter(Boolean);
+        if (!(r["設問"]||"").trim() || choices.length < 2) return null;
+        const answers = String(r["正解番号"]||"")
+          .split(/[,、\s]+/).map(s => parseInt(s,10) - 1)
+          .filter(n => n >= 0 && n < choices.length);
+        return {
+          id: uid(),
+          text: r["設問"].trim(),
+          choices,
+          answers,
+          explanation: (r["解説"]||"").trim(),
+          field: (r["分野"]||"").trim(),
+          year: (r["年度"]||"").trim(),
+          difficulty: DIFFS.includes(r["難易度"]) ? r["難易度"] : "普通",
+        };
+      }).filter(Boolean);
+      if (!imported.length) { toast("取り込める行がありませんでした。列名をご確認ください。"); return; }
+      questions = [...imported, ...questions];
+      saveData(); render();
+      toast(imported.length + "問を取り込みました");
+    },
+    error: () => toast("CSVの読み込みに失敗しました"),
+  });
+  e.target.value = "";
+});
+
+// ===== 描画 =====
+function renderHeader() {
+  document.getElementById("tab-bank").textContent = "問題バンク（" + questions.length + "）";
+  document.getElementById("tab-build").textContent = "テストバンク（" + test.items.length + "）";
+  const lm = document.getElementById("logo-mascot");
+  if (lm) {
+    if (typeof MASCOTS !== "undefined" && MASCOTS.bear_point) { lm.src = MASCOTS.bear_point; lm.hidden = false; }
+    else { lm.hidden = true; }
+  }
+  ["bank","build","print"].forEach(k => {
+    document.getElementById("tab-" + k).classList.toggle("active", tab === k);
+    document.getElementById("view-" + k).style.display = tab === k ? "" : "none";
+  });
+}
+
+function tagHtml(q) {
+  let h = "";
+  if (q.field) h += '<span class="tag">' + esc(q.field) + '</span>';
+  if (q.year) h += '<span class="tag">' + esc(q.year) + '</span>';
+  if ((q.answers||[]).length >= 2) h += '<span class="tag" style="background:#dcfce7">複数選択</span>';
+  if ((q.answers||[]).length === 0) h += '<span class="tag" style="background:#fee2e2">正解なし</span>';
+  return h;
+}
+
+function renderBank() {
+  let h = '<div class="toolbar">';
+  h += '<button class="btn btn-primary" onclick="openForm()">＋ 問題を登録</button>';
+  if (questions.length === 0) h += '<button class="btn btn-dashed" onclick="loadSamples()">サンプル問題を読み込む</button>';
+  h += '</div>';
+
+  // キーワード検索
+  h += '<div class="search-row"><input placeholder="キーワード検索" value="' + esc(filters.kw) + '" oninput="setKeyword(this.value)"></div>';
+  // 絞り込みトグル
+  const nActive = filters.fields.length + filters.years.length + (filters.userOnly ? 1 : 0) + (filters.coreTest ? 1 : 0);
+  h += '<button class="filter-toggle" onclick="toggleFilterPanel()">';
+  h += '<span>絞り込み（年度・科目・コアテスト）' + (nActive ? '<span class="badge">' + nActive + '</span>' : '') + '</span>';
+  h += '<span class="caret">' + (filterOpen ? '▲ 閉じる' : '▼ 開く') + '</span></button>';
+  if (filterOpen) {
+    h += '<div class="filter-panel">';
+    // コアテスト（章を読めば解ける問題を抽出）
+    if (typeof CORE_TESTS !== "undefined" && CORE_TESTS.length) {
+      let lastBook = null;
+      h += '<div class="fp-group"><div class="fp-label">コアテスト（章の内容で解ける問題）</div>';
+      CORE_TESTS.forEach(c => {
+        if (c.book !== lastBook) { if (lastBook !== null) h += '</div>'; h += '<div class="ct-book">' + esc(c.book) + '</div><div class="chips ct-chips">'; lastBook = c.book; }
+        const key = c.book + c.ch;
+        const on = filters.coreTest === key;
+        h += '<span class="chip ct-chip' + (on ? ' on' : '') + '" onclick="setCoreTest(\'' + esc(key) + '\')">' + c.ch + '章 ' + esc(c.label.replace(/^.*?章\s*/, '')) + '<span class="ct-n">' + c.count + '</span></span>';
+      });
+      h += '</div></div>';
+    }
+    h += '<div class="fp-group"><div class="fp-label">種類</div><div class="chips">';
+    h += '<span class="chip' + (filters.userOnly ? ' on' : '') + '" onclick="toggleUserOnly()">自分で登録した問題</span>';
+    h += '</div></div>';
+    h += '<div class="fp-group"><div class="fp-label">年度</div><div class="chips">';
+    yearsList().forEach(y => {
+      const on = filters.years.includes(y);
+      const label = (String(y).match(/第\d+回/) || [y])[0];
+      h += '<span class="chip' + (on ? ' on' : '') + '" onclick="toggleFilterVal(\'years\', \'' + esc(y) + '\')">' + esc(label) + '</span>';
+    });
+    h += '</div></div>';
+    h += '<div class="fp-group"><div class="fp-label">科目</div><div class="chips">';
+    fieldsInOrder().forEach(f => {
+      const on = filters.fields.includes(f);
+      h += '<span class="chip' + (on ? ' on' : '') + '" onclick="toggleFilterVal(\'fields\', \'' + esc(f) + '\')">' + esc(f) + '</span>';
+    });
+    h += '</div></div>';
+    if (nActive) h += '<button class="fp-clear" onclick="clearFilters()">すべて解除</button>';
+    h += '</div>';
+  }
+
+  h += '<div id="bank-list"></div>';
+  document.getElementById("view-bank").innerHTML = h;
+  renderBankList();
+}
+
+function renderBankList() {
+  const el = document.getElementById("bank-list");
+  if (!el) return;
+  if (questions.length === 0) {
+    el.innerHTML = '<div class="empty">' + mascotImg("upa_smile") + 'まだ問題がありません。「＋ 問題を登録」から始めてください。</div>';
+    return;
+  }
+  if (!hasActiveFilter()) {
+    el.innerHTML = '<div class="empty">' + mascotImg("upa_think") + '「絞り込み（年度・科目）」を開いて選ぶか、キーワード検索すると問題が表示されます。<br>表示された問題をタップするとテストに追加できます。</div>';
+    return;
+  }
+  const list = filteredQuestions();
+  if (list.length === 0) {
+    el.innerHTML = '<div class="empty">条件に一致する問題がありません。</div>';
+    return;
+  }
+  let h = '<div class="result-count">' + list.length + '問</div>';
+  h += '<div class="bank-hint">問題をタップするとテストに追加／解除できます。</div>';
+  list.forEach(q => {
+    const on = inTest(q.id);
+    const mine = isUserMade(q);
+    h += '<div class="card q-card' + (on ? ' in-test' : '') + '" onclick="toggleTest(\'' + q.id + '\')">';
+    h += '<div class="q-card-check">' + (on ? '✓' : '＋') + '</div>';
+    h += '<div>' + (mine ? '<span class="tag tag-mine">自作</span>' : '') + tagHtml(q) + '</div>';
+    h += '<p class="q-text">' + esc(q.text) + '</p>';
+    if (q.image) h += '<img src="' + q.image + '" alt="別冊図" class="q-img" loading="lazy">';
+    h += '<ol class="q-choices">' + q.choices.map((c, i) =>
+      '<li>' + (i+1) + '. ' + esc(c) + ((q.answers||[]).includes(i) ? '<span class="correct-mark">◎</span>' : '') + '</li>').join("") + '</ol>';
+    if (q.explanation) h += '<p class="q-expl">解説：' + esc(q.explanation) + '</p>';
+    if (mine) {
+      h += '<div class="q-actions" onclick="event.stopPropagation()">';
+      h += '<button class="btn btn-sm" onclick="openForm(\'' + q.id + '\')">編集</button>';
+      h += '<button class="btn btn-sm btn-danger" onclick="deleteQuestion(\'' + q.id + '\')">削除</button>';
+      h += '</div>';
+    }
+    h += '</div>';
+  });
+  el.innerHTML = h;
+}
+
+function renderBuildMeta() {
+  const el = document.getElementById("build-meta");
+  if (el) el.textContent = testItems().length + "問";
+}
+
+function renderBuild() {
+  const items = testItems();
+  let h = '';
+
+  // 現在編集中のテスト
+  h += '<div class="card mb" style="margin-bottom:16px">';
+  h += '<label>テスト名</label>';
+  h += '<input value="' + esc(test.title) + '" oninput="setTitle(this.value)">';
+  h += '<div class="t-meta" id="build-meta" style="margin-top:8px">' + items.length + '問</div>';
+  h += '<div class="toolbar" style="margin:10px 0 0">';
+  h += '<button class="btn btn-primary" onclick="saveCurrentTest()">このテストを保存</button>';
+  h += '<button class="btn" onclick="newTest()">新しいテスト</button>';
+  h += '</div></div>';
+
+  // 問題リスト
+  if (items.length === 0) {
+    h += '<div class="empty">' + mascotImg("upa_happy") + '問題バンクで問題をタップして追加すると、ここに並びます。<br>名前を付けて「このテストを保存」すると、下の一覧に残って後で再利用できます。</div>';
+  } else {
+    items.forEach((item, idx) => {
+      h += '<div class="card t-item">';
+      h += '<div class="t-num serif">' + (idx+1) + '</div>';
+      h += '<div class="t-body"><p>' + esc(item.q.text) + '</p>';
+      h += '<div class="t-meta">' + esc(item.q.field || "") + (item.q.year ? "・" + esc(item.q.year) + "年度" : "") + '</div></div>';
+      h += '<div class="t-side"><div class="t-move">';
+      h += '<button class="btn btn-sm" onclick="moveItem(' + idx + ',-1)" aria-label="上へ">↑</button>';
+      h += '<button class="btn btn-sm" onclick="moveItem(' + idx + ',1)" aria-label="下へ">↓</button>';
+      h += '<button class="btn btn-sm btn-danger" onclick="toggleTest(\'' + item.qid + '\')">外す</button>';
+      h += '</div></div></div>';
+    });
+  }
+
+  // 保存したテスト一覧
+  h += '<div class="card" style="margin-top:24px">';
+  h += '<label>保存したテスト（' + savedTests.length + '）</label>';
+  if (savedTests.length === 0) {
+    h += '<p class="t-meta">まだありません。テストを作って「このテストを保存」を押すと、ここに溜まって後でいつでも呼び出せます。</p>';
+  } else {
+    savedTests.forEach(t => {
+      const cur = t.id && t.id === test.id;
+      h += '<div class="saved-test">';
+      h += '<div class="st-body"><div class="st-name">' + esc(t.title) + (cur ? '<span class="st-now">編集中</span>' : '') + '</div>';
+      h += '<div class="st-meta">' + t.items.length + '問' + (t.savedAt ? '・' + fmtDate(t.savedAt) + ' 保存' : '') + '</div></div>';
+      h += '<div class="st-actions">';
+      h += '<button class="btn btn-sm btn-primary" onclick="loadSavedTest(\'' + t.id + '\')">開く</button>';
+      h += '<button class="btn btn-sm" onclick="duplicateSavedTest(\'' + t.id + '\')">複製</button>';
+      h += '<button class="btn btn-sm btn-danger" onclick="deleteSavedTest(\'' + t.id + '\')">削除</button>';
+      h += '</div></div>';
+    });
+  }
+  h += '</div>';
+
+  document.getElementById("view-build").innerHTML = h;
+}
+
+function sheetsHtml() {
+  const items = testItems();
+  const d = new Date();
+  const dateStr = d.getFullYear() + "年" + (d.getMonth()+1) + "月" + d.getDate() + "日";
+  let h = '<div class="sheet page-break">';
+  h += '<div class="sheet-head"><div class="eyebrow">' + dateStr + ' 実施　問題用紙</div>';
+  h += '<h2 class="serif">' + esc(test.title) + '</h2>';
+  h += '<div class="sheet-meta"><span>全' + items.length + '問</span><span class="name-line">氏名：</span></div></div>';
+  items.forEach((item, idx) => {
+    h += '<div class="p-q"><p><strong class="serif">問' + (idx+1) + '</strong>　' + esc(item.q.text) + '</p>';
+    if (item.q.image) h += '<img src="' + item.q.image + '" class="p-img">';
+    h += '<ol>' + item.q.choices.map((c, i) => '<li>' + (i+1) + '．' + esc(c) + '</li>').join("") + '</ol></div>';
+  });
+  h += '</div>';
+
+  h += '<div class="sheet">';
+  h += '<div class="sheet-head"><div class="eyebrow">教員用　模範解答・解説</div>';
+  h += '<h2 class="serif">' + esc(test.title) + '</h2></div>';
+  h += '<table class="ans-table"><thead><tr><th style="width:48px">問</th><th style="width:48px">正解</th><th>解説</th></tr></thead><tbody>';
+  items.forEach((item, idx) => {
+    const src = [item.q.field, item.q.year].filter(Boolean).join("・");
+    const ansStr = (item.q.answers||[]).map(i => i+1).join("・") || "—";
+    h += '<tr><td class="serif"><strong>' + (idx+1) + '</strong></td><td>' + ansStr + '</td>';
+    h += '<td>' + esc(item.q.explanation || "—") + (src ? ' <span class="src">（' + esc(src) + '）</span>' : '') + '</td></tr>';
+  });
+  h += '</tbody></table></div>';
+  return h;
+}
+
+function renderPrint() {
+  const items = testItems();
+  let h;
+  if (items.length === 0) {
+    h = '<div class="empty">' + mascotImg("bear_point") + 'テストバンクに問題を追加すると、ここで問題用紙と模範解答をPDFで保存できます。</div>';
+  } else {
+    h = '<div class="toolbar"><button class="btn btn-primary" onclick="window.print()">PDFで保存する</button></div>';
+    h += '<p class="t-meta" style="margin-bottom:16px">下のプレビューがそのままPDFになります（問題用紙＋模範解答・解説）。スマホは共有メニューやプリント画面から「PDFを保存」、PCは印刷ダイアログで「PDFに保存」を選んでください。模範解答を配らない場合はページ範囲を指定してください。</p>';
+    h += '<div class="preview">' + sheetsHtml() + '</div>';
+  }
+  document.getElementById("view-print").innerHTML = h;
+  document.getElementById("print-area").innerHTML = items.length ? sheetsHtml() : "";
+}
+
+function removeFormImage() { readFormInputs(); form.image = ""; renderModal(); }
+
+function handleFormImageFile(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    const img = new Image();
+    img.onload = () => {
+      const max = 900;
+      let { width, height } = img;
+      if (width > max) { height = Math.round(height * max / width); width = max; }
+      const canvas = document.createElement("canvas");
+      canvas.width = width; canvas.height = height;
+      canvas.getContext("2d").drawImage(img, 0, 0, width, height);
+      readFormInputs();
+      form.image = canvas.toDataURL("image/jpeg", 0.7);
+      renderModal();
+    };
+    img.src = reader.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function renderModal() {
+  const bg = document.getElementById("modal-bg");
+  const m = document.getElementById("modal");
+  if (!form) { bg.classList.remove("open"); m.innerHTML = ""; return; }
+  bg.classList.add("open");
+  let h = '<h2 class="serif">' + (form.editId ? "問題を編集" : "問題を登録") + '</h2>';
+  h += '<div class="mb"><label>設問文 *</label><textarea id="f-text" rows="3">' + esc(form.text) + '</textarea></div>';
+  h += '<div class="mb"><label>選択肢（◎で正解を指定／複数可） *</label>';
+  form.choices.forEach((c, i) => {
+    h += '<div class="choice-row">';
+    h += '<button class="ans-btn' + ((form.answers||[]).includes(i) ? " on" : "") + '" onclick="toggleAnswer(' + i + ')" aria-label="選択肢' + (i+1) + 'を正解に切り替え">'
+      + ((form.answers||[]).includes(i) ? "◎" : (i+1)) + '</button>';
+    h += '<input id="f-choice-' + i + '" placeholder="選択肢 ' + (i+1) + '" value="' + esc(c) + '">';
+    h += '</div>';
+  });
+  if (form.choices.length < 5) h += '<button class="btn btn-sm" style="border:none;text-decoration:underline;color:var(--muted)" onclick="addChoice()">＋ 選択肢を増やす</button>';
+  h += '</div>';
+  h += '<div class="mb"><label>解説</label><textarea id="f-expl" rows="2">' + esc(form.explanation) + '</textarea></div>';
+  h += '<div class="mb"><label>図・画像（別冊など）</label>';
+  if (form.image) {
+    h += '<img src="' + form.image + '" class="q-img" style="max-height:180px">';
+    h += '<button class="btn btn-sm btn-danger" onclick="removeFormImage()">画像を削除</button> ';
+  }
+  h += '<button class="btn btn-sm" onclick="document.getElementById(\'f-img-file\').click()">' + (form.image ? "画像を差し替え" : "画像を追加") + '</button>';
+  h += '<input type="file" id="f-img-file" accept="image/*" style="display:none">';
+  h += '</div>';
+  h += '<div class="form-grid">';
+  h += '<div><label>分野</label><input id="f-field" list="field-list" value="' + esc(form.field) + '">'
+    + '<datalist id="field-list">' + fieldsList().map(f => '<option value="' + esc(f) + '">').join("") + '</datalist></div>';
+  h += '<div><label>年度</label><input id="f-year" placeholder="2025" value="' + esc(form.year) + '"></div>';
+  h += '</div>';
+  h += '<div class="modal-actions">';
+  h += '<button class="btn" onclick="closeForm()">キャンセル</button>';
+  h += '<button class="btn btn-primary" onclick="saveQuestion()">保存する</button>';
+  h += '</div>';
+  m.innerHTML = h;
+  const imgInput = document.getElementById("f-img-file");
+  if (imgInput) imgInput.addEventListener("change", e => {
+    if (e.target.files && e.target.files[0]) handleFormImageFile(e.target.files[0]);
+  });
+}
+
+document.getElementById("modal-bg").addEventListener("click", e => {
+  if (e.target.id === "modal-bg") { readFormInputs(); closeForm(); }
+});
+
+function render() {
+  renderHeader();
+  renderBank();
+  renderBuild();
+  renderPrint();
+  hideSplash();
+}
+function hideSplash() {
+  const s = document.getElementById("splash");
+  if (!s || s.classList.contains("hide")) return;
+  setTimeout(() => { s.classList.add("hide"); setTimeout(() => s.remove(), 700); }, 400);
+}
+
+// ===== 起動 =====
+loadData();
+render();
+</script>
+</body>
+</html>
