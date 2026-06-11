@@ -516,7 +516,7 @@ function renderHeader() {
   document.getElementById("tab-build").textContent = "テストバンク（" + test.items.length + "）";
   const lm = document.getElementById("logo-mascot");
   if (lm) {
-    if (typeof MASCOTS !== "undefined" && MASCOTS.bear_smile) { lm.src = MASCOTS.bear_smile; lm.hidden = false; }
+    if (typeof MASCOTS !== "undefined" && MASCOTS.bear_point) { lm.src = MASCOTS.bear_point; lm.hidden = false; }
     else { lm.hidden = true; }
   }
   ["bank","build","print"].forEach(k => {
