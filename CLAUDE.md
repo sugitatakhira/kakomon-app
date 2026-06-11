@@ -19,7 +19,7 @@
 | 1 | 臨床検査技師 過去問DB | **ケンゼミ**（検査技術ゼミナール） | リポジトリ直下＋`docs/`(PWA) | `main` 等 | 第58〜72回=15回3000問 完成 |
 | 2 | 診療放射線技師 過去問DB | **ホウゼミ**（放射技術ゼミナール） | **`radiology/`** | `claude/radiologic-tech-exam-db-dw7ipa` | 第64〜78回=15回3000問 完成（統合版あり）|
 | 3 | 演習/クイズモード | **道場**（dojo） | 別ブランチ（要記入）| 別セッション | PR #2 進行中（`/kakomon-app/dojo/` に配信）|
-| 4 | ECG（心電図）練習 | ECG | 別ブランチ（要記入）| 別セッション | 進行中 |
+| 4 | ECG（心電図）練習 | ECG | `ecg-practice.html`・`ecg-practice-grade3.html`（リポジトリ直下）| `claude/ecg-practice-app-dmbt8w` | 2級版51問・3級版45問 完成 |
 
 > #3・#4 は別セッションが作業中で、このファイル作成時点では `main`／本ブランチから
 > 内容が見えない。**各担当セッションがこの表の自分の行を追記・更新すること。**
@@ -46,3 +46,14 @@
 - 再生成：各 `radiology/buildNN/`（cmapfix→parse→extract_beppu→buildNN.py→gen_html.py）→
   `radiology/gen_all.py`（統合版）。
 - **未了（任意）**：`docs/houzemi/` へのPWA配信（ケンゼミ `docs/` と同要領）。
+
+## ECG（心電図）練習アプリの要点
+- 他アプリ（ケンゼミ／ホウゼミ）とは**完全に独立**。過去問DBではなく、心電図波形を読む演習。
+- 実体は**単一HTML 2ファイル**（リポジトリ直下、ビルド不要・依存なし）：
+  - `ecg-practice.html` … **ECG検定2級**想定・全51問（配色＝ティール緑系）
+  - `ecg-practice-grade3.html` … **ECG検定3級**入門・全45問（配色＝青系）
+- 波形は**JavaScriptで手続き的に生成**（実画像なし）。P/T波＝非対称ガウス、QRS＝Q→R→S連続折れ線、
+  ST＝J点から平滑偏位。標準ECG用紙（25mm/s・10mm/mV）＋微小ノイズ／基線動揺で実記録に近づける。
+  描画エンジン（`buildBeats`/`beatValue`/`drawECG`）は両ファイルに同一実装を複製。
+- 出題：不整脈・伝導障害・虚血・電解質・ペーシング等。各問 `{cat,spec,q,opts,a,ex}` 形式で即時採点・解説。
+- 検証は **playwright**（プリインストール）で実ブラウザ描画→スクリーンショット目視が有効。
