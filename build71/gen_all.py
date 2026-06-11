@@ -3,9 +3,16 @@ import json, os, re, hashlib, base64
 HERE=os.path.dirname(__file__); ROOT=os.path.join(HERE,'..')
 src=open(os.path.join(ROOT,'kakomon-webapp.html'),encoding='utf-8').read()
 
+# 問題文先頭の通し番号表記を「午前15」「午後2」に統一する。
+#   旧表記ゆれ: [A15] / [B02] / [午前A15] / [午後B2] / [午前81]（角括弧つき）など。
+#   A=午前・B=午後。先頭ゼロは除去。すでに「午前15」（角括弧なし）になっている分は変化しない（冪等）。
+def normalize_prefix(s):
+    return re.sub(r'\[(午前|午後)?([AB])?0*(\d+)\]',
+                  lambda m: (m.group(1) or ('午前' if m.group(2)=='A' else '午後')) + m.group(3), s)
+
 def extract(htmlname, const):
     h=open(os.path.join(ROOT,htmlname),encoding='utf-8').read()
-    return re.search(r'const '+const+r' = (\[.*?\]);', h, re.S).group(1)
+    return normalize_prefix(re.search(r'const '+const+r' = (\[.*?\]);', h, re.S).group(1))
 
 # 各年度の単体HTMLから埋め込み済みデータを取り出して合成（リポジトリ単体で再現可）
 k72=extract('kakomon-webapp-72.html','KOKUSHI_72')

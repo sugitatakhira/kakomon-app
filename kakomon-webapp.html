@@ -753,7 +753,17 @@ function renderBuild() {
   h += '<div class="toolbar" style="margin:10px 0 0">';
   h += '<button class="btn btn-primary" onclick="saveCurrentTest()">このテストを保存</button>';
   h += '<button class="btn" onclick="newTest()">新しいテスト</button>';
-  h += '</div></div>';
+  h += '</div>';
+  if (items.length > 0) {
+    h += '<div class="toolbar" style="margin:10px 0 0;align-items:center">';
+    h += '<button class="btn' + (shuffleOn ? ' btn-primary' : '') + '" onclick="toggleShuffle()">選択肢ランダム：' + (shuffleOn ? 'ON' : 'OFF') + '</button>';
+    if (shuffleOn) h += '<button class="btn btn-sm" onclick="reshuffle()">↻ 再シャッフル</button>';
+    h += '</div>';
+    h += '<p class="t-meta" style="margin:8px 0 0">' + (shuffleOn
+      ? '各問題の選択肢の並びをシャッフルして配布します（「PDFで保存」の問題用紙・模範解答に反映。模範解答も同じ並びの正解位置で出ます）。'
+      : '選択肢の並びをランダム化して配布したいときにONにします。同じテストでも生徒ごとに別バージョンを作れます。') + '</p>';
+  }
+  h += '</div>';
 
   // 問題リスト
   if (items.length === 0) {
@@ -844,8 +854,9 @@ function orderFor(item) {
   if (shuffleOn && o && o.length === n) return o;
   return Array.from({ length: n }, (_, i) => i);
 }
-function toggleShuffle() { shuffleOn = !shuffleOn; if (shuffleOn) buildShuffleOrders(); renderPrint(); }
-function reshuffle() { buildShuffleOrders(); renderPrint(); toast("選択肢を再シャッフルしました"); }
+function refreshShuffleViews() { renderBuild(); renderPrint(); }
+function toggleShuffle() { shuffleOn = !shuffleOn; if (shuffleOn) buildShuffleOrders(); refreshShuffleViews(); }
+function reshuffle() { buildShuffleOrders(); refreshShuffleViews(); toast("選択肢を再シャッフルしました"); }
 
 function renderPrint() {
   const items = testItems();
@@ -853,11 +864,8 @@ function renderPrint() {
   if (items.length === 0) {
     h = '<div class="empty">' + mascotImg("bear_point") + 'テストバンクに問題を追加すると、ここで問題用紙と模範解答をPDFで保存できます。</div>';
   } else {
-    h = '<div class="toolbar"><button class="btn btn-primary" onclick="window.print()">PDFで保存する</button>';
-    h += '<button class="btn' + (shuffleOn ? ' btn-primary' : '') + '" onclick="toggleShuffle()">選択肢ランダム：' + (shuffleOn ? 'ON' : 'OFF') + '</button>';
-    if (shuffleOn) h += '<button class="btn btn-sm" onclick="reshuffle()">↻ 再シャッフル</button>';
-    h += '</div>';
-    h += '<p class="t-meta" style="margin-bottom:16px">下のプレビューがそのままPDFになります（問題用紙＋模範解答・解説）。スマホは共有メニューやプリント画面から「PDFを保存」、PCは印刷ダイアログで「PDFに保存」を選んでください。模範解答を配らない場合はページ範囲を指定してください。' + (shuffleOn ? '<br><b>選択肢ランダムON：</b>各問題の選択肢の並びをシャッフルしています（模範解答も同じ並びの正解位置で出ます）。「再シャッフル」で別バージョンを作れます。' : '') + '</p>';
+    h = '<div class="toolbar"><button class="btn btn-primary" onclick="window.print()">PDFで保存する</button></div>';
+    h += '<p class="t-meta" style="margin-bottom:16px">下のプレビューがそのままPDFになります（問題用紙＋模範解答・解説）。スマホは共有メニューやプリント画面から「PDFを保存」、PCは印刷ダイアログで「PDFに保存」を選んでください。模範解答を配らない場合はページ範囲を指定してください。' + (shuffleOn ? '<br><b>選択肢ランダムON：</b>各問題の選択肢の並びをシャッフルしています（テストバンク画面で切り替え・再シャッフルできます）。' : '') + '</p>';
     h += '<div class="preview">' + sheetsHtml() + '</div>';
   }
   document.getElementById("view-print").innerHTML = h;
