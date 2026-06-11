@@ -923,6 +923,10 @@ function hideSplash() {
 
 // ===== 起動 =====
 loadData();
+if (questions.length === 0 && typeof KOKUSHI_78 !== "undefined") {
+  questions = KOKUSHI_78.map(q => ({ ...q }));
+  saveData();
+}
 render();
 </script>
 </body>
