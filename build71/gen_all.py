@@ -20,10 +20,11 @@ k64=extract('kakomon-webapp-64.html','KOKUSHI_64')
 k63=extract('kakomon-webapp-63.html','KOKUSHI_63')
 k62=extract('kakomon-webapp-62.html','KOKUSHI_62')
 k61=extract('kakomon-webapp-61.html','KOKUSHI_61')
+k60=extract('kakomon-webapp-60.html','KOKUSHI_60')
 
 # 内容バージョン: 全問データのハッシュ。内容が変わった時だけ値が変わる
 #   → 利用者端末では「公式問題だけ最新化(自作分は保持)」が走る(loadData内)。
-KOKUSHI_VERSION=hashlib.md5((k72+k71+k70+k69+k68+k67+k66+k65+k64+k63+k62+k61).encode('utf-8')).hexdigest()[:12]
+KOKUSHI_VERSION=hashlib.md5((k72+k71+k70+k69+k68+k67+k66+k65+k64+k63+k62+k61+k60).encode('utf-8')).hexdigest()[:12]
 
 # キャラクター画像(assets/mascot/*.png)をbase64で埋め込む
 def _b64png(path): return "data:image/png;base64," + base64.b64encode(open(path,'rb').read()).decode()
@@ -47,6 +48,7 @@ inject=('"use strict";\n\n'
  'const KOKUSHI_63 = '+k63+';\n'
  'const KOKUSHI_62 = '+k62+';\n'
  'const KOKUSHI_61 = '+k61+';\n'
+ 'const KOKUSHI_60 = '+k60+';\n'
  'const KOKUSHI_SETS = [\n'
  '  { key: "72", label: "第72回", data: KOKUSHI_72 },\n'
  '  { key: "71", label: "第71回", data: KOKUSHI_71 },\n'
@@ -60,6 +62,7 @@ inject=('"use strict";\n\n'
  '  { key: "63", label: "第63回", data: KOKUSHI_63 },\n'
  '  { key: "62", label: "第62回", data: KOKUSHI_62 },\n'
  '  { key: "61", label: "第61回", data: KOKUSHI_61 },\n'
+ '  { key: "60", label: "第60回", data: KOKUSHI_60 },\n'
  '];\n\n// ===== 定数 =====')
 assert src.count(old_a)==1
 src=src.replace(old_a,inject)
