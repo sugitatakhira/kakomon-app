@@ -44,6 +44,7 @@
   .empty img { display:block; width:120px; height:120px; margin:0 auto 14px; }
   .tag { display:inline-block; padding:1px 10px; background:#e7e5e4; border-radius:99px; font-size:11px; margin-right:6px; }
   .tag.multi { background:#dcfce7; color:#166534; }
+  .tag.excl { background:#fef3c7; color:#92400e; }
   .link { background:none; border:none; color:var(--teal-d); font:inherit; font-size:12px; cursor:pointer; text-decoration:underline; padding:0; }
 
   /* ヒーロー */
@@ -212,6 +213,7 @@ function tagHtml(q) {
   if (q.field) h += '<span class="tag">' + esc(q.field) + '</span>';
   if (q.year) h += '<span class="tag">' + esc(yearLabel(q.year)) + '</span>';
   if ((q.answers || []).length >= 2) h += '<span class="tag multi">' + q.answers.length + 'つ選べ</span>';
+  if ((q.answers || []).length === 0) h += '<span class="tag excl">採点除外</span>';
   return h;
 }
 
@@ -236,7 +238,6 @@ document.getElementById("confirm-bg").addEventListener("click", e => { if (e.tar
 function curQ() { return pr ? QBYID[pr.queue[pr.idx]] : null; }
 function pool() {
   return QUESTIONS.filter(q => {
-    if (!(q.answers || []).length) return false;                 // 採点除外を除く
     if (setup.years.length && !setup.years.includes(q.year)) return false;
     if (setup.fields.length && !setup.fields.includes(q.field)) return false;
     const st = progress.stats[q.id];
@@ -267,10 +268,11 @@ function pick(i) {
 function grade() {
   if (!pr || pr.graded) return;
   const q = curQ(); if (!q) return;
-  if (!pr.picked.length) { toast("選択肢を選んでください"); return; }
-  const picked = [...pr.picked].sort((a, b) => a - b);
   const ans = [...(q.answers || [])].sort((a, b) => a - b);
-  const ok = picked.length === ans.length && picked.every((v, i) => v === ans[i]);
+  const excluded = ans.length === 0;                              // 採点除外＝全員正解扱い
+  if (!excluded && !pr.picked.length) { toast("選択肢を選んでください"); return; }
+  const picked = [...pr.picked].sort((a, b) => a - b);
+  const ok = excluded ? true : (picked.length === ans.length && picked.every((v, i) => v === ans[i]));
   pr.graded = true;
   pr.results.push({ qid: q.id, ok: ok });
   const st = progress.stats[q.id] || { c: 0, w: 0 };
@@ -399,7 +401,7 @@ function setupHtml() {
 function quizHtml() {
   const q = curQ(), n = pr.queue.length, cur = pr.idx + 1;
   const correctSoFar = pr.results.filter(r => r.ok).length;
-  const ans = q.answers || [], multi = ans.length >= 2;
+  const ans = q.answers || [], multi = ans.length >= 2, excluded = ans.length === 0;
 
   let h = '<div class="topbar"><span class="count">問 ' + cur + ' / ' + n + '</span>';
   h += '<span class="prog"><i style="width:' + Math.round(pr.idx / n * 100) + '%"></i></span>';
@@ -409,15 +411,19 @@ function quizHtml() {
   h += '<div class="q"><div class="meta">' + tagHtml(q) + '</div>';
   h += '<div class="stem">' + esc(q.text) + '</div>';
   if (q.image) h += '<img src="' + q.image + '" class="stem-img" alt="図">';
-  if (multi && !pr.graded) h += '<div class="hint">' + ans.length + 'つ選んでください</div>';
+  if (!pr.graded) {
+    if (excluded) h += '<div class="hint">※この問題は採点除外（公式に「正答なし」で全員正解扱い）です。練習として解いてみましょう。</div>';
+    else if (multi) h += '<div class="hint">' + ans.length + 'つ選んでください</div>';
+  }
 
   h += '<div class="choices">';
   q.choices.forEach((c, i) => {
     let cls = "choice", mk;
     if (pr.graded) {
-      if (ans.includes(i)) cls += " correct";
-      else if (pr.picked.includes(i)) cls += " wrong";
-      mk = ans.includes(i) ? "◯" : (pr.picked.includes(i) ? "✕" : (i + 1));
+      if (excluded) { if (pr.picked.includes(i)) cls += " picked"; mk = pr.picked.includes(i) ? "●" : (i + 1); }
+      else if (ans.includes(i)) { cls += " correct"; mk = "◯"; }
+      else if (pr.picked.includes(i)) { cls += " wrong"; mk = "✕"; }
+      else mk = i + 1;
     } else {
       if (pr.picked.includes(i)) cls += " picked";
       mk = pr.picked.includes(i) ? "●" : (i + 1);
@@ -429,6 +435,12 @@ function quizHtml() {
 
   if (!pr.graded) {
     h += '<button class="grade" onclick="grade()">採点する</button>';
+  } else if (excluded) {
+    h += '<div class="fb ok"><div class="verdict">採点除外問題</div>';
+    h += '<div class="ans">この問題は公式に「正答なし（全員正解扱い）」とされたため、解答は採点に影響しません。</div>';
+    if (q.explanation) h += '<div class="expl">' + esc(q.explanation) + '</div>';
+    h += '</div>';
+    h += '<button class="next" onclick="next()">' + (cur >= n ? "結果を見る →" : "次の問題へ →") + '</button>';
   } else {
     const ok = pr.results[pr.results.length - 1].ok;
     h += '<div class="fb ' + (ok ? "ok" : "ng") + '"><div class="verdict">' + (ok ? "◯ 正解！" : "✕ 不正解") + '</div>';
