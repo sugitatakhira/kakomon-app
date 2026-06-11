@@ -1,4 +1,4 @@
-const CACHE = "kakomon-552860e72c08";
+const CACHE = "kakomon-f36a5df0645b";
 const ASSETS = ["./", "./index.html", "./manifest.webmanifest",
   "./icon-192.png", "./icon-512.png", "./icon-512-maskable.png", "./icon-180.png"];
 self.addEventListener("install", function (e) {

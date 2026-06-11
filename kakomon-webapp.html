@@ -141,7 +141,7 @@
     background: #fff; color: #a8a29e; cursor: pointer; flex-shrink: 0; font-size: 13px;
   }
   .ans-btn.on { background: var(--ok); border-color: var(--ok); color: #fff; }
-  .form-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin: 12px 0 16px; }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 12px 0 16px; }
   .modal-actions { display: flex; justify-content: flex-end; gap: 8px; }
   .mb { margin-bottom: 12px; }
 
@@ -367,7 +367,6 @@ function readFormInputs() {
   form.explanation = document.getElementById("f-expl").value;
   form.field = document.getElementById("f-field").value;
   form.year = document.getElementById("f-year").value;
-  form.difficulty = document.getElementById("f-diff").value;
   form.choices = form.choices.map((_, i) => document.getElementById("f-choice-" + i).value);
 }
 function toggleAnswer(i) {
@@ -587,7 +586,6 @@ function tagHtml(q) {
   let h = "";
   if (q.field) h += '<span class="tag">' + esc(q.field) + '</span>';
   if (q.year) h += '<span class="tag">' + esc(q.year) + '</span>';
-  h += '<span class="tag">難易度：' + esc(q.difficulty) + '</span>';
   if ((q.answers||[]).length >= 2) h += '<span class="tag" style="background:#dcfce7">複数選択</span>';
   if ((q.answers||[]).length === 0) h += '<span class="tag" style="background:#fee2e2">正解なし</span>';
   return h;
@@ -828,8 +826,6 @@ function renderModal() {
   h += '<div><label>分野</label><input id="f-field" list="field-list" value="' + esc(form.field) + '">'
     + '<datalist id="field-list">' + fieldsList().map(f => '<option value="' + esc(f) + '">').join("") + '</datalist></div>';
   h += '<div><label>年度</label><input id="f-year" placeholder="2025" value="' + esc(form.year) + '"></div>';
-  h += '<div><label>難易度</label><select id="f-diff">' + DIFFS.map(d =>
-    '<option' + (form.difficulty === d ? " selected" : "") + '>' + d + '</option>').join("") + '</select></div>';
   h += '</div>';
   h += '<div class="modal-actions">';
   h += '<button class="btn" onclick="closeForm()">キャンセル</button>';
