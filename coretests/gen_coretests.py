@@ -9,7 +9,9 @@ from map_bisei import BISEI
 from map_seiri import SEIRI
 from map_ketsueki import KETSUEKI
 from map_kagaku import KAGAKU
+from map_meneki import MENEKI
 qids = {q['id'] for q in load_all()}
+MENEKI_LABELS={1:"免疫総論(自然・獲得・MHC)",2:"基礎(細胞・サイトカイン・Ig)",3:"検査(測定法・自己抗体・梅毒)",4:"補体",5:"腫瘍マーカー・肝炎・異常Ig・アレルギー",6:"血液型(ABO・Rh)",7:"交差適合・不規則抗体",8:"直接抗グロブリン・輸血"}
 KETSUEKI_LABELS={1:"血球造血",2:"赤血球 基礎",3:"赤血球 臨床①",4:"赤血球 臨床②",5:"白血球 基礎",6:"白血球 臨床①",7:"白血球 臨床②",8:"血小板・凝固",9:"凝固検査・線溶",10:"血小板 臨床",11:"測定法・診断"}
 BYORI_LABELS={1:"基礎",2:"固定・脱灰",3:"包埋・薄切・凍結",4:"染色①",5:"染色②",6:"免疫染色",7:"電子顕微鏡",8:"細胞診"}
 BISEI_LABELS={1:"基礎",2:"染色・培地",3:"滅菌・消毒・抗菌薬",4:"同定①",5:"同定②",6:"ビブリオ・マイコ",7:"偏性嫌気性菌",8:"真菌・ウイルス"}
@@ -30,6 +32,7 @@ def add(book, M, labels, chapter=True):
             label="%s：%s"%(book,labels[ch]); btn=labels[ch]
         out.append({"book":book,"ch":ch,"btn":btn,"label":label,"count":len(ids),"ids":ids})
 add("血液学", KETSUEKI, KETSUEKI_LABELS)
+add("免疫学", MENEKI, MENEKI_LABELS)
 add("臨床化学", KAGAKU, KAGAKU_LABELS, chapter=False)
 add("生理学", SEIRI, SEIRI_LABELS)
 add("病理学", BYORI, BYORI_LABELS)
