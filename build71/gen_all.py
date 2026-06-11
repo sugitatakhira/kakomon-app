@@ -246,12 +246,21 @@ assert src.count(old_storage)==1
 src=src.replace(old_storage,new_storage)
 
 
-# D) 起動を非同期化（loadData が IndexedDB なので await してから描画）
+# D) 起動: まず埋め込みデータで即描画（スプラッシュをIndexedDB待ちにしない）→
+#    その後バックグラウンドで保存データ(自作問題・テスト)を読み込んで再描画。
 old_init='// ===== 起動 =====\nloadData();\nrender();'
 new_init=('// ===== 起動 =====\n'
- '(async () => { try { await loadData(); } catch (e) {} render(); })();\n'
- '// 安全網: 何があってもスプラッシュは一定時間で必ず解除する\n'
- 'setTimeout(() => { try { hideSplash(); } catch (e) {} }, 6000);')
+ '// 1) 埋め込み済みの公式データだけで即描画。IndexedDBを一切待たないのでスプラッシュは必ず解除される。\n'
+ 'try {\n'
+ '  if (typeof KOKUSHI_SETS !== "undefined" && questions.length === 0) {\n'
+ '    questions = KOKUSHI_SETS.flatMap(s => s.data).map(q => ({ ...q }));\n'
+ '  }\n'
+ '  render();\n'
+ '} catch (e) { try { hideSplash(); } catch (e2) {} }\n'
+ '// 2) 保存データ(自作問題・テスト)をバックグラウンドで読み込み、整合できたら再描画。\n'
+ '(async () => { try { await loadData(); render(); } catch (e) {} })();\n'
+ '// 3) 安全網: 何があってもスプラッシュは一定時間で必ず解除する。\n'
+ 'setTimeout(() => { try { hideSplash(); } catch (e) {} }, 3000);')
 assert src.count(old_init)==1
 src=src.replace(old_init,new_init)
 

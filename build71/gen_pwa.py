@@ -23,8 +23,14 @@ html=html.replace('<title>ケンゼミ過去問データベース</title>', head
 # 2) Service Worker 登録を </body> 直前に差し込む
 sw_reg='''<script>
 if ("serviceWorker" in navigator) {
+  var _swRefreshing = false;
+  navigator.serviceWorker.addEventListener("controllerchange", function () {
+    if (_swRefreshing) return; _swRefreshing = true; location.reload();
+  });
   window.addEventListener("load", function () {
-    navigator.serviceWorker.register("sw.js").catch(function () {});
+    navigator.serviceWorker.register("sw.js").then(function (reg) {
+      if (reg && reg.update) { try { reg.update(); } catch (e) {} }
+    }).catch(function () {});
   });
 }
 </script>
