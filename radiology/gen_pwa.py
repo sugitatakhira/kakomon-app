@@ -12,7 +12,7 @@ os.makedirs(DOCS, exist_ok=True)
 html=open(os.path.join(HERE,'kakomon-webapp-all.html'),encoding='utf-8').read()
 
 # 1) <head> に PWA メタ/manifest/アイコンを差し込む(統合版の<title>の直後)
-TITLE='<title>放射技術ゼミナール｜ホウゼミ</title>'
+TITLE='<title>放射技術ゼミナール｜ホウゼミ過去問データベース</title>'
 head_add=TITLE+'''
 <meta name="theme-color" content="#4338ca">
 <link rel="manifest" href="manifest.webmanifest">

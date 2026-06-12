@@ -156,10 +156,12 @@ new_init = '// ===== 起動 =====\n(async () => { await loadData(); render(); })
 assert src.count(old_init) == 1, 'init anchor'
 src = src.replace(old_init, new_init)
 
-# D) ブランディング: 放射技術ゼミナール / ホウゼミ
-src = src.replace('<title>ケンゼミ過去問データベース</title>', '<title>放射技術ゼミナール｜ホウゼミ</title>')
-src = src.replace('<div class="s-title">過去問データベース</div>', '<div class="s-title">放射技術ゼミナール</div>')
-src = src.replace('<h1 class="app-title">ケンゼミ過去問データベース</h1>', '<h1 class="app-title">放射技術ゼミナール<span style="font-size:.62em;color:#6b7280;font-weight:600;margin-left:.4em">ホウゼミ</span></h1>')
+# D) ブランディング: 放射技術ゼミナール / ホウゼミ過去問データベース
+src = src.replace('<title>ケンゼミ過去問データベース</title>', '<title>放射技術ゼミナール｜ホウゼミ過去問データベース</title>')
+src = src.replace('<div class="s-eyebrow">検査技術ゼミナール</div>', '<div class="s-eyebrow">放射技術ゼミナール</div>')
+src = src.replace('<div class="s-title">過去問データベース</div>', '<div class="s-title">ホウゼミ過去問データベース</div>')
+src = src.replace('<div class="eyebrow">検査技術ゼミナール</div>', '<div class="eyebrow">放射技術ゼミナール</div>')
+src = src.replace('<h1 class="app-title">ケンゼミ過去問データベース</h1>', '<h1 class="app-title">ホウゼミ過去問データベース</h1>')
 src = src.replace('alt="ケンゼミ博士"', 'alt="ホウゼミ"')
 
 open(os.path.join(HERE, 'kakomon-webapp-all.html'), 'w', encoding='utf-8').write(src)
