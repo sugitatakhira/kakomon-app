@@ -32,10 +32,28 @@ if os.path.isdir(mdir):
         if os.path.exists(p):
             MASCOTS[n] = b64png(p)
 
+# 解説（過去問道場専用・別ファイル）。{ qid: {point, choices:[...]} }。あれば各問へ合体する。
+#   既存の編集アプリ(kakomon-webapp*.html)のデータには手を加えない。
+EXPL = {}
+expl_path = os.path.join(HERE, 'explanations.json')
+if os.path.exists(expl_path):
+    EXPL = json.load(open(expl_path, encoding='utf-8'))
+
 # KOKUSHI_SETS を組み立て（テンプレの `const KOKUSHI_SETS = [];` を置換）
 sets_lines = []
+n_expl = 0
 for num in YEARS:
-    sets_lines.append('  { key: "%d", label: "第%d回", data: %s },' % (num, num, extract(num)))
+    data = json.loads(extract(num))
+    for q in data:
+        e = EXPL.get(q['id'])
+        if not e:
+            continue
+        if e.get('point'):
+            q['point'] = e['point']
+        if e.get('choices'):
+            q['cexpl'] = e['choices']
+        n_expl += 1
+    sets_lines.append('  { key: "%d", label: "第%d回", data: %s },' % (num, num, json.dumps(data, ensure_ascii=False)))
 sets_js = 'const KOKUSHI_SETS = [\n' + '\n'.join(sets_lines) + '\n];'
 mascots_js = 'const MASCOTS = ' + json.dumps(MASCOTS, ensure_ascii=False) + ';'
 
@@ -49,4 +67,4 @@ outpath = os.path.join(ROOT, 'kakomon-dojo-all.html')
 open(outpath, 'w', encoding='utf-8').write(out)
 
 n_q = sum(len(json.loads(extract(num))) for num in YEARS)
-print('wrote kakomon-dojo-all.html  %.1f MB  / %d問 / %d回' % (len(out) / 1e6, n_q, len(YEARS)))
+print('wrote kakomon-dojo-all.html  %.1f MB  / %d問 / %d回 / 解説付き %d問' % (len(out) / 1e6, n_q, len(YEARS), n_expl))

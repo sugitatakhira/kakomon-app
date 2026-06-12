@@ -96,6 +96,10 @@
   .choice:hover { border-color:var(--teal-d); }
   .choice .mk { width:27px; height:27px; flex-shrink:0; border-radius:50%; border:1.5px solid var(--line);
     display:flex; align-items:center; justify-content:center; font-size:13px; color:var(--muted); background:#fff; font-weight:700; }
+  .choice .ctext { display:flex; flex-direction:column; gap:3px; flex:1; min-width:0; }
+  .choice .why { font-size:12.5px; line-height:1.55; color:#78716c; font-weight:400; }
+  .choice.correct .why { color:#166534; }
+  .choice.wrong .why { color:#9f1239; }
   .choice.picked { border-color:var(--teal-d); background:#ecfeff; }
   .choice.picked .mk { background:var(--teal-d); border-color:var(--teal-d); color:#fff; }
   .choice.correct { border-color:var(--ok); background:#f0fdf4; }
@@ -402,6 +406,7 @@ function quizHtml() {
   const q = curQ(), n = pr.queue.length, cur = pr.idx + 1;
   const correctSoFar = pr.results.filter(r => r.ok).length;
   const ans = q.answers || [], multi = ans.length >= 2, excluded = ans.length === 0;
+  const ce = q.cexpl || null, pt = q.point || "";
 
   let h = '<div class="topbar"><span class="count">問 ' + cur + ' / ' + n + '</span>';
   h += '<span class="prog"><i style="width:' + Math.round(pr.idx / n * 100) + '%"></i></span>';
@@ -428,8 +433,10 @@ function quizHtml() {
       if (pr.picked.includes(i)) cls += " picked";
       mk = pr.picked.includes(i) ? "●" : (i + 1);
     }
-    h += '<button class="' + cls + '" ' + (pr.graded ? "disabled" : "") + ' onclick="pick(' + i + ')">' +
-      '<span class="mk">' + mk + '</span><span>' + esc(c) + '</span></button>';
+    let inner = '<span class="mk">' + mk + '</span><span class="ctext"><span>' + esc(c) + '</span>';
+    if (pr.graded && ce && ce[i]) inner += '<span class="why">' + esc(ce[i]) + '</span>';
+    inner += '</span>';
+    h += '<button class="' + cls + '" ' + (pr.graded ? "disabled" : "") + ' onclick="pick(' + i + ')">' + inner + '</button>';
   });
   h += '</div>';
 
@@ -438,14 +445,16 @@ function quizHtml() {
   } else if (excluded) {
     h += '<div class="fb ok"><div class="verdict">採点除外問題</div>';
     h += '<div class="ans">この問題は公式に「正答なし（全員正解扱い）」とされたため、解答は採点に影響しません。</div>';
-    if (q.explanation) h += '<div class="expl">' + esc(q.explanation) + '</div>';
+    if (pt) h += '<div class="expl"><b>ポイント：</b>' + esc(pt) + '</div>';
+    else if (q.explanation) h += '<div class="expl">' + esc(q.explanation) + '</div>';
     h += '</div>';
     h += '<button class="next" onclick="next()">' + (cur >= n ? "結果を見る →" : "次の問題へ →") + '</button>';
   } else {
     const ok = pr.results[pr.results.length - 1].ok;
     h += '<div class="fb ' + (ok ? "ok" : "ng") + '"><div class="verdict">' + (ok ? "◯ 正解！" : "✕ 不正解") + '</div>';
     h += '<div class="ans">正解：' + ans.map(i => i + 1).join("・") + '番　<span style="color:var(--muted)">' + ans.map(i => esc(q.choices[i])).join(" ／ ") + '</span></div>';
-    if (q.explanation) h += '<div class="expl">' + esc(q.explanation) + '</div>';
+    if (pt) h += '<div class="expl"><b>ポイント：</b>' + esc(pt) + '</div>';
+    else if (q.explanation) h += '<div class="expl">' + esc(q.explanation) + '</div>';
     h += '</div>';
     h += '<button class="next" onclick="next()">' + (cur >= n ? "結果を見る →" : "次の問題へ →") + '</button>';
   }

@@ -15,7 +15,7 @@ head_add = '''<title>臨床検査技師 過去問道場</title>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="ケンゼミ道場">'''
+<meta name="apple-mobile-web-app-title" content="過去問道場">'''
 assert html.count('<title>臨床検査技師 過去問道場</title>') == 1
 html = html.replace('<title>臨床検査技師 過去問道場</title>', head_add)
 
@@ -34,9 +34,9 @@ open(os.path.join(DOCS, 'index.html'), 'w', encoding='utf-8').write(html)
 
 # 3) manifest
 manifest = {
-    "name": "臨床検査技師 過去問道場", "short_name": "ケンゼミ道場",
+    "name": "臨床検査技師 過去問道場", "short_name": "過去問道場",
     "description": "臨床検査技師 国家試験 第58〜72回の過去問3000問を1問ずつ解いて即採点・解説・成績記録できる演習アプリ。",
-    "id": "/kakomon-app/dojo/", "start_url": "./index.html", "scope": "./", "display": "standalone", "orientation": "portrait",
+    "start_url": "./index.html", "scope": "./", "display": "standalone", "orientation": "portrait",
     "background_color": "#0f766e", "theme_color": "#0d9488", "lang": "ja",
     "icons": [
         {"src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
