@@ -3,7 +3,7 @@
 ティール系グラデーション地に白文字。マスカブルは中央安全域に収める。"""
 import os
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
-HERE=os.path.dirname(__file__); ROOT=os.path.join(HERE,'..'); DOCS=os.path.join(ROOT,'docs')
+HERE=os.path.dirname(__file__); ROOT=os.path.join(HERE,'..'); DOCS=os.path.join(ROOT,'docs','db')
 os.makedirs(DOCS,exist_ok=True)
 FONT='/usr/share/fonts/opentype/ipafont-gothic/ipagp.ttf'
 TOP=(13,148,136)      # teal-600
