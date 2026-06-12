@@ -12,7 +12,7 @@ os.makedirs(DOCS, exist_ok=True)
 html=open(os.path.join(HERE,'kakomon-webapp-all.html'),encoding='utf-8').read()
 
 # 1) <head> に PWA メタ/manifest/アイコンを差し込む(統合版の<title>の直後)
-TITLE='<title>放射技術ゼミナール｜ホウゼミ</title>'
+TITLE='<title>放射技術ゼミナール｜ホウゼミ過去問データベース</title>'
 head_add=TITLE+'''
 <meta name="theme-color" content="#4338ca">
 <link rel="manifest" href="manifest.webmanifest">
@@ -41,7 +41,7 @@ open(os.path.join(DOCS,'index.html'),'w',encoding='utf-8').write(html)
 manifest={
  "name":"放射技術ゼミナール｜ホウゼミ","short_name":"ホウゼミ",
  "description":"放射技術ゼミナール｜診療放射線技師国家試験 第64〜78回の過去問3000問(別冊・図画像つき)。検索・テスト編成・印刷ができる。",
- "start_url":"./index.html","scope":"./","display":"standalone","orientation":"portrait",
+ "id":"/kakomon-app/houzemi/","start_url":"./index.html","scope":"./","display":"standalone","orientation":"portrait",
  "background_color":"#1e1b4b","theme_color":"#4338ca","lang":"ja",
  "icons":[
    {"src":"icon-192.png","sizes":"192x192","type":"image/png","purpose":"any"},

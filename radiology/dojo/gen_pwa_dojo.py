@@ -17,7 +17,7 @@ head_add = '''<title>診療放射線技師 過去問道場</title>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="過去問道場">'''
+<meta name="apple-mobile-web-app-title" content="ホウゼミ道場">'''
 assert html.count('<title>診療放射線技師 過去問道場</title>') == 1
 html = html.replace('<title>診療放射線技師 過去問道場</title>', head_add)
 
@@ -36,9 +36,9 @@ open(os.path.join(DOCS, 'index.html'), 'w', encoding='utf-8').write(html)
 
 # 3) manifest
 manifest = {
-    "name": "診療放射線技師 過去問道場", "short_name": "過去問道場",
+    "name": "診療放射線技師 過去問道場", "short_name": "ホウゼミ道場",
     "description": "診療放射線技師 国家試験 第64〜78回の過去問3000問を1問ずつ解いて即採点・解説・成績記録できる演習アプリ。",
-    "start_url": "./index.html", "scope": "./", "display": "standalone", "orientation": "portrait",
+    "id": "/kakomon-app/houzemi-dojo/", "start_url": "./index.html", "scope": "./", "display": "standalone", "orientation": "portrait",
     "background_color": "#3730a3", "theme_color": "#4f46e5", "lang": "ja",
     "icons": [
         {"src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
