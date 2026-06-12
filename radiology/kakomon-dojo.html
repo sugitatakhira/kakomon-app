@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#4f46e5">
+<title>診療放射線技師 過去問道場</title>
+<style>
+  :root {
+    --ink:#1c1917; --paper:#f5f5f4; --line:#d6d3d1; --muted:#78716c;
+    --ok:#047857; --ng:#b91c1c; --teal:#4f46e5; --teal-d:#4338ca;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+  body {
+    font-family:"Hiragino Sans","Yu Gothic UI","Meiryo",system-ui,sans-serif;
+    background:#eef0fb;
+    background-image:
+      radial-gradient(120% 80% at 50% -10%, rgba(79,70,229,0.10) 0%, rgba(79,70,229,0) 55%),
+      radial-gradient(circle at 1px 1px, rgba(67,56,202,0.06) 1px, transparent 1.6px);
+    background-size:auto, 22px 22px; background-attachment:fixed;
+    color:var(--ink); font-size:15px; line-height:1.6; min-height:100vh;
+  }
+  .app-title { font-family:"Hiragino Maru Gothic ProN","Rounded Mplus 1c",system-ui,sans-serif; }
+
+  header { background:#fff; border-bottom:3px solid var(--ink); }
+  .header-inner { max-width:860px; margin:0 auto; padding:12px 16px; display:flex; align-items:center; gap:12px;
+    padding-top:calc(12px + env(safe-area-inset-top)); }
+  .logo { width:44px; height:44px; flex-shrink:0; border-radius:10px; background:linear-gradient(140deg,var(--teal),var(--teal-d));
+    color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:18px; letter-spacing:-.02em; }
+  .logo img { width:100%; height:100%; object-fit:contain; }
+  .header-inner h1 { font-size:18px; font-weight:800; letter-spacing:.01em; }
+  .header-inner .sub { font-size:11px; color:var(--muted); }
+  .home-link { margin-left:auto; background:none; border:none; color:var(--teal-d); font:inherit; font-size:13px; cursor:pointer; text-decoration:underline; }
+
+  main { max-width:860px; margin:0 auto; padding:20px 16px calc(64px + env(safe-area-inset-bottom)); }
+
+  .btn { padding:9px 16px; font:inherit; font-size:14px; border-radius:8px; cursor:pointer; border:1px solid var(--line); background:#fff; color:var(--ink); }
+  .btn:hover { background:#fafaf9; }
+  .btn-primary { background:#292524; border-color:#292524; color:#fff; }
+  .btn-primary:hover { background:#44403c; }
+  .toolbar { display:flex; flex-wrap:wrap; gap:8px; }
+  .card { background:#fff; border:1px solid var(--line); border-radius:12px; padding:14px; }
+  .empty { text-align:center; color:var(--muted); padding:56px 16px; }
+  .empty img { display:block; width:120px; height:120px; margin:0 auto 14px; }
+  .tag { display:inline-block; padding:1px 10px; background:#e7e5e4; border-radius:99px; font-size:11px; margin-right:6px; }
+  .tag.multi { background:#dcfce7; color:#166534; }
+  .tag.excl { background:#fef3c7; color:#92400e; }
+  .link { background:none; border:none; color:var(--teal-d); font:inherit; font-size:12px; cursor:pointer; text-decoration:underline; padding:0; }
+
+  /* ヒーロー */
+  .hero { background:linear-gradient(140deg,var(--teal),var(--teal-d)); color:#fff; border-radius:14px; padding:20px; margin-bottom:18px; }
+  .hero h2 { font-size:21px; font-weight:800; letter-spacing:.02em; }
+  .hero p { font-size:12.5px; color:#e0e7ff; margin-top:5px; }
+
+  .section { margin-bottom:20px; }
+  .section .h { font-size:12px; font-weight:800; color:var(--muted); margin-bottom:9px; letter-spacing:.05em; }
+  .seg { display:flex; flex-wrap:wrap; gap:7px; }
+  .seg button { padding:8px 15px; border:1px solid var(--line); border-radius:99px; background:#fff; font:inherit; font-size:13.5px; cursor:pointer; color:var(--ink); }
+  .seg button.on { background:var(--teal-d); border-color:var(--teal-d); color:#fff; font-weight:700; }
+
+  /* 成績サマリー */
+  .score { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:12px; }
+  .score .box { flex:1; min-width:88px; background:#fff; border:1px solid var(--line); border-radius:12px; padding:12px; text-align:center; }
+  .score .box .n { font-size:24px; font-weight:800; line-height:1.1; }
+  .score .box .l { font-size:11px; color:var(--muted); margin-top:2px; }
+  .fieldbar .row { display:flex; align-items:center; gap:8px; margin-bottom:6px; font-size:12px; }
+  .fieldbar .nm { width:122px; flex-shrink:0; color:#57534e; }
+  .fieldbar .bar { flex:1; height:9px; background:#e7e5e4; border-radius:99px; overflow:hidden; }
+  .fieldbar .bar > i { display:block; height:100%; background:var(--teal); border-radius:99px; }
+  .fieldbar .pct { width:84px; flex-shrink:0; text-align:right; color:var(--muted); font-variant-numeric:tabular-nums; }
+
+  /* 開始バー */
+  .start-bar { position:sticky; bottom:0; background:linear-gradient(transparent,#eef0fb 32%); padding:16px 0 6px; }
+  .pool { text-align:center; font-size:13px; color:var(--muted); margin-bottom:9px; }
+  .pool b { color:var(--teal-d); font-size:16px; }
+  .start-btn { width:100%; padding:16px; font:inherit; font-size:16px; font-weight:800; border:none; border-radius:12px;
+    background:var(--teal); color:#fff; cursor:pointer; box-shadow:0 5px 16px rgba(79,70,229,.35); }
+  .start-btn:hover { background:var(--teal-d); }
+  .start-btn:disabled { background:#a8a29e; box-shadow:none; cursor:not-allowed; }
+
+  /* 出題中 */
+  .topbar { display:flex; align-items:center; gap:12px; margin-bottom:8px; }
+  .prog { flex:1; height:9px; background:#e7e5e4; border-radius:99px; overflow:hidden; }
+  .prog > i { display:block; height:100%; background:var(--teal); transition:width .25s; }
+  .count { font-size:14px; font-weight:800; color:var(--teal-d); white-space:nowrap; }
+  .quit { background:none; border:none; color:var(--muted); font:inherit; font-size:12px; text-decoration:underline; cursor:pointer; }
+  .scoreline { font-size:12px; color:var(--muted); margin-bottom:10px; }
+  .q { background:#fff; border:1px solid var(--line); border-radius:14px; padding:16px; }
+  .q .meta { margin-bottom:8px; }
+  .q .stem { font-size:16.5px; font-weight:600; line-height:1.75; margin:6px 0 12px; white-space:pre-wrap; }
+  .q .stem-img { max-width:100%; max-height:360px; border:1px solid var(--line); border-radius:8px; margin-bottom:12px; display:block; }
+  .hint { font-size:12px; color:#b45309; background:#fffbeb; border:1px solid #fde68a; border-radius:6px; padding:4px 10px; display:inline-block; margin-bottom:11px; }
+  .choices { display:flex; flex-direction:column; gap:9px; }
+  .choice { display:flex; align-items:flex-start; gap:11px; width:100%; text-align:left; padding:13px 14px; border:1.5px solid var(--line);
+    border-radius:11px; background:#fff; font:inherit; font-size:15.5px; line-height:1.6; cursor:pointer; transition:border-color .1s, background .1s; }
+  .choice:hover { border-color:var(--teal-d); }
+  .choice .mk { width:27px; height:27px; flex-shrink:0; border-radius:50%; border:1.5px solid var(--line);
+    display:flex; align-items:center; justify-content:center; font-size:13px; color:var(--muted); background:#fff; font-weight:700; }
+  .choice.picked { border-color:var(--teal-d); background:#eef2ff; }
+  .choice.picked .mk { background:var(--teal-d); border-color:var(--teal-d); color:#fff; }
+  .choice.correct { border-color:var(--ok); background:#f0fdf4; }
+  .choice.correct .mk { background:var(--ok); border-color:var(--ok); color:#fff; }
+  .choice.wrong { border-color:var(--ng); background:#fef2f2; }
+  .choice.wrong .mk { background:var(--ng); border-color:var(--ng); color:#fff; }
+  .choice:disabled { cursor:default; }
+  .grade { width:100%; padding:15px; margin-top:14px; font:inherit; font-size:16px; font-weight:800; border:none; border-radius:12px; background:#292524; color:#fff; cursor:pointer; }
+  .grade:hover { background:#44403c; }
+  .fb { margin-top:14px; border-radius:12px; padding:14px; }
+  .fb.ok { background:#f0fdf4; border:1px solid #86efac; }
+  .fb.ng { background:#fef2f2; border:1px solid #fca5a5; }
+  .fb .verdict { font-size:19px; font-weight:800; }
+  .fb.ok .verdict { color:var(--ok); }
+  .fb.ng .verdict { color:var(--ng); }
+  .fb .ans { font-size:13px; margin-top:5px; }
+  .fb .expl { font-size:13.5px; color:#44403c; margin-top:9px; border-top:1px solid rgba(0,0,0,.08); padding-top:9px; white-space:pre-wrap; }
+  .next { width:100%; padding:15px; margin-top:12px; font:inherit; font-size:16px; font-weight:800; border:none; border-radius:12px; background:var(--teal); color:#fff; cursor:pointer; }
+  .next:hover { background:var(--teal-d); }
+
+  /* 結果 */
+  .result-head { text-align:center; padding:18px 0 6px; }
+  .result-head .big { font-size:46px; font-weight:900; color:var(--teal-d); line-height:1.05; }
+  .result-head .sub { color:var(--muted); font-size:13px; margin-top:2px; }
+  .review-item { display:flex; gap:10px; padding:10px 0; border-top:1px solid #e7e5e4; font-size:13px; }
+  .review-item:first-child { border-top:none; }
+  .review-item .ic { flex-shrink:0; font-weight:800; }
+  .review-item .ic.o { color:var(--ok); }
+  .review-item .ic.x { color:var(--ng); }
+
+  /* 確認モーダル・トースト */
+  #confirm-bg { position:fixed; inset:0; background:rgba(0,0,0,.4); z-index:60; display:none; align-items:center; justify-content:center; padding:16px; }
+  #confirm-bg.open { display:flex; }
+  .modal { background:#fff; border-radius:12px; width:100%; max-width:380px; padding:20px; }
+  .modal-actions { display:flex; justify-content:flex-end; gap:8px; margin-top:16px; }
+  #toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:#1c1917; color:#fff;
+    padding:10px 18px; border-radius:8px; font-size:13px; z-index:70; opacity:0; pointer-events:none; transition:opacity .2s; max-width:90%; }
+  #toast.show { opacity:1; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="logo" id="logo">道場</div>
+    <div>
+      <h1 class="app-title">診療放射線技師 過去問道場</h1>
+      <div class="sub">国家試験 過去問演習</div>
+    </div>
+    <button class="home-link" id="home-link" onclick="goHome()" style="display:none">設定に戻る</button>
+  </div>
+</header>
+
+<main id="view"></main>
+
+<div id="confirm-bg">
+  <div class="modal">
+    <p id="confirm-msg" style="margin-bottom:4px"></p>
+    <div class="modal-actions">
+      <button class="btn" id="confirm-no">キャンセル</button>
+      <button class="btn btn-primary" id="confirm-yes">OK</button>
+    </div>
+  </div>
+</div>
+<div id="toast"></div>
+
+<script>
+"use strict";
+
+// ===== 問題データ（gen_dojo.py が埋め込む。本体テンプレは空） =====
+const MASCOTS = {};
+const KOKUSHI_SETS = [];
+
+// ===== 定数 =====
+const FIELDS_ORDER = ["診療画像検査学","核医学検査技術学","放射線治療技術学","医用画像情報学","画像工学","基礎医学大要","放射線生物学","放射線物理学","医用工学","放射線計測学","診療画像機器学","X線撮影技術学","放射線安全管理学"];
+const PROGRESS_KEY = "houzemi-dojo-progress";   // { stats: { [qid]: {c,w,last,t} } }
+const SESSION_KEY  = "houzemi-dojo-session";    // 出題中セッション（再読込で再開）
+
+// 全問をフラットに展開（採点除外＝answers空 はそのまま保持し、出題時に除外）
+const QUESTIONS = KOKUSHI_SETS.flatMap(s => (s.data || []));
+const QBYID = {}; QUESTIONS.forEach(q => { QBYID[q.id] = q; });
+
+// ===== 状態 =====
+let progress = { stats: {} };
+let setup = { years: [], fields: [], order: "seq", target: "all", limit: 20 };
+let pr = null; // 出題中: { queue:[qid], idx, picked:[i], graded:bool, results:[{qid,ok}] }
+
+// ===== 保存（成績・セッションは localStorage） =====
+function loadProgress() {
+  try {
+    const r = localStorage.getItem(PROGRESS_KEY);
+    if (r) { const d = JSON.parse(r); if (d && d.stats) progress = d; }
+    const s = localStorage.getItem(SESSION_KEY);
+    if (s) { const d = JSON.parse(s); if (d && Array.isArray(d.queue)) pr = d; }
+  } catch (e) {}
+}
+function saveProgress() { try { localStorage.setItem(PROGRESS_KEY, JSON.stringify(progress)); } catch (e) {} }
+function saveSession() {
+  try { if (pr) localStorage.setItem(SESSION_KEY, JSON.stringify(pr)); else localStorage.removeItem(SESSION_KEY); } catch (e) {}
+}
+
+// ===== ユーティリティ =====
+function esc(s) { return String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c])); }
+function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function yearLabel(y) { return (String(y).match(/第\d+回/) || [y])[0]; }
+function yearsList() { return [...new Set(QUESTIONS.map(q => q.year).filter(Boolean))].sort((a, b) => String(b).localeCompare(String(a))); }
+function fieldsInOrder() {
+  const present = new Set(QUESTIONS.map(q => q.field).filter(Boolean));
+  const extra = [...present].filter(f => !FIELDS_ORDER.includes(f));
+  return FIELDS_ORDER.filter(f => present.has(f)).concat(extra);
+}
+function mascotImg(name) { return MASCOTS[name] ? '<img src="' + MASCOTS[name] + '" alt="">' : ""; }
+function tagHtml(q) {
+  let h = "";
+  if (q.field) h += '<span class="tag">' + esc(q.field) + '</span>';
+  if (q.year) h += '<span class="tag">' + esc(yearLabel(q.year)) + '</span>';
+  if ((q.answers || []).length >= 2) h += '<span class="tag multi">' + q.answers.length + 'つ選べ</span>';
+  if ((q.answers || []).length === 0) h += '<span class="tag excl">採点除外</span>';
+  return h;
+}
+
+let _toastTimer = null;
+function toast(msg) {
+  const el = document.getElementById("toast");
+  el.textContent = msg; el.classList.add("show");
+  clearTimeout(_toastTimer); _toastTimer = setTimeout(() => el.classList.remove("show"), 2200);
+}
+let _confirmYes = null;
+function confirmAction(message, onYes) {
+  _confirmYes = onYes;
+  document.getElementById("confirm-msg").textContent = message;
+  document.getElementById("confirm-bg").classList.add("open");
+}
+function closeConfirm() { document.getElementById("confirm-bg").classList.remove("open"); _confirmYes = null; }
+document.getElementById("confirm-yes").addEventListener("click", () => { const cb = _confirmYes; closeConfirm(); if (cb) cb(); });
+document.getElementById("confirm-no").addEventListener("click", closeConfirm);
+document.getElementById("confirm-bg").addEventListener("click", e => { if (e.target.id === "confirm-bg") closeConfirm(); });
+
+// ===== 出題ロジック =====
+function curQ() { return pr ? QBYID[pr.queue[pr.idx]] : null; }
+function pool() {
+  return QUESTIONS.filter(q => {
+    if (setup.years.length && !setup.years.includes(q.year)) return false;
+    if (setup.fields.length && !setup.fields.includes(q.field)) return false;
+    const st = progress.stats[q.id];
+    if (setup.target === "unseen" && st) return false;
+    if (setup.target === "wrong" && !(st && st.last === "x")) return false;
+    return true;
+  });
+}
+function setSetup(key, val) { setup[key] = val; render(); }
+function toggleSetup(key, val) { const a = setup[key], i = a.indexOf(val); if (i >= 0) a.splice(i, 1); else a.push(val); render(); }
+function startPractice() {
+  let ids = pool().map(q => q.id);
+  if (!ids.length) { toast("条件に合う問題がありません"); return; }
+  if (setup.order === "shuffle") shuffle(ids);
+  if (setup.limit > 0) ids = ids.slice(0, setup.limit);
+  pr = { queue: ids, idx: 0, picked: [], graded: false, results: [] };
+  saveSession(); render(); window.scrollTo(0, 0);
+}
+function pick(i) {
+  if (!pr || pr.graded) return;
+  const q = curQ(); if (!q) return;
+  const multi = (q.answers || []).length >= 2;
+  const s = new Set(pr.picked);
+  if (multi) { s.has(i) ? s.delete(i) : s.add(i); pr.picked = [...s]; }
+  else { pr.picked = s.has(i) ? [] : [i]; }
+  render();
+}
+function grade() {
+  if (!pr || pr.graded) return;
+  const q = curQ(); if (!q) return;
+  const ans = [...(q.answers || [])].sort((a, b) => a - b);
+  const excluded = ans.length === 0;                              // 採点除外＝全員正解扱い
+  if (!excluded && !pr.picked.length) { toast("選択肢を選んでください"); return; }
+  const picked = [...pr.picked].sort((a, b) => a - b);
+  const ok = excluded ? true : (picked.length === ans.length && picked.every((v, i) => v === ans[i]));
+  pr.graded = true;
+  pr.results.push({ qid: q.id, ok: ok });
+  const st = progress.stats[q.id] || { c: 0, w: 0 };
+  if (ok) st.c++; else st.w++;
+  st.last = ok ? "o" : "x"; st.t = Date.now();
+  progress.stats[q.id] = st;
+  saveProgress(); saveSession(); render();
+}
+function next() {
+  if (!pr) return;
+  pr.idx++; pr.picked = []; pr.graded = false;
+  saveSession(); render(); window.scrollTo(0, 0);
+}
+function goHome() { pr = null; saveSession(); render(); window.scrollTo(0, 0); }
+function again(onlyWrong) {
+  if (!pr) return;
+  const ids = onlyWrong ? pr.results.filter(r => !r.ok).map(r => r.qid) : pr.queue.slice();
+  if (!ids.length) { toast("対象の問題がありません"); return; }
+  pr = { queue: ids, idx: 0, picked: [], graded: false, results: [] };
+  saveSession(); render(); window.scrollTo(0, 0);
+}
+function resetProgress() {
+  confirmAction("これまでの成績（正答率・履歴）をすべて消去します。よろしいですか？", () => {
+    progress = { stats: {} }; saveProgress(); render(); toast("成績をリセットしました");
+  });
+}
+
+// ===== 集計 =====
+function fieldStatsAll() {
+  const m = {};
+  Object.keys(progress.stats).forEach(id => {
+    const q = QBYID[id]; if (!q) return;
+    const f = q.field || "その他", st = progress.stats[id];
+    if (!m[f]) m[f] = { c: 0, w: 0 };
+    m[f].c += st.c || 0; m[f].w += st.w || 0;
+  });
+  return m;
+}
+
+// ===== 描画 =====
+function render() {
+  const view = document.getElementById("view");
+  const homeLink = document.getElementById("home-link");
+  if (!QUESTIONS.length) {
+    homeLink.style.display = "none";
+    view.innerHTML = '<div class="empty">' + mascotImg("upa_think") +
+      '問題データが読み込まれていません。<br>配布版（houzemi-dojo-all.html）をご利用ください。</div>';
+    return;
+  }
+  if (pr && pr.idx < pr.queue.length && !curQ()) { pr = null; saveSession(); }
+  if (pr) {
+    homeLink.style.display = "";
+    view.innerHTML = (pr.idx >= pr.queue.length) ? resultHtml() : quizHtml();
+  } else {
+    homeLink.style.display = "none";
+    view.innerHTML = setupHtml();
+  }
+  const lg = document.getElementById("logo");
+  if (MASCOTS.bear_smile) lg.innerHTML = '<img src="' + MASCOTS.bear_smile + '" alt="">';
+}
+
+function setupHtml() {
+  const poolN = pool().length;
+  const fs = fieldStatsAll();
+  let totalC = 0, totalW = 0;
+  Object.values(fs).forEach(v => { totalC += v.c; totalW += v.w; });
+  const totalA = totalC + totalW, seen = Object.keys(progress.stats).length;
+  const rate = totalA ? Math.round(totalC / totalA * 100) : 0;
+
+  let h = '<div class="hero"><h2>過去問道場</h2><p>出題範囲を選んで、1問ずつ解いて即採点。間違えた問題はあとでまとめて復習できます。</p></div>';
+
+  h += '<div class="section"><div class="h">あなたの成績</div><div class="score">';
+  h += '<div class="box"><div class="n">' + rate + '<span style="font-size:14px">%</span></div><div class="l">正答率</div></div>';
+  h += '<div class="box"><div class="n">' + totalC + '</div><div class="l">正解数</div></div>';
+  h += '<div class="box"><div class="n">' + totalA + '</div><div class="l">解答数</div></div>';
+  h += '<div class="box"><div class="n">' + seen + '</div><div class="l">挑戦した問題</div></div>';
+  h += '</div>';
+  const fk = fieldsInOrder().filter(f => fs[f]);
+  if (fk.length) {
+    h += '<div class="fieldbar">';
+    fk.forEach(f => {
+      const v = fs[f], a = v.c + v.w, p = a ? Math.round(v.c / a * 100) : 0;
+      h += '<div class="row"><span class="nm">' + esc(f) + '</span><span class="bar"><i style="width:' + p + '%"></i></span><span class="pct">' + p + '%（' + v.c + '/' + a + '）</span></div>';
+    });
+    h += '</div>';
+  }
+  if (totalA) h += '<button class="link" onclick="resetProgress()">成績をリセット</button>';
+  h += '</div>';
+
+  h += '<div class="section"><div class="h">年度（未選択＝すべて）</div><div class="seg">';
+  yearsList().forEach(y => {
+    h += '<button class="' + (setup.years.includes(y) ? "on" : "") + '" onclick="toggleSetup(\'years\',\'' + esc(y) + '\')">' + esc(yearLabel(y)) + '</button>';
+  });
+  h += '</div></div>';
+
+  h += '<div class="section"><div class="h">科目（未選択＝すべて）</div><div class="seg">';
+  fieldsInOrder().forEach(f => {
+    h += '<button class="' + (setup.fields.includes(f) ? "on" : "") + '" onclick="toggleSetup(\'fields\',\'' + esc(f) + '\')">' + esc(f) + '</button>';
+  });
+  h += '</div></div>';
+
+  h += '<div class="section"><div class="h">出題する問題</div><div class="seg">';
+  [["all","すべて"],["unseen","未挑戦のみ"],["wrong","間違えた問題（復習）"]].forEach(o => {
+    h += '<button class="' + (setup.target === o[0] ? "on" : "") + '" onclick="setSetup(\'target\',\'' + o[0] + '\')">' + o[1] + '</button>';
+  });
+  h += '</div></div>';
+
+  h += '<div class="section"><div class="h">出題順</div><div class="seg">';
+  [["seq","番号順"],["shuffle","シャッフル"]].forEach(o => {
+    h += '<button class="' + (setup.order === o[0] ? "on" : "") + '" onclick="setSetup(\'order\',\'' + o[0] + '\')">' + o[1] + '</button>';
+  });
+  h += '</div></div>';
+
+  h += '<div class="section"><div class="h">問題数</div><div class="seg">';
+  [[10,"10問"],[20,"20問"],[50,"50問"],[0,"すべて"]].forEach(o => {
+    h += '<button class="' + (setup.limit === o[0] ? "on" : "") + '" onclick="setSetup(\'limit\',' + o[0] + ')">' + o[1] + '</button>';
+  });
+  h += '</div></div>';
+
+  h += '<div class="start-bar"><div class="pool">この条件で出題できる問題：<b>' + poolN + '</b> 問' +
+    (poolN && setup.limit > 0 ? '（うち ' + Math.min(poolN, setup.limit) + ' 問を出題）' : '') + '</div>';
+  h += '<button class="start-btn" ' + (poolN ? "" : "disabled") + ' onclick="startPractice()">▶ 演習をはじめる</button></div>';
+  return h;
+}
+
+function quizHtml() {
+  const q = curQ(), n = pr.queue.length, cur = pr.idx + 1;
+  const correctSoFar = pr.results.filter(r => r.ok).length;
+  const ans = q.answers || [], multi = ans.length >= 2, excluded = ans.length === 0;
+
+  let h = '<div class="topbar"><span class="count">問 ' + cur + ' / ' + n + '</span>';
+  h += '<span class="prog"><i style="width:' + Math.round(pr.idx / n * 100) + '%"></i></span>';
+  h += '<button class="quit" onclick="goHome()">中断</button></div>';
+  h += '<div class="scoreline">正答 ' + correctSoFar + ' 問</div>';
+
+  h += '<div class="q"><div class="meta">' + tagHtml(q) + '</div>';
+  h += '<div class="stem">' + esc(q.text) + '</div>';
+  if (q.image) h += '<img src="' + q.image + '" class="stem-img" alt="図">';
+  if (!pr.graded) {
+    if (excluded) h += '<div class="hint">※この問題は採点除外（公式に「正答なし」で全員正解扱い）です。練習として解いてみましょう。</div>';
+    else if (multi) h += '<div class="hint">' + ans.length + 'つ選んでください</div>';
+  }
+
+  h += '<div class="choices">';
+  q.choices.forEach((c, i) => {
+    let cls = "choice", mk;
+    if (pr.graded) {
+      if (excluded) { if (pr.picked.includes(i)) cls += " picked"; mk = pr.picked.includes(i) ? "●" : (i + 1); }
+      else if (ans.includes(i)) { cls += " correct"; mk = "◯"; }
+      else if (pr.picked.includes(i)) { cls += " wrong"; mk = "✕"; }
+      else mk = i + 1;
+    } else {
+      if (pr.picked.includes(i)) cls += " picked";
+      mk = pr.picked.includes(i) ? "●" : (i + 1);
+    }
+    h += '<button class="' + cls + '" ' + (pr.graded ? "disabled" : "") + ' onclick="pick(' + i + ')">' +
+      '<span class="mk">' + mk + '</span><span>' + esc(c) + '</span></button>';
+  });
+  h += '</div>';
+
+  if (!pr.graded) {
+    h += '<button class="grade" onclick="grade()">採点する</button>';
+  } else if (excluded) {
+    h += '<div class="fb ok"><div class="verdict">採点除外問題</div>';
+    h += '<div class="ans">この問題は公式に「正答なし（全員正解扱い）」とされたため、解答は採点に影響しません。</div>';
+    if (q.explanation) h += '<div class="expl">' + esc(q.explanation) + '</div>';
+    h += '</div>';
+    h += '<button class="next" onclick="next()">' + (cur >= n ? "結果を見る →" : "次の問題へ →") + '</button>';
+  } else {
+    const ok = pr.results[pr.results.length - 1].ok;
+    h += '<div class="fb ' + (ok ? "ok" : "ng") + '"><div class="verdict">' + (ok ? "◯ 正解！" : "✕ 不正解") + '</div>';
+    h += '<div class="ans">正解：' + ans.map(i => i + 1).join("・") + '番　<span style="color:var(--muted)">' + ans.map(i => esc(q.choices[i])).join(" ／ ") + '</span></div>';
+    if (q.explanation) h += '<div class="expl">' + esc(q.explanation) + '</div>';
+    h += '</div>';
+    h += '<button class="next" onclick="next()">' + (cur >= n ? "結果を見る →" : "次の問題へ →") + '</button>';
+  }
+  h += '</div>';
+  return h;
+}
+
+function resultHtml() {
+  const n = pr.results.length, c = pr.results.filter(r => r.ok).length;
+  const rate = n ? Math.round(c / n * 100) : 0;
+  const wrong = pr.results.filter(r => !r.ok);
+
+  let h = '<div class="hero"><h2>おつかれさまでした！</h2><p>今回の演習結果です。</p></div>';
+  h += '<div class="result-head"><div class="big">' + rate + '%</div><div class="sub">' + n + '問中 ' + c + '問 正解（不正解 ' + (n - c) + '問）</div></div>';
+
+  const fm = {};
+  pr.results.forEach(r => { const q = QBYID[r.qid]; if (!q) return; const f = q.field || "その他"; if (!fm[f]) fm[f] = { c: 0, n: 0 }; fm[f].n++; if (r.ok) fm[f].c++; });
+  const fk = fieldsInOrder().filter(f => fm[f]);
+  if (fk.length) {
+    h += '<div class="card" style="margin:8px 0 16px"><div class="h" style="font-size:12px;font-weight:800;color:var(--muted);margin-bottom:8px">今回の科目別</div><div class="fieldbar">';
+    fk.forEach(f => { const v = fm[f], p = Math.round(v.c / v.n * 100); h += '<div class="row"><span class="nm">' + esc(f) + '</span><span class="bar"><i style="width:' + p + '%"></i></span><span class="pct">' + p + '%（' + v.c + '/' + v.n + '）</span></div>'; });
+    h += '</div></div>';
+  }
+  if (wrong.length) {
+    h += '<div class="card" style="margin-bottom:16px"><div style="font-weight:700;margin-bottom:6px">間違えた問題（' + wrong.length + '）</div>';
+    wrong.forEach(r => { const q = QBYID[r.qid]; if (!q) return; const t = q.text.length > 60 ? q.text.slice(0, 60) + "…" : q.text; h += '<div class="review-item"><span class="ic x">✕</span><span>' + esc(t) + '</span></div>'; });
+    h += '</div>';
+  }
+  h += '<div class="toolbar">';
+  if (wrong.length) h += '<button class="btn btn-primary" onclick="again(true)">間違いだけもう一度</button>';
+  h += '<button class="btn" onclick="again(false)">同じ問題をもう一度</button>';
+  h += '<button class="btn" onclick="goHome()">設定に戻る</button></div>';
+  return h;
+}
+
+// ===== 起動 =====
+loadProgress();
+render();
+</script>
+</body>
+</html>

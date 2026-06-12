@@ -18,8 +18,9 @@
 |---|---|---|---|---|---|
 | 1 | 臨床検査技師 過去問DB | **ケンゼミ**（検査技術ゼミナール） | リポジトリ直下＋`docs/`(PWA) | `main` 等 | 第58〜72回=15回3000問 完成 |
 | 2 | 診療放射線技師 過去問DB | **ホウゼミ**（放射技術ゼミナール） | **`radiology/`** | `claude/radiologic-tech-exam-db-dw7ipa` | 第64〜78回=15回3000問 完成（統合版あり）|
-| 3 | 演習/クイズモード | **道場**（dojo） | 別ブランチ（要記入）| 別セッション | PR #2 進行中（`/kakomon-app/dojo/` に配信）|
+| 3 | 演習/クイズモード（臨床検査技師） | **道場**（dojo） | リポジトリ直下＋`dojo/`＋`docs/dojo/`(PWA) | `main` 等 | 全15回3000問 完成（`/kakomon-app/dojo/` に配信）|
 | 4 | ECG（心電図）練習 | ECG | 別ブランチ（要記入）| 別セッション | 進行中 |
+| 5 | 演習/クイズモード（放射線技師） | **ホウゼミ道場** | **`radiology/`＋`radiology/dojo/`＋`docs/houzemi-dojo/`**(PWA) | `claude/clinical-lab-tech-questions-phh7mh` | 全15回3000問 完成（`/kakomon-app/houzemi-dojo/` に配信）|
 
 > #3・#4 は別セッションが作業中で、このファイル作成時点では `main`／本ブランチから
 > 内容が見えない。**各担当セッションがこの表の自分の行を追記・更新すること。**
@@ -47,3 +48,12 @@
   `radiology/gen_all.py`（統合版）。
 - **PWA配信済み**：`docs/houzemi/`（GitHub Pages公開で `https://<user>.github.io/kakomon-app/houzemi/`）。
   再生成：`radiology/gen_all.py`→`gen_icons.py`→`gen_pwa.py`。配色インディゴ・保存 `houzemi-db`。
+
+## ホウゼミ道場（`radiology/dojo/`）の要点
+- ケンゼミ道場（`dojo/`）と**同じレイアウト／UIの演習アプリ**の放射線技師版。1問ずつ即採点・解説・成績記録。
+- **配色インディゴ**・保存キーは専用（localStorage `houzemi-dojo-progress` / `houzemi-dojo-session`）で、
+  ケンゼミ道場（`kakomon-dojo-*`）ともホウゼミDB（`houzemi-db` / `houzemi-app-data`）とも衝突しない。
+- ソース：`radiology/kakomon-dojo.html`（空テンプレ）。配布版：`radiology/houzemi-dojo-all.html`（全15回3000問・約19MB単体HTML）。
+- 再生成：`radiology/dojo/gen_dojo.py`（各 `kakomon-webapp-NN.html` の `KOKUSHI_NN` を注入）→
+  `gen_icons_dojo.py`→`gen_pwa_dojo.py`。
+- **PWA配信**：`docs/houzemi-dojo/`（`https://<user>.github.io/kakomon-app/houzemi-dojo/`）。詳細は `radiology/dojo/README.md`。
