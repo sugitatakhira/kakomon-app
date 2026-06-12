@@ -1,7 +1,8 @@
 {
   "name": "診療放射線技師 過去問道場",
-  "short_name": "過去問道場",
+  "short_name": "ホウゼミ道場",
   "description": "診療放射線技師 国家試験 第64〜78回の過去問3000問を1問ずつ解いて即採点・解説・成績記録できる演習アプリ。",
+  "id": "/kakomon-app/houzemi-dojo/",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

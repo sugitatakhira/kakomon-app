@@ -125,7 +125,7 @@ open(os.path.join(DOCS,'index.html'),'w',encoding='utf-8').write(html)
 manifest={
  "name":"ケンゼミ過去問データベース","short_name":"ケンゼミ過去問",
  "description":"検査技術ゼミナール｜臨床検査技師国家試験 第58〜72回の過去問3000問(別冊画像つき)。検索・テスト編成・印刷ができる。",
- "start_url":"./index.html","scope":"./","display":"standalone","orientation":"portrait",
+ "id":"/kakomon-app/","start_url":"./index.html","scope":"./","display":"standalone","orientation":"portrait",
  "background_color":"#0f766e","theme_color":"#0e7490","lang":"ja",
  "icons":[
    {"src":"icon-192.png","sizes":"192x192","type":"image/png","purpose":"any"},
