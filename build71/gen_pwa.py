@@ -9,7 +9,10 @@ docs/ 配下にデプロイ一式を出力する。docs/ をHTTPSで公開(GitHu
 軽量シェルが即描画され、フリーズしない。
 SWのキャッシュ名は index.html＋data.json の内容ハッシュに連動 → 変更時だけ自動で新版に差し替わる。"""
 import os, re, json, hashlib, subprocess, base64, shutil
-HERE=os.path.dirname(__file__); ROOT=os.path.join(HERE,'..'); DOCS=os.path.join(ROOT,'docs')
+# 出力先は docs/db/（DBアプリ専用サブディレクトリ）。ルート docs/ は4アプリのランチャー
+# (docs/index.html)で、DBの scope(/kakomon-app/db/) が他アプリ(dojo/houzemi…)のサブパスを
+# 内包しないようにしている。ルートにPWAを置くと配下URLを全部吸い込みアイコンが取り違う。
+HERE=os.path.dirname(__file__); ROOT=os.path.join(HERE,'..'); DOCS=os.path.join(ROOT,'docs','db')
 os.makedirs(DOCS, exist_ok=True)
 html=open(os.path.join(ROOT,'kakomon-webapp-all.html'),encoding='utf-8').read()
 
@@ -125,7 +128,7 @@ open(os.path.join(DOCS,'index.html'),'w',encoding='utf-8').write(html)
 manifest={
  "name":"ケンゼミ過去問データベース","short_name":"ケンゼミ過去問",
  "description":"検査技術ゼミナール｜臨床検査技師国家試験 第58〜72回の過去問3000問(別冊画像つき)。検索・テスト編成・印刷ができる。",
- "id":"/kakomon-app/","start_url":"./index.html","scope":"./","display":"standalone","orientation":"portrait",
+ "id":"/kakomon-app/db/","start_url":"./index.html","scope":"./","display":"standalone","orientation":"portrait",
  "background_color":"#0f766e","theme_color":"#0e7490","lang":"ja",
  "icons":[
    {"src":"icon-192.png","sizes":"192x192","type":"image/png","purpose":"any"},
