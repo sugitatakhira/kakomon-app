@@ -47,3 +47,6 @@
   `radiology/gen_all.py`（統合版）。
 - **PWA配信済み**：`docs/houzemi/`（GitHub Pages公開で `https://<user>.github.io/kakomon-app/houzemi/`）。
   再生成：`radiology/gen_all.py`→`gen_icons.py`→`gen_pwa.py`。配色インディゴ・保存 `houzemi-db`。
+- **過去問道場(演習版)も有り**：`radiology/kakomon-dojo-all.html`（1問ずつ即採点・解説・成績記録）。
+  PWA配信 `docs/houzemi-dojo/`（`https://<user>.github.io/kakomon-app/houzemi-dojo/`）。
+  再生成：`radiology/gen_dojo.py`→`gen_icons_dojo.py`→`gen_pwa_dojo.py`。保存 `houzemi-dojo-progress/session`。
