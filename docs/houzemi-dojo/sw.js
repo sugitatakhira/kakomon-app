@@ -1,4 +1,4 @@
-const CACHE = "houzemi-dojo-45d8d5a317a8";
+const CACHE = "houzemi-dojo-56b753df7a67";
 const ASSETS = ["./", "./index.html", "./manifest.webmanifest",
   "./icon-192.png", "./icon-512.png", "./icon-512-maskable.png", "./icon-180.png"];
 self.addEventListener("install", function (e) {
