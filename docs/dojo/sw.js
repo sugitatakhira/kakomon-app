@@ -1,4 +1,4 @@
-const CACHE = "dojo-45ade558ca8d";
+const CACHE = "dojo-a988c973050b";
 const ASSETS = ["./", "./index.html", "./manifest.webmanifest",
   "./icon-192.png", "./icon-512.png", "./icon-512-maskable.png", "./icon-180.png"];
 self.addEventListener("install", function (e) {

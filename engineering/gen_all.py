@@ -1,0 +1,182 @@
+# -*- coding: utf-8 -*-
+"""臨床工学技士 統合版 kakomon-webapp-all.html を生成。
+engineering/ 配下にある各回単体HTML(kakomon-webapp-NN.html)の KOKUSHI_NN を1ファイルに合成。
+保存は IndexedDB(ケンゼミ kakomon-db / ホウゼミ houzemi-db とは別の kouzemi-db で非衝突)。
+ブランディング: 工学技術ゼミナール / コウゼミ過去問データベース。配色グリーン。
+マスコット・コアテストは持たない(typeof ガードで無害)。
+
+各回単体HTML が未作成のうちは ROUNDS が空 → 中身ゼロの土台アプリ(CSV取込・手入力は可能)を出力する。
+将来 engineering/kakomon-webapp-NN.html を置いて再実行すれば自動で取り込む。"""
+import json, os, re, hashlib, glob
+HERE = os.path.dirname(os.path.abspath(__file__))   # engineering/
+src = open(os.path.join(HERE, 'kakomon-webapp.html'), encoding='utf-8').read()
+
+# 既存の各回単体HTMLを自動検出(新しい回が先)。第N回の実施年 = 1987 + N（第1回=1988）。
+def discover():
+    nums = []
+    for p in glob.glob(os.path.join(HERE, 'kakomon-webapp-*.html')):
+        m = re.search(r'kakomon-webapp-(\d+)\.html$', os.path.basename(p))
+        if m:
+            nums.append(int(m.group(1)))
+    return sorted(nums, reverse=True)
+
+ROUNDS = discover()
+YEARS = {nn: 1987 + nn for nn in ROUNDS}
+
+def extract(nn):
+    h = open(os.path.join(HERE, f'kakomon-webapp-{nn}.html'), encoding='utf-8').read()
+    return re.search(r'const KOKUSHI_%d = (\[.*?\]);' % nn, h, re.S).group(1)
+
+data = {nn: extract(nn) for nn in ROUNDS}
+KOKUSHI_VERSION = hashlib.md5(''.join(data[nn] for nn in ROUNDS).encode('utf-8')).hexdigest()[:12]
+
+# A) データ + KOKUSHI_SETS を注入
+consts = ''.join('const KOKUSHI_%d = %s;\n' % (nn, data[nn]) for nn in ROUNDS)
+sets = 'const KOKUSHI_SETS = [\n' + ''.join(
+    '  { key: "%d", label: "第%d回(%d)", data: KOKUSHI_%d },\n' % (nn, nn, YEARS[nn], nn) for nn in ROUNDS
+) + '];\n'
+old_a = '"use strict";\n\n// ===== 定数 ====='
+inject = ('"use strict";\n\n'
+          'const KOKUSHI_VERSION = "' + KOKUSHI_VERSION + '";\n'
+          + consts + sets + '\n// ===== 定数 =====')
+assert src.count(old_a) == 1, 'A anchor'
+src = src.replace(old_a, inject)
+
+# 保存キーを臨床工学技士版専用に(ケンゼミ/ホウゼミの localStorage を読まない)
+src = src.replace('const STORAGE_KEY = "kakomon-app-data";',
+                  'const STORAGE_KEY = "kouzemi-app-data";')
+
+# B) 保存・読み込みを IndexedDB へ(3000問+画像で localStorage 上限超過のため)。DB名は臨床工学技士版専用。
+old_storage = '''// ===== 保存・読み込み =====
+function loadData() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const d = JSON.parse(raw);
+      if (Array.isArray(d.questions)) questions = d.questions;
+      if (d.test && Array.isArray(d.test.items)) test = d.test;
+      if (Array.isArray(d.savedTests)) savedTests = d.savedTests;
+    }
+  } catch (e) {
+    canStore = false;
+    document.getElementById("storage-notice").style.display = "block";
+  }
+}
+let saveTimer = null;
+function saveData() {
+  const el = document.getElementById("save-state");
+  if (!canStore) return;
+  el.textContent = "保存中…";
+  el.classList.remove("error");
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ questions, test, savedTests }));
+      el.textContent = "✓ 保存しました";
+      setTimeout(() => { if (el.textContent === "✓ 保存しました") el.textContent = ""; }, 1500);
+    } catch (e) {
+      el.textContent = "保存に失敗しました（容量超過の可能性）";
+      el.classList.add("error");
+    }
+  }, 400);
+}'''
+new_storage = '''// ===== 保存・読み込み（IndexedDB／工学技術ゼミナール専用DB） =====
+const DB_NAME = "kouzemi-db", DB_VER = 1;
+let _db = null, _qSavedRef = null, _qSavedLen = -1;
+function idbOpen() {
+  return new Promise((res, rej) => {
+    const r = indexedDB.open(DB_NAME, DB_VER);
+    r.onupgradeneeded = () => {
+      const db = r.result;
+      if (!db.objectStoreNames.contains("questions")) db.createObjectStore("questions", { keyPath: "id" });
+      if (!db.objectStoreNames.contains("meta")) db.createObjectStore("meta", { keyPath: "k" });
+    };
+    r.onsuccess = () => res(r.result);
+    r.onerror = () => rej(r.error);
+  });
+}
+function idbReq(req) { return new Promise((res, rej) => { req.onsuccess = () => res(req.result); req.onerror = () => rej(req.error); }); }
+function idbDone(tx) { return new Promise((res, rej) => { tx.oncomplete = () => res(); tx.onerror = () => rej(tx.error); tx.onabort = () => rej(tx.error); }); }
+function metaGet(k) { return idbReq(_db.transaction("meta", "readonly").objectStore("meta").get(k)).then(r => r ? r.v : undefined); }
+function metaPut(k, v) { const tx = _db.transaction("meta", "readwrite"); tx.objectStore("meta").put({ k, v }); return idbDone(tx); }
+function questionsGetAll() { return idbReq(_db.transaction("questions", "readonly").objectStore("questions").getAll()); }
+async function questionsPutAll(arr) {
+  await idbDone((function () { const tx = _db.transaction("questions", "readwrite"); tx.objectStore("questions").clear(); return tx; })());
+  for (let i = 0; i < arr.length; i += 200) {
+    const tx = _db.transaction("questions", "readwrite"); const st = tx.objectStore("questions");
+    for (let j = i; j < Math.min(i + 200, arr.length); j++) st.put(arr[j]);
+    await idbDone(tx);
+  }
+}
+async function loadData() {
+  try {
+    _db = await idbOpen();
+    const qs = await questionsGetAll();
+    if (qs && qs.length) questions = qs;
+    const t = await metaGet("test");
+    if (t && Array.isArray(t.items)) test = t;
+    const stv = await metaGet("savedTests");
+    if (Array.isArray(stv)) savedTests = stv;
+    // 公式問題は常に存在させる（消えていても復元）＋バージョンが上がれば内容更新。自作分・テストは保持。
+    if (typeof KOKUSHI_SETS !== "undefined" && typeof KOKUSHI_VERSION !== "undefined") {
+      const official = KOKUSHI_SETS.flatMap(s => s.data);
+      const officialIds = new Set(official.map(q => q.id));
+      const have = new Set(questions.map(q => q.id));
+      const versionChanged = (await metaGet("contentVersion")) !== KOKUSHI_VERSION;
+      const missingOfficial = official.some(q => !have.has(q.id));
+      if (versionChanged || missingOfficial) {
+        const userAdded = questions.filter(q => !officialIds.has(q.id));
+        questions = [...userAdded, ...official.map(q => ({ ...q }))];
+        await questionsPutAll(questions);
+        await metaPut("contentVersion", KOKUSHI_VERSION);
+      }
+    }
+    _qSavedRef = questions; _qSavedLen = questions.length;
+  } catch (e) {
+    canStore = false;
+    if (typeof KOKUSHI_SETS !== "undefined" && questions.length === 0) {
+      questions = KOKUSHI_SETS.flatMap(s => s.data).map(q => ({ ...q }));
+    }
+    const sn = document.getElementById("storage-notice"); if (sn) sn.style.display = "block";
+  }
+}
+let saveTimer = null;
+function saveData() {
+  const el = document.getElementById("save-state");
+  if (!canStore || !_db) return;
+  if (el) { el.textContent = "保存中…"; el.classList.remove("error"); }
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(async () => {
+    try {
+      await metaPut("test", test);
+      await metaPut("savedTests", savedTests);
+      if (questions !== _qSavedRef || questions.length !== _qSavedLen) {
+        await questionsPutAll(questions);
+        _qSavedRef = questions; _qSavedLen = questions.length;
+      }
+      if (el) { el.textContent = "✓ 保存しました"; setTimeout(() => { if (el.textContent === "✓ 保存しました") el.textContent = ""; }, 1500); }
+    } catch (e) {
+      if (el) { el.textContent = "保存に失敗しました"; el.classList.add("error"); }
+    }
+  }, 400);
+}'''
+assert src.count(old_storage) == 1, 'storage anchor'
+src = src.replace(old_storage, new_storage)
+
+# C) 起動を非同期化
+old_init = '// ===== 起動 =====\nloadData();\nrender();'
+new_init = '// ===== 起動 =====\n(async () => { await loadData(); render(); })();'
+assert src.count(old_init) == 1, 'init anchor'
+src = src.replace(old_init, new_init)
+
+# D) ブランディング: 工学技術ゼミナール / コウゼミ過去問データベース
+src = src.replace('<title>ケンゼミ過去問データベース</title>', '<title>工学技術ゼミナール｜コウゼミ過去問データベース</title>')
+src = src.replace('<div class="s-eyebrow">検査技術ゼミナール</div>', '<div class="s-eyebrow">工学技術ゼミナール</div>')
+src = src.replace('<div class="s-title">過去問データベース</div>', '<div class="s-title">コウゼミ過去問データベース</div>')
+src = src.replace('<div class="eyebrow">検査技術ゼミナール</div>', '<div class="eyebrow">工学技術ゼミナール</div>')
+src = src.replace('<h1 class="app-title">ケンゼミ過去問データベース</h1>', '<h1 class="app-title">コウゼミ過去問データベース</h1>')
+src = src.replace('alt="ケンゼミ博士"', 'alt="コウゼミ"')
+
+open(os.path.join(HERE, 'kakomon-webapp-all.html'), 'w', encoding='utf-8').write(src)
+print('wrote engineering/kakomon-webapp-all.html', len(src), 'bytes; version', KOKUSHI_VERSION,
+      '; rounds', ROUNDS or '(なし=空の土台)')
