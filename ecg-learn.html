@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>心電図 波形の特徴を学ぶ | 正常と見比べる学習ページ</title>
+<style>
+  :root{
+    --bg:#0f1016; --panel:#1a1c25; --panel2:#232634; --txt:#e9eaf2; --sub:#9aa1b4;
+    --accent:#a98bf0; --accent2:#7d5fd6; --line:#2c2f3c; --good:#4cc9a0; --bad:#e0617f;
+    --ecgbg:#fff6f6; --gridmin:#f3c9c9; --gridmaj:#e89a9a; --trace:#10131a; --ghost:#b9c0cc;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Hiragino Sans","Yu Gothic","Noto Sans JP",system-ui,sans-serif;
+    background:var(--bg);color:var(--txt);line-height:1.65;-webkit-text-size-adjust:100%}
+  header{background:linear-gradient(135deg,#2a2150,#1a1636);padding:18px 16px;border-bottom:1px solid var(--line);
+    position:sticky;top:0;z-index:10}
+  header h1{margin:0;font-size:1.15rem;letter-spacing:.02em}
+  header .sub{color:#c9bdf3;font-size:.78rem;margin-top:2px}
+  .wrap{max-width:880px;margin:0 auto;padding:16px}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+  .chip{background:var(--panel2);border:1.5px solid var(--line);color:var(--txt);padding:8px 13px;border-radius:22px;
+    cursor:pointer;font-size:.9rem;font-family:inherit;transition:.15s;display:flex;align-items:center;gap:6px}
+  .chip:hover{border-color:var(--accent2)}
+  .chip.active{background:linear-gradient(135deg,var(--accent2),var(--accent));border-color:transparent;color:#160f2b;font-weight:700}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:16px;
+    box-shadow:0 6px 24px rgba(0,0,0,.28)}
+  .ltitle{font-size:1.2rem;font-weight:800;margin:0 0 4px}
+  .ldesc{color:var(--sub);font-size:.9rem;margin:0 0 12px}
+  .striplabel{font-size:.8rem;font-weight:700;margin:2px 2px 5px;display:flex;align-items:center;gap:8px}
+  .striplabel .dot{width:9px;height:9px;border-radius:50%}
+  .dot.n{background:var(--ghost)} .dot.c{background:var(--accent)}
+  .ecgbox{background:var(--ecgbg);border-radius:10px;padding:6px;overflow-x:auto;margin:0 0 14px;border:1px solid #e7c4c4}
+  canvas{display:block;height:auto;max-width:none}
+  .stagebar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:4px 0 12px}
+  .stagebar .lbl{font-size:.78rem;color:var(--sub);margin-right:2px}
+  .sbtn{background:var(--panel2);border:1.5px solid var(--line);color:var(--txt);padding:9px 15px;border-radius:9px;
+    cursor:pointer;font-size:.92rem;font-family:inherit;font-weight:600;transition:.12s}
+  .sbtn:hover{border-color:var(--accent2)}
+  .sbtn.active{background:var(--accent);border-color:transparent;color:#160f2b}
+  .toggle{margin-left:auto;display:flex;align-items:center;gap:7px;font-size:.84rem;color:var(--sub);cursor:pointer;user-select:none}
+  .toggle input{accent-color:var(--accent);width:16px;height:16px}
+  .feat{background:#191430;border:1px solid #322a55;border-radius:10px;padding:12px 14px}
+  .feat h4{margin:0 0 7px;font-size:.92rem;color:var(--accent)}
+  .feat ul{margin:0;padding-left:1.15em}
+  .feat li{font-size:.92rem;margin-bottom:3px}
+  .feat li b{color:#ffd9e2}
+  .hintbar{font-size:.78rem;color:var(--sub);margin-top:10px}
+  footer{color:var(--sub);font-size:.74rem;text-align:center;padding:22px 16px 40px}
+  .legend{font-size:.76rem;color:var(--sub);margin:-4px 2px 12px}
+</style>
+</head>
+<body>
+<header>
+  <h1>🫀 心電図 波形の特徴を学ぶ</h1>
+  <div class="sub">正常波形と見比べ、ボタンで病期を切り替えて “見た目” で覚える学習ページ</div>
+</header>
+
+<div class="wrap">
+  <div class="chips" id="chips"></div>
+
+  <div class="card">
+    <div class="ltitle" id="ltitle"></div>
+    <div class="ldesc" id="ldesc"></div>
+
+    <div class="striplabel"><span class="dot n"></span>正常波形（基準）</div>
+    <div class="ecgbox"><canvas id="ecgTop"></canvas></div>
+
+    <div class="striplabel"><span class="dot c"></span><span id="curlabel">病態波形</span></div>
+    <div class="ecgbox"><canvas id="ecgBot"></canvas></div>
+
+    <div class="stagebar" id="stagebar"></div>
+
+    <div class="feat">
+      <h4 id="feathead">この波形の特徴</h4>
+      <ul id="featlist"></ul>
+    </div>
+    <div class="hintbar">💡 ボタンで状態・病期を切り替えると下の波形が変化します。「正常を重ねる」で基準波形（灰色）に重ねて、変化を直接見比べられます。</div>
+  </div>
+</div>
+
+<footer>心電図 波形学習ページ ・ 波形はJavaScriptによる手続き的生成（教育用シミュレーション。実際の診療判断には用いないでください）</footer>
+
+<script>
+/* =========================================================
+   ECG 波形描画エンジン（クイズ版と共通の生理学モデル）
+   ========================================================= */
+const PX_MM = 5, PX_S = PX_MM*25, PX_MV = PX_MM*10;
+let _seed=1;
+function seedReset(s){ _seed=(s>>>0)||1; }
+function rnd(){ _seed=(_seed*1103515245+12345)&0x7fffffff; return _seed/0x7fffffff; }
+function hash(str){ let h=2166136261; for(let i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,16777619);} return h>>>0; }
+function gauss(x,s){ return Math.exp(-(x*x)/(2*s*s)); }
+function asym(x,wl,wr){ const s=x<0?wl:wr; return Math.exp(-(x*x)/(2*s*s)); }
+function ramp(x,a,b){ if(x<=a)return 0; if(x>=b)return 1; return 0.5-0.5*Math.cos(Math.PI*(x-a)/(b-a)); }
+function smoothWin(x,t0,t1){ const r=20; return ramp(x,t0-r,t0+r)*(1-ramp(x,t1-r,t1+r)); }
+function poly(pts,x){ if(!pts.length||x<pts[0][0]||x>pts[pts.length-1][0])return 0;
+  for(let i=0;i<pts.length-1;i++){ const a=pts[i],b=pts[i+1]; if(x>=a[0]&&x<=b[0]){ const f=(x-a[0])/(b[0]-a[0]); return a[1]+(b[1]-a[1])*f; } } return 0; }
+function beatValue(dt,m){ let v=0;
+  if(m.P) v+=m.P.a*gauss(dt-m.P.c,m.P.w);
+  if(m.qrs) v+=poly(m.qrs,dt);
+  if(m.st&&m.st.level) v+=m.st.level*smoothWin(dt,m.st.t0,m.st.t1);
+  if(m.T) v+=m.T.a*asym(dt-m.T.c,m.T.wl,m.T.wr);
+  if(m.U) v+=m.U.a*gauss(dt-m.U.c,m.U.w);
+  if(m.bumps) for(const b of m.bumps) v+=b.a*gauss(dt-b.c,b.w);
+  return v; }
+function mNormal(o){
+  o=o||{}; const A=o.amp==null?1:o.amp;
+  const P=o.p===false?null:{a:(o.pAmp==null?0.13:o.pAmp),c:(o.pc==null?-160:o.pc),w:(o.pw==null?24:o.pw)};
+  const q=o.qAmp==null?-0.09:o.qAmp, r=o.rAmp==null?1.15:o.rAmp, s=o.sAmp==null?-0.16:o.sAmp;
+  const jt=o.jt==null?52:o.jt;
+  const qrs=o.qrs||[[-50,0],[-38,A*q],[0,A*r],[30,A*s],[jt,0]];
+  const st={level:(o.st==null?0:o.st),t0:jt,t1:(o.stEnd==null?385:o.stEnd)};
+  const T=o.t===false?null:{a:(o.tAmp==null?0.32:o.tAmp),c:(o.tc==null?250:o.tc),wl:(o.twl==null?62:o.twl),wr:(o.twr==null?46:o.twr)};
+  const U=o.u?{a:o.u,c:(o.uc==null?410:o.uc),w:42}:null;
+  const bumps=o.bumps||(o.prdep?[{a:-0.045,c:-95,w:34}]:[]);
+  return {P,qrs,st,T,U,bumps}; }
+function mWide(o){
+  o=o||{}; const A=o.amp==null?1:o.amp; const pol=o.pol==null?1:o.pol;
+  const qrs=pol>0?[[-72,0],[-54,A*0.12],[-10,A*0.55],[0,A*1.05],[28,A*0.55],[58,A*-0.15],[86,A*-0.55],[118,0]]
+                 :[[-72,0],[-54,A*-0.12],[-10,A*-0.55],[0,A*-1.05],[28,A*-0.55],[58,A*0.15],[86,A*0.55],[118,0]];
+  const T={a:pol*(o.tAmp==null?-0.42:o.tAmp),c:(o.tc==null?255:o.tc),wl:72,wr:56};
+  return {P:null,qrs,st:{level:0,t0:118,t1:400},T,U:null,bumps:[]}; }
+function bN(tR,o){ return {tR,m:mNormal(o)}; }
+function bW(tR,o){ return {tR,m:mWide(o)}; }
+function bP(tR,a){ return {tR,m:{P:{a:(a==null?0.14:a),c:0,w:24},qrs:null,st:null,T:null,U:null,bumps:[]}}; }
+
+function buildBeats(spec){
+  const dur=spec.duration||4; const lead=spec.lead||'II';
+  let beats=[],baseline=null,spikes=[];
+  seedReset(hash(spec.kind+(spec.lead||'')));
+  const rr=r=>60/r; const k=spec.kind;
+  function sinusTimes(rate,from){ const t0=from==null?0.5:from; const a=[]; for(let t=t0;t<dur-0.05;t+=rr(rate)) a.push(t); return a; }
+  function addSinus(rate,o){ sinusTimes(rate).forEach(t=>beats.push(bN(t,o))); }
+  switch(k){
+    case 'learn':{ const o=spec.mod||{}; const rate=spec.rate||70; for(let t=0.5;t<dur-0.05;t+=rr(rate)) beats.push(bN(t,o)); break; }
+    case 'sinus': addSinus(spec.rate||70,{}); break;
+    case 'afib':{ let t=0.4; while(t<dur-0.05){ beats.push(bN(t,{p:false})); t+=0.38+rnd()*0.66; }
+      baseline=tt=> 0.06*Math.sin(2*Math.PI*8.5*tt)+0.04*Math.sin(2*Math.PI*6.1*tt+1.3)+0.03*Math.sin(2*Math.PI*11.5*tt+2.2); break; }
+    case 'wpw':{ for(let t=0.5;t<dur-0.05;t+=rr(72)) beats.push({tR:t,m:{
+      P:{a:0.13,c:-120,w:24}, qrs:[[-98,0],[-62,0.05],[-44,0.18],[-22,0.5],[0,1.05],[28,-0.1],[55,0]],
+      st:{level:0,t0:55,t1:385}, T:{a:-0.16,c:250,wl:58,wr:46}, U:null, bumps:[] }}); break; }
+    case 'rbbb':{ for(let t=0.5;t<dur-0.05;t+=rr(72)) beats.push({tR:t,m:{
+      P:{a:0.12,c:-165,w:24}, qrs:[[-66,0],[-52,0.3],[-34,-0.22],[-6,0.06],[26,0.72],[50,0.56],[80,0]],
+      st:{level:0,t0:80,t1:380}, T:{a:-0.32,c:250,wl:60,wr:48}, U:null, bumps:[] }}); break; }
+    case 'lbbb':{ for(let t=0.5;t<dur-0.05;t+=rr(72)) beats.push({tR:t,m:{
+      P:{a:0.12,c:-165,w:24}, qrs:[[-78,0],[-50,0.46],[-18,0.66],[6,0.58],[34,0.92],[60,0.5],[84,0]],
+      st:{level:-0.06,t0:84,t1:390}, T:{a:-0.4,c:258,wl:64,wr:52}, U:null, bumps:[] }}); break; }
+    case 'paced_v':{ for(let t=0.55;t<dur-0.05;t+=rr(70)){ spikes.push(t-0.04); beats.push(bW(t,{pol:1,amp:0.9})); } break; }
+    default: addSinus(70,{});
+  }
+  return {beats,baseline,spikes,duration:dur,lead};
+}
+function getCss(v){ return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
+
+/* 波形の電位（ノイズ抜き）— 注釈の位置計算用 */
+function sampleV(build,tt){ let v=build.baseline?build.baseline(tt):0;
+  for(const b of build.beats){ const dt=(tt-b.tR)*1000; if(dt>-360&&dt<520) v+=beatValue(dt,b.m); } return v; }
+
+/* 学習用の描画（グリッド＋較正波＋本体＋任意の正常ゴースト＋注釈） */
+function drawLearn(canvas, spec, opt){
+  opt=opt||{};
+  const build=buildBeats(spec);
+  const dur=build.duration;
+  const W=Math.round(PX_S*dur)+70, H=235;
+  const dpr=Math.min(window.devicePixelRatio||1,2.5);
+  canvas.width=W*dpr; canvas.height=H*dpr;
+  canvas.style.width=W+'px'; canvas.style.height=H+'px';
+  const ctx=canvas.getContext('2d'); ctx.scale(dpr,dpr);
+  ctx.fillStyle=getCss('--ecgbg'); ctx.fillRect(0,0,W,H);
+  for(let x=0;x<=W;x+=PX_MM){ const m=(Math.round(x/PX_MM)%5===0); ctx.strokeStyle=m?getCss('--gridmaj'):getCss('--gridmin'); ctx.lineWidth=m?1.1:0.7; ctx.beginPath(); ctx.moveTo(x+.5,0); ctx.lineTo(x+.5,H); ctx.stroke(); }
+  for(let y=0;y<=H;y+=PX_MM){ const m=(Math.round(y/PX_MM)%5===0); ctx.strokeStyle=m?getCss('--gridmaj'):getCss('--gridmin'); ctx.lineWidth=m?1.1:0.7; ctx.beginPath(); ctx.moveTo(0,y+.5); ctx.lineTo(W,y+.5); ctx.stroke(); }
+
+  const baseY=H*0.55, xOff=60;
+  const v2y=v=>baseY-v*PX_MV, t2x=t=>xOff+t*PX_S;
+
+  // 較正波
+  ctx.strokeStyle=getCss('--trace'); ctx.lineWidth=1.7; ctx.lineJoin='round'; ctx.lineCap='round';
+  ctx.beginPath(); ctx.moveTo(12,baseY); ctx.lineTo(26,baseY); ctx.lineTo(26,v2y(1)); ctx.lineTo(44,v2y(1)); ctx.lineTo(44,baseY); ctx.lineTo(xOff,baseY); ctx.stroke();
+
+  // 正常ゴースト（重ね表示）
+  if(opt.ghost){
+    const g=buildBeats({kind:'learn',mod:{},lead:spec.lead,rate:spec.rate||70,duration:dur});
+    ctx.strokeStyle=getCss('--ghost'); ctx.lineWidth=2.0; ctx.setLineDash([5,4]); ctx.beginPath();
+    let f=true; for(let px=xOff;px<=W-3;px+=0.5){ const t=(px-xOff)/PX_S; const y=v2y(sampleV(g,t)); if(f){ctx.moveTo(px,y);f=false;}else ctx.lineTo(px,y); }
+    ctx.stroke(); ctx.setLineDash([]);
+  }
+
+  // ペーシングスパイク
+  if(build.spikes&&build.spikes.length){ ctx.strokeStyle='#1763a8'; ctx.lineWidth=1.3;
+    build.spikes.forEach(t=>{ const x=t2x(t); ctx.beginPath(); ctx.moveTo(x,baseY+5); ctx.lineTo(x,v2y(1.5)); ctx.stroke(); }); }
+
+  // 微小ノイズ＋基線動揺
+  seedReset(hash(spec.kind+(spec.mod?JSON.stringify(spec.mod):'')+'n'));
+  const noise=[]; for(let i=0;i<2200;i++) noise.push(rnd()-0.5);
+  const wander=t=>0.018*Math.sin(2*Math.PI*0.22*t+0.6)+0.01*Math.sin(2*Math.PI*0.07*t);
+
+  // 本体
+  ctx.strokeStyle=getCss('--trace'); ctx.lineWidth=2.0; ctx.beginPath();
+  let first=true;
+  for(let px=xOff;px<=W-3;px+=0.5){ const t=(px-xOff)/PX_S;
+    let v=sampleV(build,t)+wander(t)+0.005*noise[(Math.round(px*2))%noise.length];
+    const y=baseY-v*PX_MV; if(first){ctx.moveTo(px,y);first=false;}else ctx.lineTo(px,y); }
+  ctx.stroke();
+
+  // 注釈（特徴を指し示す）
+  if(opt.annotations&&opt.annotations.length){
+    const cT=(W/2-xOff)/PX_S;
+    let beat=build.beats.reduce((a,b)=>Math.abs(b.tR-cT)<Math.abs(a.tR-cT)?b:a, build.beats[0]);
+    ctx.font='bold 11px sans-serif'; ctx.textAlign='center';
+    opt.annotations.forEach((an,i)=>{
+      const tt=beat.tR+an.t/1000; let x=t2x(tt); const y=v2y(sampleV(build,tt));
+      const up=an.dir!=='down';
+      let ly=up? Math.min(y-40, baseY-70) : Math.max(y+40, baseY+58);
+      ly += (i%2)*(up?-16:16);
+      x=Math.max(40,Math.min(W-40,x));
+      const col=getCss('--accent2');
+      // 指示線＋点
+      ctx.strokeStyle='#d63a6a'; ctx.lineWidth=1.4; ctx.setLineDash([3,3]);
+      ctx.beginPath(); ctx.moveTo(x,ly+(up?10:-10)); ctx.lineTo(x,y); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle='#d63a6a'; ctx.beginPath(); ctx.arc(x,y,3.2,0,7); ctx.fill();
+      // ラベル
+      const tw=ctx.measureText(an.label).width+14;
+      ctx.fillStyle='rgba(214,58,106,0.95)';
+      const bx=Math.max(2,Math.min(W-tw-2,x-tw/2));
+      roundRect(ctx,bx,ly-11,tw,18,5); ctx.fill();
+      ctx.fillStyle='#fff'; ctx.fillText(an.label,bx+tw/2,ly+3);
+    });
+    ctx.textAlign='left';
+  }
+
+  // 誘導ラベル
+  ctx.fillStyle='#9c5050'; ctx.font='bold 13px sans-serif';
+  ctx.fillText(opt.label||build.lead, 9, 17);
+}
+function roundRect(ctx,x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+
+/* =========================================================
+   学習データ（病態 → 病期/状態）
+   mod: 正常波形への変形パラメータ（mNormalのオプション）
+   kind: リズム系はそのまま既存kindを使用
+   hl: 注釈 {t:R基準ms, label, dir:'up'|'down'}
+   ========================================================= */
+const LESSONS = [
+ { id:'mi', name:'心筋梗塞', icon:'🫀', lead:'II',
+   desc:'冠動脈が詰まり心筋が傷害される。時間経過とともに波形が「T増高 → ST上昇 → 異常Q・冠性T → 陳旧性」と変化していくのが最大の特徴。',
+   stages:[
+     {label:'正常', mod:{}, feat:['基線上にある<b>ST部分</b>','上向き（陽性）の<b>T波</b>','明瞭なR波・ごく小さなQ波'], hl:[]},
+     {label:'超急性期', mod:{tAmp:0.64,tc:235,twl:48,twr:48,st:0.08}, feat:['発症直後。<b>T波が尖って増高</b>（hyperacute T）','わずかにST上昇が始まる'], hl:[{t:235,label:'T波増高',dir:'up'}]},
+     {label:'急性期', mod:{st:0.44,stEnd:360,qAmp:-0.18,rAmp:0.8,tAmp:0.5,tc:258,twl:55,twr:55}, feat:['<b>ST上昇が著明</b>（弓状〜墓石状）','<b>異常Q波</b>が出現','R波が減高していく'], hl:[{t:120,label:'ST上昇',dir:'up'},{t:-40,label:'異常Q波',dir:'down'}]},
+     {label:'亜急性期', mod:{st:0.12,qAmp:-0.3,rAmp:0.62,tAmp:-0.45,tc:258,twl:55,twr:45}, feat:['ST上昇は徐々に低下','左右対称の深い<b>陰性T（冠性T）</b>','<b>異常Q波</b>が明瞭'], hl:[{t:-40,label:'異常Q波',dir:'down'},{t:258,label:'冠性T（陰性T）',dir:'down'}]},
+     {label:'陳旧性', mod:{st:0,qAmp:-0.34,rAmp:0.55,tAmp:0.14,tc:250}, feat:['STは基線へ戻る','T波もほぼ回復','<b>異常Q波だけが残る</b>（梗塞の痕跡）'], hl:[{t:-40,label:'残る異常Q波',dir:'down'}]},
+   ] },
+
+ { id:'hyperk', name:'高カリウム血症', icon:'🧂', lead:'II',
+   desc:'血清カリウムの上昇で再分極・興奮伝導が変化。進行するとP消失・QRS幅広から致死的不整脈に至る。',
+   stages:[
+     {label:'正常', mod:{}, feat:['正常なP・QRS・T'], hl:[]},
+     {label:'軽度', mod:{tAmp:0.72,tc:225,twl:31,twr:31}, feat:['<b>テント状T</b>：尖って高く幅の狭い左右対称のT波'], hl:[{t:225,label:'テント状T',dir:'up'}]},
+     {label:'中等度', mod:{tAmp:0.74,tc:228,twl:32,twr:32,pAmp:0.04,pc:-205,pw:30}, feat:['テント状T','<b>P波の平低化</b>・PR延長'], hl:[{t:228,label:'テント状T',dir:'up'},{t:-205,label:'P波が平低',dir:'up'}]},
+     {label:'高度', mod:{p:false,qrs:[[-80,0],[-58,-0.1],[0,0.82],[62,-0.28],[104,0]],tAmp:0.66,tc:255,twl:42,twr:42}, feat:['<b>P波が消失</b>','<b>QRS幅が著明に拡大</b>','やがてsine波様となり致死的'], hl:[{t:0,label:'QRS幅広',dir:'up'}]},
+   ] },
+
+ { id:'angina', name:'心筋虚血（狭心症）', icon:'💢', lead:'V5',
+   desc:'心内膜下が虚血になるとST低下・陰性Tが出る。発作が治まると元に戻る（可逆性）のが心筋梗塞との違い。',
+   stages:[
+     {label:'安静時（正常）', mod:{}, feat:['STは基線上','陽性T'], hl:[]},
+     {label:'発作時', mod:{st:-0.2,tAmp:-0.16,tc:255}, feat:['水平〜下降型の<b>ST低下</b>','T波の陰性化'], hl:[{t:110,label:'ST低下',dir:'down'}]},
+   ] },
+
+ { id:'hypok', name:'低カリウム血症', icon:'🧂', lead:'II',
+   desc:'血清カリウム低下でT波が平たくなり、U波が目立ってくる。',
+   stages:[
+     {label:'正常', mod:{}, feat:['正常T波','U波は目立たない'], hl:[]},
+     {label:'低K血症', mod:{tAmp:0.1,st:-0.06,u:0.27,uc:405}, feat:['<b>T波の平低化</b>','<b>U波の増高</b>','軽度のST低下'], hl:[{t:405,label:'U波増高',dir:'up'},{t:250,label:'T平低',dir:'up'}]},
+   ] },
+
+ { id:'afib', name:'心房細動', icon:'〰️', lead:'II',
+   desc:'心房が無秩序に細かく興奮する。正常洞調律と見比べると違いが一目瞭然。',
+   stages:[
+     {label:'正常洞調律', kind:'sinus', feat:['規則的なP–QRS–T','各QRSの前に一定のP波'], hl:[]},
+     {label:'心房細動', kind:'afib', feat:['<b>P波が消失</b>','基線が細かく揺れる（<b>f波</b>）','<b>RR間隔がバラバラ</b>（絶対性不整脈）'], hl:[]},
+   ] },
+
+ { id:'wpw', name:'WPW症候群', icon:'⚡', lead:'II',
+   desc:'副伝導路（Kent束）を通って心室が早く興奮する。立ち上がりの「δ波」が目印。',
+   stages:[
+     {label:'正常', kind:'sinus', feat:['正常なPR間隔','鋭く立ち上がるQRS'], hl:[]},
+     {label:'WPW', kind:'wpw', feat:['<b>PR間隔が短い</b>','QRSの立ち上がりが緩やか（<b>δ波</b>）','QRS幅の延長'], hl:[]},
+   ] },
+
+ { id:'bbb', name:'脚ブロック', icon:'🔀', lead:'V1',
+   desc:'左右どちらかの脚で伝導が途絶え、QRS幅が広がる。正常の細いQRSと比べてみよう。',
+   stages:[
+     {label:'正常(V1)', kind:'sinus', lead:'V1', feat:['QRS幅は狭い（およそ0.10秒未満）'], hl:[]},
+     {label:'右脚ブロック', kind:'rbbb', lead:'V1', feat:['<b>QRS幅が広い</b>（≧0.12秒）','V1で<b>rSR′</b>（M字・ウサギの耳）'], hl:[]},
+     {label:'左脚ブロック', kind:'lbbb', lead:'V6', feat:['<b>QRS幅が広い</b>','幅広く<b>ノッチのあるR波</b>（V6）'], hl:[]},
+   ] },
+
+ { id:'pace', name:'ペースメーカ', icon:'📟', lead:'II',
+   desc:'機器の電気刺激で心臓を動かす。QRS直前の鋭い「スパイク」が目印。',
+   stages:[
+     {label:'正常（自己脈）', kind:'sinus', feat:['スパイクはない','正常な細いQRS'], hl:[]},
+     {label:'心室ペーシング', kind:'paced_v', feat:['QRS直前の鋭い<b>スパイク</b>','続いて<b>幅広いQRS</b>（左脚ブロック様）'], hl:[]},
+   ] },
+];
+
+/* =========================================================
+   画面制御
+   ========================================================= */
+const $=id=>document.getElementById(id);
+let curL=0, curS=0, ghost=false;
+const DUR=3.7;
+
+function buildChips(){
+  const c=$('chips'); c.innerHTML='';
+  LESSONS.forEach((L,i)=>{
+    const b=document.createElement('div'); b.className='chip'+(i===curL?' active':'');
+    b.innerHTML='<span>'+L.icon+'</span>'+L.name;
+    b.onclick=()=>{ curL=i; curS=0; render(); };
+    c.appendChild(b);
+  });
+}
+
+function stageSpec(L,st){
+  if(st.mod!==undefined) return {kind:'learn', mod:st.mod, lead:st.lead||L.lead, rate:st.rate||70, duration:DUR};
+  return {kind:st.kind, lead:st.lead||L.lead, rate:st.rate, duration:DUR};
+}
+
+function render(){
+  const L=LESSONS[curL]; const st=L.stages[curS];
+  buildChips();
+  $('ltitle').textContent=L.icon+' '+L.name;
+  $('ldesc').textContent=L.desc||'';
+  $('curlabel').textContent='病態波形：'+L.name+'（'+st.label+'）';
+
+  // 正常基準（上）
+  drawLearn($('ecgTop'), {kind:'sinus', lead:L.lead, rate:70, duration:DUR}, {label:'正常 / '+L.lead});
+  // 病態（下）
+  const canGhost = st.mod!==undefined && curS!==0;
+  drawLearn($('ecgBot'), stageSpec(L,st), {annotations:st.hl||[], ghost:ghost&&canGhost, label:st.label+' / '+(st.lead||L.lead)});
+
+  // 病期ボタン
+  const sb=$('stagebar'); sb.innerHTML='';
+  const lbl=document.createElement('span'); lbl.className='lbl'; lbl.textContent='状態／病期：'; sb.appendChild(lbl);
+  L.stages.forEach((s,i)=>{
+    const b=document.createElement('button'); b.className='sbtn'+(i===curS?' active':'');
+    b.textContent=s.label; b.onclick=()=>{ curS=i; render(); }; sb.appendChild(b);
+  });
+  // 重ねトグル
+  const tg=document.createElement('label'); tg.className='toggle';
+  tg.innerHTML='<input type="checkbox" id="ghostchk" '+(ghost?'checked':'')+(canGhost?'':' disabled')+'> 正常を重ねる';
+  sb.appendChild(tg);
+  tg.querySelector('input').onchange=e=>{ ghost=e.target.checked; render(); };
+
+  // 特徴
+  $('feathead').textContent='この波形の特徴：'+st.label;
+  const ul=$('featlist'); ul.innerHTML='';
+  (st.feat||[]).forEach(f=>{ const li=document.createElement('li'); li.innerHTML=f; ul.appendChild(li); });
+}
+
+render();
+window.addEventListener('resize',()=>{ /* キャンバスは固定幅。必要なら再描画 */ });
+</script>
+</body>
+</html>
